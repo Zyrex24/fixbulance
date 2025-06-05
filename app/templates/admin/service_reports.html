@@ -1,0 +1,981 @@
+{% extends "base.html" %}
+
+{% block title %}Service Reports & Analytics - Fixbulance Admin{% endblock %}
+
+{% block styles %}
+<style>
+    .reports-container {
+        min-height: 90vh;
+        background: linear-gradient(135deg, rgba(227, 232, 216, 0.05) 0%, rgba(30, 58, 95, 0.02) 100%);
+        padding: 2rem 0;
+    }
+    
+    .reports-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--light-navy) 100%);
+        color: var(--white);
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .report-controls {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .date-range-selector {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .date-input {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
+    
+    .quick-date-btn {
+        padding: 0.5rem 1rem;
+        background: var(--light-gray);
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .quick-date-btn:hover,
+    .quick-date-btn.active {
+        background: var(--navy);
+        color: var(--white);
+        border-color: var(--navy);
+    }
+    
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .metric-card {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid var(--navy);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .metric-card.revenue {
+        border-left-color: #10b981;
+    }
+    
+    .metric-card.emergency {
+        border-left-color: var(--red);
+    }
+    
+    .metric-card.satisfaction {
+        border-left-color: #f59e0b;
+    }
+    
+    .metric-card.efficiency {
+        border-left-color: #3b82f6;
+    }
+    
+    .metric-icon {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        font-size: 2rem;
+        opacity: 0.1;
+    }
+    
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 0.5rem;
+        line-height: 1;
+    }
+    
+    .metric-label {
+        color: var(--medium-gray);
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .metric-change {
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+    
+    .metric-change.positive {
+        color: #10b981;
+    }
+    
+    .metric-change.negative {
+        color: var(--red);
+    }
+    
+    .chart-container {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+    
+    .chart-header {
+        background: var(--light-gray);
+        padding: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .chart-title {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: var(--navy);
+    }
+    
+    .chart-content {
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .chart-placeholder {
+        background: var(--light-gray);
+        border: 2px dashed #cbd5e1;
+        border-radius: 8px;
+        padding: 4rem 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .chart-placeholder i {
+        font-size: 3rem;
+        color: var(--medium-gray);
+        margin-bottom: 1rem;
+    }
+    
+    .reports-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .performance-table {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .table-header {
+        background: var(--light-gray);
+        padding: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .performance-data {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .data-table {
+        width: 100%;
+        margin: 0;
+    }
+    
+    .data-table th {
+        background: var(--navy);
+        color: var(--white);
+        padding: 1rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: none;
+        text-align: left;
+        position: sticky;
+        top: 0;
+    }
+    
+    .data-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+    
+    .data-table tbody tr:hover {
+        background: rgba(30, 58, 95, 0.02);
+    }
+    
+    .technician-name {
+        font-weight: 600;
+        color: var(--navy);
+    }
+    
+    .performance-score {
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    .score-excellent {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+    }
+    
+    .score-good {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+    
+    .score-average {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+    }
+    
+    .score-poor {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+    
+    .export-options {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .export-btn {
+        padding: 0.5rem 1rem;
+        background: var(--light-gray);
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        color: var(--navy);
+    }
+    
+    .export-btn:hover {
+        background: var(--navy);
+        color: var(--white);
+        border-color: var(--navy);
+        text-decoration: none;
+    }
+    
+    .insights-panel {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .insight-item {
+        padding: 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .insight-item:last-child {
+        border-bottom: none;
+    }
+    
+    .insight-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+        color: var(--white);
+    }
+    
+    .insight-icon.positive {
+        background: #10b981;
+    }
+    
+    .insight-icon.warning {
+        background: #f59e0b;
+    }
+    
+    .insight-icon.negative {
+        background: var(--red);
+    }
+    
+    .insight-title {
+        font-weight: 600;
+        color: var(--navy);
+        margin-bottom: 0.5rem;
+    }
+    
+    .insight-description {
+        color: var(--medium-gray);
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    @media (max-width: 768px) {
+        .reports-container {
+            padding: 1rem 0;
+        }
+        
+        .reports-header {
+            padding: 1.5rem;
+        }
+        
+        .date-range-selector {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .reports-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .metrics-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        
+        .export-options {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reports-container">
+    <div class="container-fluid">
+        <!-- Reports Header -->
+        <div class="reports-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-1">Service Reports & Analytics</h2>
+                    <p class="mb-0 opacity-90">
+                        Performance dashboards and business intelligence for emergency repair operations
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light me-2">
+                        <i class="fas fa-arrow-left me-1"></i>Dashboard
+                    </a>
+                    <button class="btn btn-success" onclick="generateFullReport()">
+                        <i class="fas fa-file-pdf me-1"></i>Full Report
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Controls -->
+        <div class="report-controls">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="date-range-selector">
+                        <label class="fw-bold me-2">Date Range:</label>
+                        <input type="date" class="date-input" id="startDate" value="{{ start_date }}">
+                        <span class="mx-2">to</span>
+                        <input type="date" class="date-input" id="endDate" value="{{ end_date }}">
+                        <button class="btn btn-primary ms-3" onclick="updateReports()">
+                            <i class="fas fa-search me-1"></i>Update
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex gap-2 justify-content-md-end">
+                        <button class="quick-date-btn" onclick="setQuickDate('today')">Today</button>
+                        <button class="quick-date-btn active" onclick="setQuickDate('week')">This Week</button>
+                        <button class="quick-date-btn" onclick="setQuickDate('month')">This Month</button>
+                        <button class="quick-date-btn" onclick="setQuickDate('quarter')">Quarter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card revenue">
+                <div class="metric-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="metric-value" id="totalRevenue">${{ metrics.total_revenue }}</div>
+                <div class="metric-label">Total Revenue</div>
+                <div class="metric-change positive">
+                    <i class="fas fa-arrow-up me-1"></i>
+                    +{{ metrics.revenue_change }}% vs last period
+                </div>
+            </div>
+            
+            <div class="metric-card emergency">
+                <div class="metric-icon">
+                    <i class="fas fa-ambulance"></i>
+                </div>
+                <div class="metric-value" id="emergencyRepairs">{{ metrics.emergency_repairs }}</div>
+                <div class="metric-label">Emergency Repairs</div>
+                <div class="metric-change positive">
+                    <i class="fas fa-arrow-up me-1"></i>
+                    {{ metrics.emergency_change }} more than last week
+                </div>
+            </div>
+            
+            <div class="metric-card satisfaction">
+                <div class="metric-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="metric-value" id="avgRating">{{ metrics.avg_rating }}</div>
+                <div class="metric-label">Average Rating</div>
+                <div class="metric-change positive">
+                    <i class="fas fa-arrow-up me-1"></i>
+                    +{{ metrics.rating_change }} stars improvement
+                </div>
+            </div>
+            
+            <div class="metric-card efficiency">
+                <div class="metric-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="metric-value" id="avgResponseTime">{{ metrics.avg_response_time }}</div>
+                <div class="metric-label">Avg Response Time</div>
+                <div class="metric-change negative">
+                    <i class="fas fa-arrow-down me-1"></i>
+                    -{{ metrics.response_improvement }}min faster
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="metric-value" id="completionRate">{{ metrics.completion_rate }}%</div>
+                <div class="metric-label">Completion Rate</div>
+                <div class="metric-change positive">
+                    <i class="fas fa-arrow-up me-1"></i>
+                    +{{ metrics.completion_change }}% improvement
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <div class="metric-value" id="serviceArea">{{ metrics.service_coverage }}%</div>
+                <div class="metric-label">Service Area Coverage</div>
+                <div class="metric-change positive">
+                    <i class="fas fa-arrow-up me-1"></i>
+                    {{ metrics.coverage_expansion }} zones added
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h5 class="chart-title">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Revenue & Bookings Trend
+                        </h5>
+                    </div>
+                    <div class="chart-content">
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-line"></i>
+                            <h6>Revenue & Booking Trends</h6>
+                            <p class="text-muted">Daily revenue and booking volume over time</p>
+                            <small class="text-muted">Interactive chart would display revenue trends, booking volumes, and seasonal patterns</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h5 class="chart-title">
+                            <i class="fas fa-chart-pie me-2"></i>
+                            Service Distribution
+                        </h5>
+                    </div>
+                    <div class="chart-content">
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-pie"></i>
+                            <h6>Service Type Breakdown</h6>
+                            <p class="text-muted">Screen Repair: 45%<br>Battery: 25%<br>Water Damage: 20%<br>Other: 10%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Data & Insights -->
+        <div class="reports-grid">
+            <!-- Technician Performance Table -->
+            <div class="performance-table">
+                <div class="table-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-users me-2"></i>
+                            Technician Performance
+                        </h5>
+                        <div class="export-options">
+                            <button class="export-btn" onclick="exportData('csv')">
+                                <i class="fas fa-file-csv me-1"></i>CSV
+                            </button>
+                            <button class="export-btn" onclick="exportData('excel')">
+                                <i class="fas fa-file-excel me-1"></i>Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="performance-data">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Technician</th>
+                                <th>Repairs</th>
+                                <th>Avg Time</th>
+                                <th>Rating</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="technician-name">Alex Rodriguez</div>
+                                    <small class="text-muted">Van #1 - Lead Tech</small>
+                                </td>
+                                <td>
+                                    <strong>28</strong>
+                                    <br><small class="text-muted">This week</small>
+                                </td>
+                                <td>
+                                    <strong>32 min</strong>
+                                    <br><small class="text-success">-8 min</small>
+                                </td>
+                                <td>
+                                    <strong>4.9</strong>
+                                    <br><small class="text-muted">98% positive</small>
+                                </td>
+                                <td>
+                                    <span class="performance-score score-excellent">Excellent</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="technician-name">Maria Gonzalez</div>
+                                    <small class="text-muted">Van #2 - Senior Tech</small>
+                                </td>
+                                <td>
+                                    <strong>24</strong>
+                                    <br><small class="text-muted">This week</small>
+                                </td>
+                                <td>
+                                    <strong>35 min</strong>
+                                    <br><small class="text-success">-5 min</small>
+                                </td>
+                                <td>
+                                    <strong>4.8</strong>
+                                    <br><small class="text-muted">96% positive</small>
+                                </td>
+                                <td>
+                                    <span class="performance-score score-excellent">Excellent</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="technician-name">David Kim</div>
+                                    <small class="text-muted">Van #3 - Tech</small>
+                                </td>
+                                <td>
+                                    <strong>18</strong>
+                                    <br><small class="text-muted">This week</small>
+                                </td>
+                                <td>
+                                    <strong>42 min</strong>
+                                    <br><small class="text-warning">+2 min</small>
+                                </td>
+                                <td>
+                                    <strong>4.6</strong>
+                                    <br><small class="text-muted">92% positive</small>
+                                </td>
+                                <td>
+                                    <span class="performance-score score-good">Good</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="technician-name">Sarah Mitchell</div>
+                                    <small class="text-muted">Van #4 - Junior Tech</small>
+                                </td>
+                                <td>
+                                    <strong>15</strong>
+                                    <br><small class="text-muted">This week</small>
+                                </td>
+                                <td>
+                                    <strong>48 min</strong>
+                                    <br><small class="text-danger">+8 min</small>
+                                </td>
+                                <td>
+                                    <strong>4.4</strong>
+                                    <br><small class="text-muted">88% positive</small>
+                                </td>
+                                <td>
+                                    <span class="performance-score score-average">Average</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Business Insights -->
+            <div class="insights-panel">
+                <div class="table-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        Business Insights
+                    </h5>
+                </div>
+                
+                <div class="insight-item">
+                    <div class="insight-icon positive">
+                        <i class="fas fa-trending-up"></i>
+                    </div>
+                    <div class="insight-title">Revenue Growth</div>
+                    <div class="insight-description">
+                        Emergency repairs increased 23% this week. Consider adding another van during peak hours (2-6 PM).
+                    </div>
+                </div>
+                
+                <div class="insight-item">
+                    <div class="insight-icon warning">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="insight-title">Response Time Alert</div>
+                    <div class="insight-description">
+                        Average response time increased 5 minutes. Oak Forest area needs better coverage optimization.
+                    </div>
+                </div>
+                
+                <div class="insight-item">
+                    <div class="insight-icon positive">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="insight-title">Customer Satisfaction</div>
+                    <div class="insight-description">
+                        98% satisfaction rate! Screen repair service receives highest ratings. Promote this service more.
+                    </div>
+                </div>
+                
+                <div class="insight-item">
+                    <div class="insight-icon warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="insight-title">Training Opportunity</div>
+                    <div class="insight-description">
+                        Junior technicians need water damage repair training. Schedule training session next week.
+                    </div>
+                </div>
+                
+                <div class="insight-item">
+                    <div class="insight-icon positive">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <div class="insight-title">Service Area Success</div>
+                    <div class="insight-description">
+                        Tinley Park zone shows 35% booking increase. Consider permanent van assignment to this area.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Charts -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h5 class="chart-title">
+                            <i class="fas fa-map-marked-alt me-2"></i>
+                            Service Area Heatmap
+                        </h5>
+                    </div>
+                    <div class="chart-content">
+                        <div class="chart-placeholder">
+                            <i class="fas fa-map"></i>
+                            <h6>Geographic Distribution</h6>
+                            <p class="text-muted">Service density across the 10-mile radius</p>
+                            <small class="text-muted">Interactive heatmap showing booking concentration by zip code</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h5 class="chart-title">
+                            <i class="fas fa-clock me-2"></i>
+                            Response Time Analysis
+                        </h5>
+                    </div>
+                    <div class="chart-content">
+                        <div class="chart-placeholder">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <h6>Emergency Response Performance</h6>
+                            <p class="text-muted">Average: 28 minutes<br>Target: 30 minutes</p>
+                            <small class="text-muted">Real-time response time tracking and optimization</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Quick Date Selection
+    window.setQuickDate = function(period) {
+        // Remove active class from all buttons
+        document.querySelectorAll('.quick-date-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Add active class to clicked button
+        event.target.classList.add('active');
+        
+        // Calculate date range
+        const today = new Date();
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate');
+        
+        endDate.value = today.toISOString().split('T')[0];
+        
+        switch(period) {
+            case 'today':
+                startDate.value = today.toISOString().split('T')[0];
+                break;
+            case 'week':
+                const weekStart = new Date(today);
+                weekStart.setDate(today.getDate() - 7);
+                startDate.value = weekStart.toISOString().split('T')[0];
+                break;
+            case 'month':
+                const monthStart = new Date(today);
+                monthStart.setDate(today.getDate() - 30);
+                startDate.value = monthStart.toISOString().split('T')[0];
+                break;
+            case 'quarter':
+                const quarterStart = new Date(today);
+                quarterStart.setDate(today.getDate() - 90);
+                startDate.value = quarterStart.toISOString().split('T')[0];
+                break;
+        }
+        
+        updateReports();
+    };
+    
+    // Update Reports
+    window.updateReports = function() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        
+        if (!startDate || !endDate) {
+            alert('Please select both start and end dates.');
+            return;
+        }
+        
+        if (new Date(startDate) > new Date(endDate)) {
+            alert('Start date must be before end date.');
+            return;
+        }
+        
+        // Show loading state
+        showLoadingOverlay();
+        
+        // Simulate API call to update reports
+        setTimeout(() => {
+            hideLoadingOverlay();
+            animateMetrics();
+            showNotification('Reports updated successfully!', 'success');
+        }, 2000);
+    };
+    
+    // Generate Full Report
+    window.generateFullReport = function() {
+        showNotification('Generating comprehensive PDF report...', 'info');
+        
+        // Simulate report generation
+        setTimeout(() => {
+            showNotification('PDF report generated and downloaded!', 'success');
+            // In real implementation, would trigger PDF download
+        }, 3000);
+    };
+    
+    // Export Data
+    window.exportData = function(format) {
+        const formatName = format.toUpperCase();
+        showNotification(`Exporting data to ${formatName} format...`, 'info');
+        
+        // Simulate export
+        setTimeout(() => {
+            showNotification(`${formatName} file downloaded successfully!`, 'success');
+        }, 1500);
+    };
+    
+    // Animate Metrics
+    function animateMetrics() {
+        const metrics = document.querySelectorAll('.metric-value');
+        
+        metrics.forEach(metric => {
+            const finalValue = metric.textContent;
+            const isNumber = !isNaN(parseFloat(finalValue.replace(/[^0-9.-]/g, '')));
+            
+            if (isNumber) {
+                const numericValue = parseFloat(finalValue.replace(/[^0-9.-]/g, ''));
+                const prefix = finalValue.replace(/[0-9.-]/g, '').replace(/\d/g, '');
+                
+                animateCounter(metric, 0, numericValue, prefix, 1000);
+            }
+        });
+    }
+    
+    // Counter Animation
+    function animateCounter(element, start, end, prefix, duration) {
+        const startTime = performance.now();
+        
+        function updateCounter(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            const current = start + (end - start) * easeOutCubic(progress);
+            const displayValue = prefix + Math.round(current * 100) / 100;
+            
+            element.textContent = displayValue;
+            
+            if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+            }
+        }
+        
+        requestAnimationFrame(updateCounter);
+    }
+    
+    // Easing function
+    function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+    }
+    
+    // Loading Overlay
+    function showLoadingOverlay() {
+        const overlay = document.createElement('div');
+        overlay.id = 'loadingOverlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        `;
+        
+        overlay.innerHTML = `
+            <div style="background: white; padding: 2rem; border-radius: 12px; text-align: center;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--navy); margin-bottom: 1rem;"></i>
+                <h6 style="color: var(--navy); margin: 0;">Updating Reports...</h6>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+    }
+    
+    function hideLoadingOverlay() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.remove();
+        }
+    }
+    
+    // Notification System
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show`;
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '9999';
+        notification.style.minWidth = '300px';
+        
+        let iconClass = 'fas fa-info-circle';
+        if (type === 'success') iconClass = 'fas fa-check-circle';
+        if (type === 'warning') iconClass = 'fas fa-exclamation-triangle';
+        if (type === 'error') iconClass = 'fas fa-times-circle';
+        
+        notification.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="${iconClass} me-2"></i>
+                <div>
+                    <strong>Reports:</strong><br>
+                    ${message}
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 4000);
+    }
+    
+    // Auto-refresh reports every 5 minutes
+    setInterval(() => {
+        console.log('Auto-refreshing report data...');
+        // In real implementation, would refresh data without user interaction
+    }, 300000);
+    
+    // Initialize with animation
+    setTimeout(animateMetrics, 500);
+    
+    // Responsive chart handling
+    window.addEventListener('resize', function() {
+        // In real implementation, would resize charts
+        console.log('Resizing charts for responsive display...');
+    });
+});
+</script>
+{% endblock %} 

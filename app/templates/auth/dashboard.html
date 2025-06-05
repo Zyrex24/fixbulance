@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard - Mobile Repair Service{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Welcome Section -->
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2>👋 Welcome back, {{ current_user.first_name }}!</h2>
+                <p class="text-muted mb-0">Manage your mobile repair bookings and account settings</p>
+            </div>
+            <div>
+                <a href="{{ url_for('booking.start') }}" class="btn btn-primary btn-lg">
+                    📱 Book New Repair
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Account Summary -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">📊 Account Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 border-end">
+                        <h3 class="text-primary mb-1">{{ total_bookings }}</h3>
+                        <small class="text-muted">Total Bookings</small>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="text-success mb-1">{{ completed_bookings }}</h3>
+                        <small class="text-muted">Completed</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-primary btn-sm">
+                        ⚙️ Manage Profile
+                    </a>
+                    <a href="{{ url_for('booking.my_bookings') }}" class="btn btn-outline-secondary btn-sm">
+                        📋 View All Bookings
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">🚀 Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('booking.start') }}" class="btn btn-primary">
+                        📱 Book iPhone Repair
+                    </a>
+                    <a href="{{ url_for('booking.step2_service', device_type='Samsung') }}" class="btn btn-primary">
+                        📱 Book Samsung Repair  
+                    </a>
+                    <a href="{{ url_for('booking.step2_service', device_type='Other') }}" class="btn btn-primary">
+                        📱 Book Other Device
+                    </a>
+                    <hr class="my-2">
+                    <a href="{{ url_for('main.service_area') }}" class="btn btn-outline-info btn-sm">
+                        📍 Check Service Area
+                    </a>
+                    <a href="{{ url_for('main.contact') }}" class="btn btn-outline-secondary btn-sm">
+                        📞 Contact Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Communication Preferences -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">📧 Notifications</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="emailNotifs" 
+                               {% if current_user.email_notifications %}checked{% endif %} 
+                               onchange="updatePreference('email_notifications', this.checked)">
+                        <label class="form-check-label" for="emailNotifs">
+                            <strong>Email Updates</strong><br>
+                            <small class="text-muted">Booking confirmations & updates</small>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="smsNotifs" 
+                               {% if current_user.sms_opted_in %}checked{% endif %}
+                               {% if not current_user.phone %}disabled{% endif %}
+                               onchange="updatePreference('sms_opted_in', this.checked)">
+                        <label class="form-check-label" for="smsNotifs">
+                            <strong>SMS Alerts</strong><br>
+                            <small class="text-muted">
+                                {% if current_user.phone %}
+                                    Arrival & completion alerts
+                                {% else %}
+                                    Add phone number to enable
+                                {% endif %}
+                            </small>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="marketingEmails" 
+                               {% if current_user.marketing_emails %}checked{% endif %}
+                               onchange="updatePreference('marketing_emails', this.checked)">
+                        <label class="form-check-label" for="marketingEmails">
+                            <strong>Promotions</strong><br>
+                            <small class="text-muted">Special offers & tips</small>
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="preferencesMessage" class="alert alert-success d-none" role="alert">
+                    Preferences updated successfully!
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Bookings -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">📋 Recent Bookings</h5>
+                {% if recent_bookings|length > 0 %}
+                    <a href="{{ url_for('booking.my_bookings') }}" class="btn btn-outline-primary btn-sm">
+                        View All
+                    </a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if recent_bookings|length > 0 %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Device & Service</th>
+                                    <th>Scheduled Date</th>
+                                    <th>Status</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in recent_bookings %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ booking.device_model }}</strong><br>
+                                            <small class="text-muted">{{ booking.service.display_name }}</small>
+                                        </td>
+                                        <td>
+                                            {{ booking.scheduled_date.strftime('%b %d, %Y') }}<br>
+                                            <small class="text-muted">{{ booking.scheduled_time.strftime('%I:%M %p') }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ booking.status_color }}">
+                                                <i class="bi bi-{{ booking.status_icon }}"></i>
+                                                {{ booking.status.replace('_', ' ').title() }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <strong>${{ "%.2f"|format(booking.final_amount or booking.total_estimated_cost or booking.deposit_amount) }}</strong><br>
+                                            <small class="text-muted">{{ booking.payment_status_display }}</small>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('booking.view_booking', booking_id=booking.id) }}" 
+                                               class="btn btn-outline-primary btn-sm">
+                                                View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="bi bi-calendar-x" style="font-size: 3rem; color: #6c757d;"></i>
+                        </div>
+                        <h5 class="text-muted">No bookings yet</h5>
+                        <p class="text-muted">Ready to get your device repaired? Book your first appointment!</p>
+                        <a href="{{ url_for('booking.start') }}" class="btn btn-primary">
+                            📱 Book Your First Repair
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Service Area Reminder -->
+{% if not current_user.zip_code %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-info">
+            <h6 class="alert-heading">📍 Complete Your Profile</h6>
+            <p class="mb-2">Add your address information to streamline the booking process and verify service availability.</p>
+            <a href="{{ url_for('auth.profile') }}" class="btn btn-primary btn-sm">
+                Update Profile
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Communication preferences update
+async function updatePreference(preference, value) {
+    try {
+        const response = await fetch('/api/user/communication-preferences', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                [preference]: value
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const message = document.getElementById('preferencesMessage');
+            message.classList.remove('d-none');
+            setTimeout(() => {
+                message.classList.add('d-none');
+            }, 3000);
+        } else {
+            alert('Failed to update preferences. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error updating preferences:', error);
+        alert('Network error. Please check your connection and try again.');
+    }
+}
+
+// Auto-refresh booking status (every 30 seconds)
+function refreshBookingStatus() {
+    const bookingRows = document.querySelectorAll('tr[data-booking-id]');
+    
+    bookingRows.forEach(async (row) => {
+        const bookingId = row.dataset.bookingId;
+        
+        try {
+            const response = await fetch(`/api/booking/${bookingId}/status`);
+            const data = await response.json();
+            
+            // Update status badge
+            const statusBadge = row.querySelector('.badge');
+            if (statusBadge) {
+                statusBadge.className = `badge bg-${data.status_color}`;
+                statusBadge.innerHTML = `<i class="bi bi-${data.status_icon}"></i> ${data.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
+            }
+        } catch (error) {
+            // Silently handle errors
+        }
+    });
+}
+
+// Set up auto-refresh if there are active bookings
+{% if recent_bookings|length > 0 %}
+    setInterval(refreshBookingStatus, 30000);
+{% endif %}
+</script>
+{% endblock %} 

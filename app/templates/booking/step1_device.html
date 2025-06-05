@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency Repair Booking - Step 1: Device Selection - Fixbulance{% endblock %}
+
+{% block styles %}
+<style>
+    .booking-container {
+        min-height: 70vh;
+        background: linear-gradient(135deg, rgba(227, 232, 216, 0.1) 0%, rgba(30, 58, 95, 0.05) 100%);
+        padding: 3rem 0;
+    }
+    
+    .booking-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+    }
+    
+    .booking-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--light-navy) 100%);
+        color: var(--white);
+        padding: 2rem;
+        text-align: center;
+        border: none;
+    }
+    
+    .booking-header h4 {
+        color: var(--white);
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .emergency-badge {
+        background-color: var(--red);
+        color: var(--white);
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 1rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+    
+    .progress-bar-container {
+        margin: 2rem 0;
+    }
+    
+    .custom-progress {
+        height: 8px;
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .custom-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--red), #ff4757);
+        width: 16.67%; /* 1/6 steps */
+        transition: width 0.3s ease;
+    }
+    
+    .device-selection {
+        padding: 2.5rem;
+    }
+    
+    .device-card {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        margin-bottom: 1.5rem;
+        background: var(--white);
+    }
+    
+    .device-card:hover {
+        border-color: var(--navy);
+        box-shadow: 0 8px 25px rgba(30, 58, 95, 0.15);
+        transform: translateY(-3px);
+    }
+    
+    .device-card.selected {
+        border-color: var(--red);
+        background: rgba(220, 38, 38, 0.05);
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+    
+    .device-icon {
+        font-size: 4rem;
+        color: var(--navy);
+        margin-bottom: 1rem;
+    }
+    
+    .device-card.selected .device-icon {
+        color: var(--red);
+    }
+    
+    .device-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dark-navy);
+        margin-bottom: 0.5rem;
+    }
+    
+    .device-description {
+        color: var(--medium-gray);
+        margin-bottom: 1rem;
+    }
+    
+    .device-popular {
+        background: var(--red);
+        color: var(--white);
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+    
+    .step-navigation {
+        padding: 1.5rem 2.5rem;
+        background: var(--light-gray);
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    @media (max-width: 768px) {
+        .booking-container {
+            padding: 1rem 0;
+        }
+        
+        .device-selection {
+            padding: 1.5rem;
+        }
+        
+        .device-card {
+            padding: 1.5rem;
+        }
+        
+        .device-icon {
+            font-size: 3rem;
+        }
+        
+        .step-navigation {
+            padding: 1rem 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="booking-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="card booking-card">
+                    <div class="card-header booking-header">
+                        <div class="emergency-badge">
+                            <i class="fas fa-ambulance me-1"></i>
+                            Emergency Booking
+                        </div>
+                        <h4>Device Emergency Repair</h4>
+                        <p class="mb-0 opacity-90">Step 1 of 6: What device needs emergency repair?</p>
+                        
+                        <div class="progress-bar-container">
+                            <div class="custom-progress">
+                                <div class="custom-progress-bar"></div>
+                            </div>
+                            <small class="text-white-50">Step 1: Device Selection</small>
+                        </div>
+                    </div>
+                    
+                    <div class="device-selection">
+                        <form method="POST" id="deviceForm">
+                            <div class="row">
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="device-card" data-device="iPhone">
+                                        <div class="device-icon">
+                                            <i class="fab fa-apple"></i>
+                                        </div>
+                                        <div class="device-title">iPhone</div>
+                                        <div class="device-description">
+                                            All iPhone models from iPhone 6 to iPhone 15 Pro Max
+                                        </div>
+                                        <div class="device-popular">Most Popular</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="device-card" data-device="Samsung">
+                                        <div class="device-icon">
+                                            <i class="fab fa-android"></i>
+                                        </div>
+                                        <div class="device-title">Samsung</div>
+                                        <div class="device-description">
+                                            Galaxy S series, Note series, and Galaxy A series
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="device-card" data-device="Other">
+                                        <div class="device-icon">
+                                            <i class="fas fa-tablet-alt"></i>
+                                        </div>
+                                        <div class="device-title">Other Device</div>
+                                        <div class="device-description">
+                                            Google Pixel, OnePlus, LG, iPad, tablets, and more
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <input type="hidden" name="device_type" id="selectedDevice" required>
+                            
+                            <div class="text-center mt-4">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Don't see your device?</strong> Select "Other Device" and we'll help you during the booking process.
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="step-navigation">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Homepage
+                            </a>
+                            
+                            <div class="text-center">
+                                <small class="text-muted">Emergency repair in your area</small>
+                            </div>
+                            
+                            <button type="submit" form="deviceForm" class="btn btn-primary" id="nextButton" disabled>
+                                Continue to Services <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Emergency Info -->
+                <div class="text-center mt-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="text-dark mb-3">
+                                <i class="fas fa-clock me-2 text-primary"></i>
+                                Emergency Response Time
+                            </h6>
+                            <div class="row text-center">
+                                <div class="col-md-4">
+                                    <i class="fas fa-calendar-check text-success me-2"></i>
+                                    <strong>Same Day</strong><br>
+                                    <small class="text-muted">Most repairs</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <i class="fas fa-van-shuttle text-primary me-2"></i>
+                                    <strong>Mobile Service</strong><br>
+                                    <small class="text-muted">We come to you</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <i class="fas fa-shield-alt text-warning me-2"></i>
+                                    <strong>Warranty</strong><br>
+                                    <small class="text-muted">All repairs covered</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deviceCards = document.querySelectorAll('.device-card');
+    const selectedDeviceInput = document.getElementById('selectedDevice');
+    const nextButton = document.getElementById('nextButton');
+    const deviceForm = document.getElementById('deviceForm');
+    
+    // Device selection handling
+    deviceCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Remove selection from all cards
+            deviceCards.forEach(c => c.classList.remove('selected'));
+            
+            // Add selection to clicked card
+            this.classList.add('selected');
+            
+            // Update hidden input
+            const deviceType = this.getAttribute('data-device');
+            selectedDeviceInput.value = deviceType;
+            
+            // Enable next button
+            nextButton.disabled = false;
+            
+            // Update button text based on selection
+            nextButton.innerHTML = `Continue with ${deviceType} <i class="fas fa-arrow-right ms-2"></i>`;
+        });
+    });
+    
+    // Form submission handling
+    deviceForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!selectedDeviceInput.value) {
+            alert('Please select a device type to continue.');
+            return;
+        }
+        
+        // Show loading state
+        nextButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
+        nextButton.disabled = true;
+        
+        // Redirect to step 2 with selected device type
+        window.location.href = '/booking/step2/' + selectedDeviceInput.value;
+    });
+    
+    // Add keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && selectedDeviceInput.value) {
+            e.preventDefault();
+            deviceForm.submit();
+        }
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,822 @@
+{% extends "base.html" %}
+
+{% block title %}Booking Management - Fixbulance Admin{% endblock %}
+
+{% block styles %}
+<style>
+    .booking-management-container {
+        min-height: 90vh;
+        background: linear-gradient(135deg, rgba(227, 232, 216, 0.05) 0%, rgba(30, 58, 95, 0.02) 100%);
+        padding: 2rem 0;
+    }
+    
+    .management-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--light-navy) 100%);
+        color: var(--white);
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .filters-section {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .bookings-table-container {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .table-header {
+        background: var(--light-gray);
+        padding: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .bookings-table {
+        width: 100%;
+        margin: 0;
+    }
+    
+    .bookings-table th {
+        background: var(--navy);
+        color: var(--white);
+        padding: 1rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: none;
+        text-align: left;
+    }
+    
+    .bookings-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+    
+    .bookings-table tbody tr:hover {
+        background: rgba(30, 58, 95, 0.02);
+    }
+    
+    .booking-id {
+        font-family: 'Courier New', monospace;
+        background: var(--light-gray);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .customer-cell {
+        min-width: 200px;
+    }
+    
+    .customer-name {
+        font-weight: 600;
+        color: var(--navy);
+        margin-bottom: 0.25rem;
+    }
+    
+    .customer-contact {
+        font-size: 0.85rem;
+        color: var(--medium-gray);
+    }
+    
+    .device-info {
+        min-width: 150px;
+    }
+    
+    .device-model {
+        font-weight: 600;
+        color: var(--navy);
+        margin-bottom: 0.25rem;
+    }
+    
+    .service-type {
+        font-size: 0.85rem;
+        color: var(--medium-gray);
+    }
+    
+    .status-cell {
+        min-width: 120px;
+    }
+    
+    .status-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+        display: inline-block;
+        min-width: 80px;
+    }
+    
+    .status-emergency {
+        background: var(--red);
+        color: var(--white);
+        animation: pulse 2s infinite;
+    }
+    
+    .status-priority {
+        background: #f59e0b;
+        color: var(--white);
+    }
+    
+    .status-scheduled {
+        background: #3b82f6;
+        color: var(--white);
+    }
+    
+    .status-in-progress {
+        background: #8b5cf6;
+        color: var(--white);
+    }
+    
+    .status-completed {
+        background: #10b981;
+        color: var(--white);
+    }
+    
+    .status-cancelled {
+        background: #6b7280;
+        color: var(--white);
+    }
+    
+    .appointment-cell {
+        min-width: 150px;
+    }
+    
+    .appointment-date {
+        font-weight: 600;
+        color: var(--navy);
+        margin-bottom: 0.25rem;
+    }
+    
+    .appointment-time {
+        font-size: 0.85rem;
+        color: var(--medium-gray);
+    }
+    
+    .location-cell {
+        min-width: 150px;
+        max-width: 200px;
+    }
+    
+    .location-address {
+        font-size: 0.85rem;
+        color: var(--navy);
+        margin-bottom: 0.25rem;
+    }
+    
+    .location-distance {
+        font-size: 0.75rem;
+        color: var(--medium-gray);
+    }
+    
+    .actions-cell {
+        min-width: 120px;
+    }
+    
+    .action-btn {
+        padding: 0.25rem 0.5rem;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin: 0.125rem;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-view {
+        background: var(--navy);
+        color: var(--white);
+    }
+    
+    .btn-view:hover {
+        background: var(--dark-navy);
+        color: var(--white);
+        text-decoration: none;
+    }
+    
+    .btn-edit {
+        background: #f59e0b;
+        color: var(--white);
+    }
+    
+    .btn-edit:hover {
+        background: #d97706;
+        color: var(--white);
+        text-decoration: none;
+    }
+    
+    .btn-complete {
+        background: #10b981;
+        color: var(--white);
+    }
+    
+    .btn-complete:hover {
+        background: #059669;
+        color: var(--white);
+        text-decoration: none;
+    }
+    
+    .btn-cancel {
+        background: #ef4444;
+        color: var(--white);
+    }
+    
+    .btn-cancel:hover {
+        background: #dc2626;
+        color: var(--white);
+        text-decoration: none;
+    }
+    
+    .filter-group {
+        margin-bottom: 1rem;
+    }
+    
+    .filter-label {
+        font-weight: 600;
+        color: var(--navy);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .filter-control {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        width: 100%;
+    }
+    
+    .filter-control:focus {
+        outline: none;
+        border-color: var(--navy);
+        box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+    }
+    
+    .quick-filters {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+    
+    .quick-filter-btn {
+        padding: 0.5rem 1rem;
+        background: var(--light-gray);
+        border: 1px solid #d1d5db;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: var(--medium-gray);
+    }
+    
+    .quick-filter-btn:hover,
+    .quick-filter-btn.active {
+        background: var(--navy);
+        color: var(--white);
+        border-color: var(--navy);
+    }
+    
+    .pagination-container {
+        padding: 1.5rem;
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        background: var(--light-gray);
+    }
+    
+    .results-info {
+        color: var(--medium-gray);
+        font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+        .booking-management-container {
+            padding: 1rem 0;
+        }
+        
+        .management-header {
+            padding: 1.5rem;
+        }
+        
+        .bookings-table-container {
+            overflow-x: auto;
+        }
+        
+        .bookings-table {
+            min-width: 800px;
+        }
+        
+        .quick-filters {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="booking-management-container">
+    <div class="container-fluid">
+        <!-- Management Header -->
+        <div class="management-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-1">Booking Management Center</h2>
+                    <p class="mb-0 opacity-90">
+                        Comprehensive booking oversight and status tracking for all emergency repairs
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light me-2">
+                        <i class="fas fa-arrow-left me-1"></i>Dashboard
+                    </a>
+                    <a href="{{ url_for('admin.new_booking') }}" class="btn btn-success">
+                        <i class="fas fa-plus me-1"></i>New Booking
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters-section">
+            <h6 class="mb-3">
+                <i class="fas fa-filter me-2"></i>
+                Filter & Search Bookings
+            </h6>
+            
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="filter-group">
+                        <label class="filter-label">Search Customer</label>
+                        <input type="text" class="filter-control" placeholder="Name, phone, or email" id="searchCustomer">
+                    </div>
+                </div>
+                
+                <div class="col-md-2">
+                    <div class="filter-group">
+                        <label class="filter-label">Status</label>
+                        <select class="filter-control" id="filterStatus">
+                            <option value="">All Statuses</option>
+                            <option value="emergency">Emergency</option>
+                            <option value="priority">Priority</option>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="col-md-2">
+                    <div class="filter-group">
+                        <label class="filter-label">Service Type</label>
+                        <select class="filter-control" id="filterService">
+                            <option value="">All Services</option>
+                            <option value="screen">Screen Repair</option>
+                            <option value="battery">Battery Replace</option>
+                            <option value="charging">Charging Port</option>
+                            <option value="water">Water Damage</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="col-md-2">
+                    <div class="filter-group">
+                        <label class="filter-label">Date From</label>
+                        <input type="date" class="filter-control" id="filterDateFrom">
+                    </div>
+                </div>
+                
+                <div class="col-md-2">
+                    <div class="filter-group">
+                        <label class="filter-label">Date To</label>
+                        <input type="date" class="filter-control" id="filterDateTo">
+                    </div>
+                </div>
+                
+                <div class="col-md-1">
+                    <div class="filter-group">
+                        <label class="filter-label">&nbsp;</label>
+                        <button class="btn btn-primary filter-control" onclick="applyFilters()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Filters -->
+            <div class="quick-filters">
+                <button class="quick-filter-btn active" onclick="quickFilter('all')">All Bookings</button>
+                <button class="quick-filter-btn" onclick="quickFilter('today')">Today</button>
+                <button class="quick-filter-btn" onclick="quickFilter('emergency')">Emergency</button>
+                <button class="quick-filter-btn" onclick="quickFilter('pending')">Pending</button>
+                <button class="quick-filter-btn" onclick="quickFilter('completed')">Completed</button>
+            </div>
+        </div>
+
+        <!-- Bookings Table -->
+        <div class="bookings-table-container">
+            <div class="table-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Emergency Repair Bookings
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary" onclick="exportBookings()">
+                            <i class="fas fa-download me-1"></i>Export
+                        </button>
+                        <button class="btn btn-sm btn-primary" onclick="refreshBookings()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <table class="bookings-table">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Customer</th>
+                        <th>Device & Service</th>
+                        <th>Status</th>
+                        <th>Appointment</th>
+                        <th>Location</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingsTableBody">
+                    <!-- Emergency Booking -->
+                    <tr data-booking-type="emergency">
+                        <td>
+                            <div class="booking-id">FXB-001</div>
+                        </td>
+                        <td class="customer-cell">
+                            <div class="customer-name">John Smith</div>
+                            <div class="customer-contact">
+                                📞 (555) 123-4567<br>
+                                ✉️ john@email.com
+                            </div>
+                        </td>
+                        <td class="device-info">
+                            <div class="device-model">iPhone 14 Pro</div>
+                            <div class="service-type">Screen Replacement - $89</div>
+                        </td>
+                        <td class="status-cell">
+                            <span class="status-badge status-emergency">EMERGENCY</span>
+                        </td>
+                        <td class="appointment-cell">
+                            <div class="appointment-date">Today</div>
+                            <div class="appointment-time">ASAP (Requested 15 min ago)</div>
+                        </td>
+                        <td class="location-cell">
+                            <div class="location-address">123 Main St, Orland Park, IL</div>
+                            <div class="location-distance">📍 2.1 miles from base</div>
+                        </td>
+                        <td class="actions-cell">
+                            <a href="#" class="action-btn btn-view">View</a>
+                            <a href="#" class="action-btn btn-edit">Edit</a>
+                            <a href="#" class="action-btn btn-complete">Complete</a>
+                        </td>
+                    </tr>
+                    
+                    <!-- Priority Booking -->
+                    <tr data-booking-type="priority">
+                        <td>
+                            <div class="booking-id">FXB-002</div>
+                        </td>
+                        <td class="customer-cell">
+                            <div class="customer-name">Sarah Johnson</div>
+                            <div class="customer-contact">
+                                📞 (555) 987-6543<br>
+                                ✉️ sarah@email.com
+                            </div>
+                        </td>
+                        <td class="device-info">
+                            <div class="device-model">Samsung Galaxy S23</div>
+                            <div class="service-type">Battery Replacement - $69</div>
+                        </td>
+                        <td class="status-cell">
+                            <span class="status-badge status-priority">PRIORITY</span>
+                        </td>
+                        <td class="appointment-cell">
+                            <div class="appointment-date">Today</div>
+                            <div class="appointment-time">2:00 PM</div>
+                        </td>
+                        <td class="location-cell">
+                            <div class="location-address">456 Oak Ave, Tinley Park, IL</div>
+                            <div class="location-distance">📍 4.8 miles from base</div>
+                        </td>
+                        <td class="actions-cell">
+                            <a href="#" class="action-btn btn-view">View</a>
+                            <a href="#" class="action-btn btn-edit">Edit</a>
+                            <a href="#" class="action-btn btn-complete">Complete</a>
+                        </td>
+                    </tr>
+                    
+                    <!-- Scheduled Booking -->
+                    <tr data-booking-type="scheduled">
+                        <td>
+                            <div class="booking-id">FXB-003</div>
+                        </td>
+                        <td class="customer-cell">
+                            <div class="customer-name">Mike Davis</div>
+                            <div class="customer-contact">
+                                📞 (555) 456-7890<br>
+                                ✉️ mike@email.com
+                            </div>
+                        </td>
+                        <td class="device-info">
+                            <div class="device-model">iPhone 13</div>
+                            <div class="service-type">Charging Port Repair - $59</div>
+                        </td>
+                        <td class="status-cell">
+                            <span class="status-badge status-scheduled">SCHEDULED</span>
+                        </td>
+                        <td class="appointment-cell">
+                            <div class="appointment-date">Today</div>
+                            <div class="appointment-time">4:00 PM</div>
+                        </td>
+                        <td class="location-cell">
+                            <div class="location-address">789 Pine St, Oak Forest, IL</div>
+                            <div class="location-distance">📍 6.2 miles from base</div>
+                        </td>
+                        <td class="actions-cell">
+                            <a href="#" class="action-btn btn-view">View</a>
+                            <a href="#" class="action-btn btn-edit">Edit</a>
+                            <a href="#" class="action-btn btn-complete">Complete</a>
+                        </td>
+                    </tr>
+                    
+                    <!-- In Progress Booking -->
+                    <tr data-booking-type="in-progress">
+                        <td>
+                            <div class="booking-id">FXB-004</div>
+                        </td>
+                        <td class="customer-cell">
+                            <div class="customer-name">Lisa Chen</div>
+                            <div class="customer-contact">
+                                📞 (555) 321-0987<br>
+                                ✉️ lisa@email.com
+                            </div>
+                        </td>
+                        <td class="device-info">
+                            <div class="device-model">iPhone 12</div>
+                            <div class="service-type">Water Damage Repair - $99</div>
+                        </td>
+                        <td class="status-cell">
+                            <span class="status-badge status-in-progress">IN PROGRESS</span>
+                        </td>
+                        <td class="appointment-cell">
+                            <div class="appointment-date">Today</div>
+                            <div class="appointment-time">1:30 PM (Started)</div>
+                        </td>
+                        <td class="location-cell">
+                            <div class="location-address">321 Elm St, Palos Heights, IL</div>
+                            <div class="location-distance">📍 7.1 miles from base</div>
+                        </td>
+                        <td class="actions-cell">
+                            <a href="#" class="action-btn btn-view">View</a>
+                            <a href="#" class="action-btn btn-complete">Complete</a>
+                        </td>
+                    </tr>
+                    
+                    <!-- Completed Booking -->
+                    <tr data-booking-type="completed">
+                        <td>
+                            <div class="booking-id">FXB-005</div>
+                        </td>
+                        <td class="customer-cell">
+                            <div class="customer-name">Robert Wilson</div>
+                            <div class="customer-contact">
+                                📞 (555) 654-3210<br>
+                                ✉️ robert@email.com
+                            </div>
+                        </td>
+                        <td class="device-info">
+                            <div class="device-model">Samsung Galaxy A54</div>
+                            <div class="service-type">Screen Repair - $79</div>
+                        </td>
+                        <td class="status-cell">
+                            <span class="status-badge status-completed">COMPLETED</span>
+                        </td>
+                        <td class="appointment-cell">
+                            <div class="appointment-date">Today</div>
+                            <div class="appointment-time">11:00 AM (Completed)</div>
+                        </td>
+                        <td class="location-cell">
+                            <div class="location-address">654 Maple Dr, Homer Glen, IL</div>
+                            <div class="location-distance">📍 8.9 miles from base</div>
+                        </td>
+                        <td class="actions-cell">
+                            <a href="#" class="action-btn btn-view">View</a>
+                            <a href="#" class="action-btn btn-edit">Edit</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- Pagination -->
+            <div class="pagination-container">
+                <div class="results-info">
+                    Showing 1-5 of 27 bookings
+                </div>
+                <nav>
+                    <ul class="pagination mb-0">
+                        <li class="page-item disabled">
+                            <span class="page-link">Previous</span>
+                        </li>
+                        <li class="page-item active">
+                            <span class="page-link">1</span>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">2</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">3</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Quick Filter Functions
+    window.quickFilter = function(type) {
+        // Remove active class from all buttons
+        document.querySelectorAll('.quick-filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Add active class to clicked button
+        event.target.classList.add('active');
+        
+        // Filter table rows
+        const rows = document.querySelectorAll('#bookingsTableBody tr');
+        
+        rows.forEach(row => {
+            const bookingType = row.dataset.bookingType;
+            const status = row.querySelector('.status-badge').textContent.trim().toLowerCase();
+            
+            if (type === 'all') {
+                row.style.display = '';
+            } else if (type === 'today') {
+                const date = row.querySelector('.appointment-date').textContent.trim();
+                row.style.display = date === 'Today' ? '' : 'none';
+            } else if (type === 'emergency') {
+                row.style.display = status === 'emergency' ? '' : 'none';
+            } else if (type === 'pending') {
+                row.style.display = ['emergency', 'priority', 'scheduled'].includes(status) ? '' : 'none';
+            } else if (type === 'completed') {
+                row.style.display = status === 'completed' ? '' : 'none';
+            }
+        });
+        
+        updateResultsCount();
+    };
+    
+    // Apply Filters Function
+    window.applyFilters = function() {
+        const searchTerm = document.getElementById('searchCustomer').value.toLowerCase();
+        const statusFilter = document.getElementById('filterStatus').value;
+        const serviceFilter = document.getElementById('filterService').value;
+        const dateFrom = document.getElementById('filterDateFrom').value;
+        const dateTo = document.getElementById('filterDateTo').value;
+        
+        const rows = document.querySelectorAll('#bookingsTableBody tr');
+        
+        rows.forEach(row => {
+            let show = true;
+            
+            // Search filter
+            if (searchTerm) {
+                const customerName = row.querySelector('.customer-name').textContent.toLowerCase();
+                const customerContact = row.querySelector('.customer-contact').textContent.toLowerCase();
+                if (!customerName.includes(searchTerm) && !customerContact.includes(searchTerm)) {
+                    show = false;
+                }
+            }
+            
+            // Status filter
+            if (statusFilter) {
+                const status = row.querySelector('.status-badge').textContent.trim().toLowerCase();
+                if (status !== statusFilter) {
+                    show = false;
+                }
+            }
+            
+            // Service filter
+            if (serviceFilter) {
+                const service = row.querySelector('.service-type').textContent.toLowerCase();
+                if (!service.includes(serviceFilter)) {
+                    show = false;
+                }
+            }
+            
+            row.style.display = show ? '' : 'none';
+        });
+        
+        updateResultsCount();
+    };
+    
+    // Update Results Count
+    function updateResultsCount() {
+        const visibleRows = document.querySelectorAll('#bookingsTableBody tr:not([style*="display: none"])');
+        const totalRows = document.querySelectorAll('#bookingsTableBody tr');
+        document.querySelector('.results-info').textContent = 
+            `Showing ${visibleRows.length} of ${totalRows.length} bookings`;
+    }
+    
+    // Refresh Bookings
+    window.refreshBookings = function() {
+        const refreshBtn = document.querySelector('[onclick="refreshBookings()"]');
+        const originalHTML = refreshBtn.innerHTML;
+        
+        refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
+        refreshBtn.disabled = true;
+        
+        // Simulate API call
+        setTimeout(() => {
+            refreshBtn.innerHTML = originalHTML;
+            refreshBtn.disabled = false;
+            showNotification('Bookings refreshed successfully', 'success');
+        }, 1500);
+    };
+    
+    // Export Bookings
+    window.exportBookings = function() {
+        showNotification('Exporting bookings to CSV...', 'info');
+        // In real implementation, would trigger CSV download
+    };
+    
+    // Real-time search
+    document.getElementById('searchCustomer').addEventListener('input', function() {
+        clearTimeout(this.searchTimeout);
+        this.searchTimeout = setTimeout(applyFilters, 300);
+    });
+    
+    // Filter change handlers
+    document.getElementById('filterStatus').addEventListener('change', applyFilters);
+    document.getElementById('filterService').addEventListener('change', applyFilters);
+    document.getElementById('filterDateFrom').addEventListener('change', applyFilters);
+    document.getElementById('filterDateTo').addEventListener('change', applyFilters);
+    
+    // Notification system
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show`;
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '9999';
+        notification.style.minWidth = '300px';
+        
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 3000);
+    }
+    
+    // Auto-refresh every 2 minutes
+    setInterval(() => {
+        console.log('Auto-refreshing booking data...');
+        // In real implementation, would refresh data
+    }, 120000);
+    
+    // Initialize results count
+    updateResultsCount();
+});
+</script>
+{% endblock %} 

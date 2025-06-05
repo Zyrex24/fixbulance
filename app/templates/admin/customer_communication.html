@@ -1,0 +1,947 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Communication - Fixbulance Admin{% endblock %}
+
+{% block styles %}
+<style>
+    .communication-container {
+        min-height: 90vh;
+        background: linear-gradient(135deg, rgba(227, 232, 216, 0.05) 0%, rgba(30, 58, 95, 0.02) 100%);
+        padding: 2rem 0;
+    }
+    
+    .communication-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--light-navy) 100%);
+        color: var(--white);
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .communication-grid {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .communication-card {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        background: var(--light-gray);
+        padding: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .card-title {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: var(--navy);
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .message-composer {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .composer-tabs {
+        display: flex;
+        background: var(--light-gray);
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .composer-tab {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--medium-gray);
+        transition: all 0.2s ease;
+    }
+    
+    .composer-tab.active {
+        background: var(--white);
+        color: var(--navy);
+        border-bottom: 3px solid var(--navy);
+    }
+    
+    .composer-tab:hover {
+        background: rgba(30, 58, 95, 0.05);
+        color: var(--navy);
+    }
+    
+    .composer-content {
+        padding: 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: var(--navy);
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--navy);
+        box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+    }
+    
+    .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        background: var(--white);
+        cursor: pointer;
+    }
+    
+    .message-templates {
+        display: grid;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .template-btn {
+        padding: 0.75rem 1rem;
+        background: var(--light-gray);
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+    
+    .template-btn:hover {
+        background: rgba(30, 58, 95, 0.05);
+        border-color: var(--navy);
+    }
+    
+    .template-title {
+        font-weight: 600;
+        color: var(--navy);
+        margin-bottom: 0.25rem;
+    }
+    
+    .template-preview {
+        color: var(--medium-gray);
+        font-size: 0.85rem;
+    }
+    
+    .character-count {
+        text-align: right;
+        font-size: 0.85rem;
+        color: var(--medium-gray);
+        margin-top: 0.5rem;
+    }
+    
+    .character-count.warning {
+        color: #f59e0b;
+    }
+    
+    .character-count.error {
+        color: var(--red);
+    }
+    
+    .send-options {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        padding: 1rem;
+        background: var(--light-gray);
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    .btn-send {
+        background: var(--navy);
+        color: var(--white);
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-send:hover {
+        background: var(--dark-navy);
+        transform: translateY(-1px);
+    }
+    
+    .btn-send:disabled {
+        background: #d1d5db;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .btn-schedule {
+        background: #f59e0b;
+        color: var(--white);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-schedule:hover {
+        background: #d97706;
+    }
+    
+    .communication-history {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .message-item {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .message-item:hover {
+        background: rgba(30, 58, 95, 0.02);
+    }
+    
+    .message-item:last-child {
+        border-bottom: none;
+    }
+    
+    .message-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .message-customer {
+        font-weight: 600;
+        color: var(--navy);
+    }
+    
+    .message-time {
+        font-size: 0.85rem;
+        color: var(--medium-gray);
+    }
+    
+    .message-type {
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+    
+    .type-sms {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+    }
+    
+    .type-email {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+    
+    .type-automated {
+        background: rgba(107, 114, 128, 0.1);
+        color: #6b7280;
+    }
+    
+    .message-content {
+        color: var(--medium-gray);
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    .message-status {
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .status-delivered {
+        color: #22c55e;
+    }
+    
+    .status-pending {
+        color: #f59e0b;
+    }
+    
+    .status-failed {
+        color: var(--red);
+    }
+    
+    .bulk-actions {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .recipient-filters {
+        padding: 1rem;
+        background: var(--light-gray);
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .filter-checkbox {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+    }
+    
+    .filter-checkbox input[type="checkbox"] {
+        margin-right: 0.5rem;
+        cursor: pointer;
+    }
+    
+    .filter-checkbox label {
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    
+    .recipient-count {
+        background: var(--navy);
+        color: var(--white);
+        padding: 1rem;
+        text-align: center;
+        font-weight: 600;
+    }
+    
+    @media (max-width: 768px) {
+        .communication-container {
+            padding: 1rem 0;
+        }
+        
+        .communication-header {
+            padding: 1.5rem;
+        }
+        
+        .communication-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .composer-tabs {
+            flex-direction: column;
+        }
+        
+        .send-options {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .send-options .btn-send,
+        .send-options .btn-schedule {
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="communication-container">
+    <div class="container-fluid">
+        <!-- Communication Header -->
+        <div class="communication-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-1">Customer Communication Center</h2>
+                    <p class="mb-0 opacity-90">
+                        SMS and email messaging for emergency repair updates and notifications
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light me-2">
+                        <i class="fas fa-arrow-left me-1"></i>Dashboard
+                    </a>
+                    <button class="btn btn-success" onclick="showTemplateManager()">
+                        <i class="fas fa-cog me-1"></i>Manage Templates
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Communication Grid -->
+        <div class="communication-grid">
+            <!-- Message Composer -->
+            <div class="message-composer">
+                <!-- Composer Tabs -->
+                <div class="composer-tabs">
+                    <button class="composer-tab active" onclick="switchTab('individual')">
+                        <i class="fas fa-user me-2"></i>Individual Message
+                    </button>
+                    <button class="composer-tab" onclick="switchTab('bulk')">
+                        <i class="fas fa-users me-2"></i>Bulk Messaging
+                    </button>
+                </div>
+
+                <!-- Individual Message Composer -->
+                <div id="individualComposer" class="composer-content">
+                    <form id="individualMessageForm">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-user me-1"></i>Select Customer
+                            </label>
+                            <select class="form-select" id="customerSelect" required>
+                                <option value="">Choose a customer...</option>
+                                <option value="john-smith">John Smith - (555) 123-4567 - FXB-001</option>
+                                <option value="sarah-johnson">Sarah Johnson - (555) 987-6543 - FXB-002</option>
+                                <option value="mike-davis">Mike Davis - (555) 456-7890 - FXB-003</option>
+                                <option value="lisa-chen">Lisa Chen - (555) 321-0987 - FXB-004</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-envelope me-1"></i>Message Type
+                            </label>
+                            <select class="form-select" id="messageType" onchange="updateCharacterLimit()">
+                                <option value="sms">SMS Text Message (160 chars)</option>
+                                <option value="email">Email Message</option>
+                                <option value="both">Both SMS & Email</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-list me-1"></i>Message Templates
+                            </label>
+                            <div class="message-templates">
+                                <button type="button" class="template-btn" onclick="loadTemplate('appointment-confirm')">
+                                    <div class="template-title">Appointment Confirmation</div>
+                                    <div class="template-preview">Your emergency repair appointment is confirmed for...</div>
+                                </button>
+                                <button type="button" class="template-btn" onclick="loadTemplate('en-route')">
+                                    <div class="template-title">Technician En Route</div>
+                                    <div class="template-preview">Our emergency repair van is on the way to your location...</div>
+                                </button>
+                                <button type="button" class="template-btn" onclick="loadTemplate('arrival')">
+                                    <div class="template-title">Arrival Notification</div>
+                                    <div class="template-preview">Your Fixbulance technician has arrived at your location...</div>
+                                </button>
+                                <button type="button" class="template-btn" onclick="loadTemplate('completion')">
+                                    <div class="template-title">Repair Completion</div>
+                                    <div class="template-preview">Your device repair has been completed successfully...</div>
+                                </button>
+                                <button type="button" class="template-btn" onclick="loadTemplate('follow-up')">
+                                    <div class="template-title">Follow-up Survey</div>
+                                    <div class="template-preview">How was your emergency repair experience with Fixbulance?...</div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-comment me-1"></i>Message Content
+                            </label>
+                            <textarea class="form-control" id="messageContent" rows="6" 
+                                      placeholder="Type your message here..." 
+                                      oninput="updateCharacterCount()" required></textarea>
+                            <div class="character-count" id="characterCount">0 / 160 characters</div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Bulk Message Composer -->
+                <div id="bulkComposer" class="composer-content" style="display: none;">
+                    <form id="bulkMessageForm">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-filter me-1"></i>Recipient Filters
+                            </label>
+                            <div class="recipient-filters">
+                                <div class="filter-checkbox">
+                                    <input type="checkbox" id="filterToday" checked>
+                                    <label for="filterToday">Today's appointments (5 customers)</label>
+                                </div>
+                                <div class="filter-checkbox">
+                                    <input type="checkbox" id="filterEmergency">
+                                    <label for="filterEmergency">Emergency bookings (2 customers)</label>
+                                </div>
+                                <div class="filter-checkbox">
+                                    <input type="checkbox" id="filterCompleted">
+                                    <label for="filterCompleted">Completed repairs (12 customers)</label>
+                                </div>
+                                <div class="filter-checkbox">
+                                    <input type="checkbox" id="filterPending">
+                                    <label for="filterPending">Pending appointments (8 customers)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-envelope me-1"></i>Bulk Message Type
+                            </label>
+                            <select class="form-select" id="bulkMessageType">
+                                <option value="sms">SMS Text Message</option>
+                                <option value="email">Email Message</option>
+                                <option value="both">Both SMS & Email</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-comment me-1"></i>Bulk Message Content
+                            </label>
+                            <textarea class="form-control" id="bulkMessageContent" rows="6" 
+                                      placeholder="Type your bulk message here..." required></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Send Options -->
+                <div class="send-options">
+                    <button class="btn-send" id="sendNowBtn" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane me-2"></i>Send Now
+                    </button>
+                    <button class="btn-schedule" onclick="scheduleMessage()">
+                        <i class="fas fa-clock me-2"></i>Schedule for Later
+                    </button>
+                    <div class="ms-auto">
+                        <small class="text-muted">Messages sent instantly via SMS/Email</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div>
+                <!-- Bulk Actions -->
+                <div class="bulk-actions">
+                    <div class="card-header">
+                        <h6 class="card-title">
+                            <i class="fas fa-users me-2"></i>
+                            Recipient Summary
+                        </h6>
+                    </div>
+                    <div class="recipient-count" id="recipientCount">
+                        5 customers selected
+                    </div>
+                </div>
+
+                <!-- Recent Communication History -->
+                <div class="communication-card">
+                    <div class="card-header">
+                        <h6 class="card-title">
+                            <i class="fas fa-history me-2"></i>
+                            Recent Messages
+                        </h6>
+                    </div>
+                    <div class="communication-history">
+                        <!-- SMS Message -->
+                        <div class="message-item">
+                            <div class="message-header">
+                                <span class="message-customer">John Smith</span>
+                                <span class="message-time">2 minutes ago</span>
+                                <span class="message-type type-sms">SMS</span>
+                            </div>
+                            <div class="message-content">
+                                Your Fixbulance technician is en route to your location. ETA: 15 minutes.
+                            </div>
+                            <div class="message-status status-delivered">
+                                <i class="fas fa-check-circle me-1"></i>Delivered
+                            </div>
+                        </div>
+
+                        <!-- Email Message -->
+                        <div class="message-item">
+                            <div class="message-header">
+                                <span class="message-customer">Sarah Johnson</span>
+                                <span class="message-time">15 minutes ago</span>
+                                <span class="message-type type-email">EMAIL</span>
+                            </div>
+                            <div class="message-content">
+                                Your appointment confirmation for Samsung Galaxy S23 battery replacement...
+                            </div>
+                            <div class="message-status status-delivered">
+                                <i class="fas fa-check-circle me-1"></i>Delivered
+                            </div>
+                        </div>
+
+                        <!-- Automated Message -->
+                        <div class="message-item">
+                            <div class="message-header">
+                                <span class="message-customer">Mike Davis</span>
+                                <span class="message-time">1 hour ago</span>
+                                <span class="message-type type-automated">AUTO</span>
+                            </div>
+                            <div class="message-content">
+                                Automated appointment reminder: Your repair is scheduled for 4:00 PM today.
+                            </div>
+                            <div class="message-status status-delivered">
+                                <i class="fas fa-check-circle me-1"></i>Delivered
+                            </div>
+                        </div>
+
+                        <!-- Pending Message -->
+                        <div class="message-item">
+                            <div class="message-header">
+                                <span class="message-customer">Lisa Chen</span>
+                                <span class="message-time">2 hours ago</span>
+                                <span class="message-type type-sms">SMS</span>
+                            </div>
+                            <div class="message-content">
+                                Your device repair has been completed. Payment due: $99. Thank you!
+                            </div>
+                            <div class="message-status status-pending">
+                                <i class="fas fa-clock me-1"></i>Pending
+                            </div>
+                        </div>
+
+                        <!-- Failed Message -->
+                        <div class="message-item">
+                            <div class="message-header">
+                                <span class="message-customer">Robert Wilson</span>
+                                <span class="message-time">3 hours ago</span>
+                                <span class="message-type type-sms">SMS</span>
+                            </div>
+                            <div class="message-content">
+                                Appointment reminder: Your repair is scheduled for 11:00 AM today.
+                            </div>
+                            <div class="message-status status-failed">
+                                <i class="fas fa-times-circle me-1"></i>Failed - Invalid number
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Message Templates
+    const templates = {
+        'appointment-confirm': {
+            sms: 'Hi {customer_name}! Your Fixbulance emergency repair is confirmed for {appointment_time} at {location}. Our van will arrive 15 min early. Reply STOP to opt out.',
+            email: {
+                subject: 'Emergency Repair Confirmed - Fixbulance Appointment #{booking_id}',
+                body: 'Dear {customer_name},\n\nYour emergency phone repair appointment has been confirmed:\n\nDevice: {device_model}\nService: {service_type}\nDate & Time: {appointment_date} at {appointment_time}\nLocation: {customer_address}\n\nOur emergency repair van will arrive 15 minutes before your scheduled time. You will receive an SMS notification when our technician is en route.\n\nAppointment Details:\n- Service Cost: {service_price}\n- Estimated Repair Time: {estimated_time} minutes\n- Emergency Technician: {technician_name}\n\nFor any changes or questions, please call our emergency hotline at (555) 123-4567.\n\nThank you for choosing Fixbulance!\n\nThe Fixbulance Emergency Repair Team'
+            }
+        },
+        'en-route': {
+            sms: 'Your Fixbulance technician {technician_name} is en route! ETA: {eta_minutes} min. Van #{van_number}. Call (555) 123-4567 for updates.',
+            email: {
+                subject: 'Technician En Route - Fixbulance Emergency Service',
+                body: 'Dear {customer_name},\n\nGreat news! Your emergency repair technician is on the way to your location.\n\nTechnician: {technician_name}\nEstimated Arrival: {eta_minutes} minutes\nVan Number: {van_number}\nService: {service_type} for {device_model}\n\nYour technician will call you upon arrival. Please have your device ready and ensure the repair location is accessible.\n\nFor real-time updates or questions, call our emergency hotline at (555) 123-4567.\n\nThank you for your patience!\n\nThe Fixbulance Team'
+            }
+        },
+        'arrival': {
+            sms: 'Your Fixbulance technician has arrived! Look for van #{van_number}. Technician: {technician_name}. Call (555) 123-4567 if needed.',
+            email: {
+                subject: 'Technician Arrived - Fixbulance Emergency Service',
+                body: 'Dear {customer_name},\n\nYour Fixbulance emergency repair technician has arrived at your location.\n\nTechnician: {technician_name}\nVan Number: {van_number}\nLocation: {customer_address}\n\nPlease look for our branded emergency repair van. Your technician will contact you directly to coordinate the repair.\n\nService Details:\n- Device: {device_model}\n- Repair: {service_type}\n- Estimated Time: {estimated_time} minutes\n\nFor any questions during the repair, call (555) 123-4567.\n\nThank you for choosing Fixbulance!\n\nThe Fixbulance Team'
+            }
+        },
+        'completion': {
+            sms: 'Repair complete! Your {device_model} {service_type} is finished. Total: {total_amount}. Rate your experience: {survey_link}',
+            email: {
+                subject: 'Repair Completed - Fixbulance Service Summary',
+                body: 'Dear {customer_name},\n\nExcellent news! Your emergency phone repair has been completed successfully.\n\nService Summary:\n- Device: {device_model}\n- Repair: {service_type}\n- Completion Time: {completion_time}\n- Technician: {technician_name}\n- Total Cost: {total_amount}\n\nYour device has been tested and is working properly. We\'ve included a 30-day warranty on the repair work.\n\nPayment Summary:\n- Deposit Paid: $15.00\n- Service Cost: {service_cost}\n- Total Paid: {total_amount}\n\nPlease take a moment to rate your experience: {survey_link}\n\nIf you experience any issues with your repair, please contact us immediately at (555) 123-4567.\n\nThank you for choosing Fixbulance for your emergency repair needs!\n\nThe Fixbulance Team'
+            }
+        },
+        'follow-up': {
+            sms: 'Hi {customer_name}! How was your Fixbulance repair experience? Rate us: {survey_link}. Need help? Call (555) 123-4567.',
+            email: {
+                subject: 'How Was Your Fixbulance Experience?',
+                body: 'Dear {customer_name},\n\nWe hope your {device_model} is working perfectly after our emergency repair service!\n\nYour recent service:\n- Date: {service_date}\n- Repair: {service_type}\n- Technician: {technician_name}\n\nWe\'d love to hear about your experience with Fixbulance. Your feedback helps us improve our emergency repair services.\n\nPlease take 2 minutes to rate your experience: {survey_link}\n\nReminder: Your repair comes with a 30-day warranty. If you experience any issues, please contact us immediately at (555) 123-4567.\n\nNeed another emergency repair? Book online at fixbulance.com or call (555) 123-4567.\n\nThank you for choosing Fixbulance!\n\nThe Fixbulance Team'
+            }
+        }
+    };
+    
+    // Tab Switching
+    window.switchTab = function(tabType) {
+        // Update tab buttons
+        document.querySelectorAll('.composer-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        
+        // Show/hide composer content
+        if (tabType === 'individual') {
+            document.getElementById('individualComposer').style.display = 'block';
+            document.getElementById('bulkComposer').style.display = 'none';
+            document.getElementById('sendNowBtn').textContent = 'Send Message';
+        } else {
+            document.getElementById('individualComposer').style.display = 'none';
+            document.getElementById('bulkComposer').style.display = 'block';
+            document.getElementById('sendNowBtn').textContent = 'Send to All';
+        }
+        
+        updateSendButton();
+    };
+    
+    // Load Message Template
+    window.loadTemplate = function(templateId) {
+        const messageType = document.getElementById('messageType').value;
+        const template = templates[templateId];
+        
+        if (template) {
+            if (messageType === 'email' && template.email) {
+                document.getElementById('messageContent').value = template.email.body;
+            } else {
+                document.getElementById('messageContent').value = template.sms;
+            }
+            updateCharacterCount();
+        }
+    };
+    
+    // Character Count and Limit
+    window.updateCharacterCount = function() {
+        const messageContent = document.getElementById('messageContent');
+        const characterCount = document.getElementById('characterCount');
+        const messageType = document.getElementById('messageType').value;
+        
+        const currentLength = messageContent.value.length;
+        let limit = messageType === 'sms' ? 160 : 1000;
+        
+        characterCount.textContent = `${currentLength} / ${limit} characters`;
+        
+        // Update styling based on length
+        characterCount.className = 'character-count';
+        if (currentLength > limit * 0.9) {
+            characterCount.classList.add('warning');
+        }
+        if (currentLength > limit) {
+            characterCount.classList.add('error');
+        }
+        
+        updateSendButton();
+    };
+    
+    // Update Character Limit
+    window.updateCharacterLimit = function() {
+        updateCharacterCount();
+    };
+    
+    // Update Send Button State
+    function updateSendButton() {
+        const sendBtn = document.getElementById('sendNowBtn');
+        const activeTab = document.querySelector('.composer-tab.active').textContent.includes('Individual');
+        
+        if (activeTab) {
+            const customer = document.getElementById('customerSelect').value;
+            const content = document.getElementById('messageContent').value.trim();
+            sendBtn.disabled = !customer || !content;
+        } else {
+            const content = document.getElementById('bulkMessageContent').value.trim();
+            const hasRecipients = document.querySelectorAll('.recipient-filters input:checked').length > 0;
+            sendBtn.disabled = !content || !hasRecipients;
+        }
+    }
+    
+    // Send Message
+    window.sendMessage = function() {
+        const activeTab = document.querySelector('.composer-tab.active').textContent.includes('Individual');
+        
+        if (activeTab) {
+            sendIndividualMessage();
+        } else {
+            sendBulkMessage();
+        }
+    };
+    
+    function sendIndividualMessage() {
+        const customer = document.getElementById('customerSelect').value;
+        const messageType = document.getElementById('messageType').value;
+        const content = document.getElementById('messageContent').value;
+        
+        if (!customer || !content) {
+            alert('Please select a customer and enter message content.');
+            return;
+        }
+        
+        // Show sending state
+        const sendBtn = document.getElementById('sendNowBtn');
+        const originalText = sendBtn.innerHTML;
+        sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+        sendBtn.disabled = true;
+        
+        // Simulate API call
+        setTimeout(() => {
+            sendBtn.innerHTML = originalText;
+            sendBtn.disabled = false;
+            
+            showNotification(`Message sent successfully to ${customer}`, 'success');
+            
+            // Clear form
+            document.getElementById('messageContent').value = '';
+            updateCharacterCount();
+            
+            // Add to history (simulate)
+            addMessageToHistory(customer, messageType, content, 'delivered');
+            
+        }, 2000);
+    }
+    
+    function sendBulkMessage() {
+        const checkedFilters = document.querySelectorAll('.recipient-filters input:checked');
+        const messageType = document.getElementById('bulkMessageType').value;
+        const content = document.getElementById('bulkMessageContent').value;
+        
+        if (checkedFilters.length === 0 || !content) {
+            alert('Please select recipients and enter message content.');
+            return;
+        }
+        
+        const recipientCount = Array.from(checkedFilters).reduce((total, checkbox) => {
+            const label = checkbox.nextElementSibling.textContent;
+            const match = label.match(/\((\d+) customers?\)/);
+            return total + (match ? parseInt(match[1]) : 0);
+        }, 0);
+        
+        if (confirm(`Send ${messageType.toUpperCase()} message to ${recipientCount} customers?`)) {
+            // Show sending state
+            const sendBtn = document.getElementById('sendNowBtn');
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending to All...';
+            sendBtn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                sendBtn.innerHTML = 'Send to All';
+                sendBtn.disabled = false;
+                
+                showNotification(`Bulk message sent to ${recipientCount} customers`, 'success');
+                
+                // Clear form
+                document.getElementById('bulkMessageContent').value = '';
+                
+            }, 3000);
+        }
+    }
+    
+    // Schedule Message
+    window.scheduleMessage = function() {
+        // In real implementation, would show date/time picker
+        alert('Schedule Message feature would open a date/time picker dialog.');
+    };
+    
+    // Show Template Manager
+    window.showTemplateManager = function() {
+        alert('Template Manager would open a modal for creating and editing message templates.');
+    };
+    
+    // Add Message to History
+    function addMessageToHistory(customer, type, content, status) {
+        const history = document.querySelector('.communication-history');
+        const messageItem = document.createElement('div');
+        messageItem.className = 'message-item';
+        
+        const now = new Date();
+        const timeString = 'Just now';
+        
+        messageItem.innerHTML = `
+            <div class="message-header">
+                <span class="message-customer">${customer.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                <span class="message-time">${timeString}</span>
+                <span class="message-type type-${type}">${type.toUpperCase()}</span>
+            </div>
+            <div class="message-content">${content.substring(0, 100)}${content.length > 100 ? '...' : ''}</div>
+            <div class="message-status status-${status}">
+                <i class="fas fa-clock me-1"></i>Sending...
+            </div>
+        `;
+        
+        history.insertBefore(messageItem, history.firstChild);
+        
+        // Update status after a moment
+        setTimeout(() => {
+            const statusElement = messageItem.querySelector('.message-status');
+            statusElement.innerHTML = '<i class="fas fa-check-circle me-1"></i>Delivered';
+            statusElement.className = 'message-status status-delivered';
+        }, 1500);
+    }
+    
+    // Notification System
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show`;
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '9999';
+        notification.style.minWidth = '300px';
+        
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 4000);
+    }
+    
+    // Event Listeners
+    document.getElementById('customerSelect').addEventListener('change', updateSendButton);
+    document.getElementById('messageContent').addEventListener('input', updateSendButton);
+    document.getElementById('bulkMessageContent').addEventListener('input', updateSendButton);
+    
+    // Recipient filter change handlers
+    document.querySelectorAll('.recipient-filters input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateRecipientCount();
+            updateSendButton();
+        });
+    });
+    
+    // Update Recipient Count
+    function updateRecipientCount() {
+        const checkedFilters = document.querySelectorAll('.recipient-filters input:checked');
+        const totalRecipients = Array.from(checkedFilters).reduce((total, checkbox) => {
+            const label = checkbox.nextElementSibling.textContent;
+            const match = label.match(/\((\d+) customers?\)/);
+            return total + (match ? parseInt(match[1]) : 0);
+        }, 0);
+        
+        document.getElementById('recipientCount').textContent = 
+            `${totalRecipients} customer${totalRecipients !== 1 ? 's' : ''} selected`;
+    }
+    
+    // Initialize
+    updateCharacterCount();
+    updateRecipientCount();
+    updateSendButton();
+});
+</script>
+{% endblock %} 

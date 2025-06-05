@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Mobile Repair Service - Professional Device Repair{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Professional Mobile Device Repair</h1>
+                <p class="lead mb-4">Expert on-site repair service in Orland Park, Illinois. We come to you within our 10-mile service radius.</p>
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-shield-alt text-red me-2 fs-4"></i>
+                        <span class="fw-semibold">Warranty Protected</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-clock text-red me-2 fs-4"></i>
+                        <span class="fw-semibold">Same-Day Service</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-truck text-red me-2 fs-4"></i>
+                        <span class="fw-semibold">Mobile Service</span>
+                    </div>
+                </div>
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg me-3">Book Repair Now</a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">Sign In</a>
+                {% endif %}
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="position-relative">
+                    <i class="fas fa-mobile-alt" style="font-size: 15rem; color: rgba(255,255,255,0.1);"></i>
+                    <div class="position-absolute top-50 start-50 translate-middle">
+                        <h3 class="text-red fw-bold">$15 Deposit</h3>
+                        <p class="mb-0">Secure Your Booking</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Device Selection Section -->
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h2 class="text-navy mb-3">Choose Your Device Type</h2>
+        <p class="lead text-muted">Select your device to see available repair services and pricing</p>
+    </div>
+    
+    <div class="row g-4">
+        {% for device_type in device_types %}
+            <div class="col-md-4">
+                <div class="card device-card h-100 text-center p-4">
+                    <div class="card-body">
+                        {% if device_type == 'iPhone' %}
+                            <i class="fab fa-apple fs-1 text-navy mb-3"></i>
+                            <h4 class="card-title text-navy">iPhone Repair</h4>
+                            <p class="card-text">Professional iPhone repair services for all models. Screen replacement, battery, water damage, and more.</p>
+                        {% elif device_type == 'Samsung' %}
+                            <i class="fab fa-android fs-1 text-navy mb-3"></i>
+                            <h4 class="card-title text-navy">Samsung Repair</h4>
+                            <p class="card-text">Expert Samsung device repair for Galaxy series. Screen, battery, charging port, and system issues.</p>
+                        {% else %}
+                            <i class="fas fa-mobile-alt fs-1 text-navy mb-3"></i>
+                            <h4 class="card-title text-navy">Other Devices</h4>
+                            <p class="card-text">Repair services for other Android devices, tablets, and mobile devices from various manufacturers.</p>
+                        {% endif %}
+                        
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('booking_form', device_type=device_type) }}" class="btn btn-primary">
+                                Book {{ device_type }} Repair
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('register') }}" class="btn btn-outline-primary">
+                                Sign Up to Book
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Services Preview Section -->
+<div class="bg-white py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="text-navy mb-3">Our Repair Services</h2>
+            <p class="lead text-muted">Professional repair services with transparent pricing</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for service in services[:6] %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card service-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title text-navy mb-0">{{ service.name }}</h5>
+                                <span class="badge bg-red fs-6">${{ "%.0f"|format(service.price) }}</span>
+                            </div>
+                            <p class="card-text text-muted mb-3">{{ service.description }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-device me-1"></i>{{ service.device_type }}
+                                </small>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>{{ service.estimated_time }} min
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            {% if current_user.is_authenticated %}
+                <p class="text-muted">Ready to book? Select your device type above to get started.</p>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Create Account to Book Repair</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Technology Validation Info -->
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info border-0" style="background-color: rgba(30, 58, 95, 0.1); border-left: 4px solid var(--navy-blue) !important;">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-code text-navy fs-4 me-3"></i>
+                    <div>
+                        <h5 class="alert-heading text-navy mb-2">Technology Validation Prototype</h5>
+                        <p class="mb-0">This is a Flask technology validation demonstrating core features: user authentication, database models, booking system, and Stripe payment integration. Full implementation includes mobile optimization, real-time communication, and production deployment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="text-navy mb-3">Why Choose Our Service?</h2>
+            <p class="lead text-muted">Professional mobile repair with convenience and quality</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-3 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-map-marked-alt text-red" style="font-size: 3rem;"></i>
+                </div>
+                <h5 class="text-navy">Mobile Service</h5>
+                <p class="text-muted">We come to your location within our 10-mile service radius in Orland Park, Illinois.</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-tools text-red" style="font-size: 3rem;"></i>
+                </div>
+                <h5 class="text-navy">Expert Technicians</h5>
+                <p class="text-muted">Certified technicians with years of experience in mobile device repair.</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-clock text-red" style="font-size: 3rem;"></i>
+                </div>
+                <h5 class="text-navy">Quick Turnaround</h5>
+                <p class="text-muted">Most repairs completed within 30-60 minutes on-site.</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-shield-alt text-red" style="font-size: 3rem;"></i>
+                </div>
+                <h5 class="text-navy">Warranty Protected</h5>
+                <p class="text-muted">All repairs backed by our comprehensive warranty program.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Technology validation: Device type API demonstration
+    document.addEventListener('DOMContentLoaded', function() {
+        // Example API call for services by device type
+        const deviceCards = document.querySelectorAll('.device-card');
+        
+        deviceCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                // This would fetch services dynamically in production
+                console.log('Technology Validation: API ready for device services');
+            });
+        });
+    });
+</script>
+{% endblock %} 

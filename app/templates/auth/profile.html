@@ -1,0 +1,446 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - Mobile Repair Service{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2>⚙️ Account Settings</h2>
+                <p class="text-muted mb-0">Manage your personal information and preferences</p>
+            </div>
+            <div>
+                <a href="{{ url_for('auth.dashboard') }}" class="btn btn-outline-secondary">
+                    ← Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Profile Tabs -->
+        <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" 
+                        type="button" role="tab" aria-controls="personal" aria-selected="true">
+                    👤 Personal Info
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="address-tab" data-bs-toggle="tab" data-bs-target="#address" 
+                        type="button" role="tab" aria-controls="address" aria-selected="false">
+                    📍 Address
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" 
+                        type="button" role="tab" aria-controls="notifications" aria-selected="false">
+                    📧 Notifications
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" 
+                        type="button" role="tab" aria-controls="security" aria-selected="false">
+                    🔐 Security
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="profileTabsContent">
+            <!-- Personal Information Tab -->
+            <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="personal-tab">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('auth.update_profile') }}" id="personalInfoForm">
+                            <input type="hidden" name="form_type" value="personal">
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="first_name" class="form-label">First Name *</label>
+                                        <input type="text" class="form-control" id="first_name" name="first_name" 
+                                               value="{{ current_user.first_name }}" required minlength="2">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="last_name" class="form-label">Last Name *</label>
+                                        <input type="text" class="form-control" id="last_name" name="last_name" 
+                                               value="{{ current_user.last_name }}" required minlength="2">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email Address *</label>
+                                        <input type="email" class="form-control" id="email" name="email" 
+                                               value="{{ current_user.email }}" required>
+                                        <div class="form-text">This is your login email address</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="phone" class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" 
+                                               value="{{ current_user.phone or '' }}" placeholder="(555) 123-4567">
+                                        <div class="form-text">Required for SMS notifications and service calls</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    💾 Save Personal Information
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Information Tab -->
+            <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="alert alert-info">
+                                <strong>📍 Service Area:</strong> We provide mobile repair services within a 10-mile radius of Orland Park, IL. 
+                                Your address helps us verify service availability and optimize technician routing.
+                            </div>
+                        </div>
+                        
+                        <form method="POST" action="{{ url_for('auth.update_profile') }}" id="addressForm">
+                            <input type="hidden" name="form_type" value="address">
+                            
+                            <div class="mb-3">
+                                <label for="street_address" class="form-label">Street Address</label>
+                                <input type="text" class="form-control" id="street_address" name="street_address" 
+                                       value="{{ current_user.street_address or '' }}" placeholder="123 Main Street">
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="city" class="form-label">City</label>
+                                        <input type="text" class="form-control" id="city" name="city" 
+                                               value="{{ current_user.city or '' }}" placeholder="Orland Park">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="state" class="form-label">State</label>
+                                        <select class="form-select" id="state" name="state">
+                                            <option value="IL" {% if current_user.state == 'IL' %}selected{% endif %}>Illinois</option>
+                                            <option value="IN" {% if current_user.state == 'IN' %}selected{% endif %}>Indiana</option>
+                                            <option value="WI" {% if current_user.state == 'WI' %}selected{% endif %}>Wisconsin</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="zip_code" class="form-label">ZIP Code *</label>
+                                        <input type="text" class="form-control" id="zip_code" name="zip_code" 
+                                               value="{{ current_user.zip_code or '' }}" placeholder="60462" 
+                                               pattern="[0-9]{5}" maxlength="5" required>
+                                        <div id="zipValidation" class="form-text"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="apartment" class="form-label">Apartment/Suite (Optional)</label>
+                                <input type="text" class="form-control" id="apartment" name="apartment" 
+                                       value="{{ current_user.apartment or '' }}" placeholder="Apt 2B">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="special_instructions" class="form-label">Special Instructions (Optional)</label>
+                                <textarea class="form-control" id="special_instructions" name="special_instructions" 
+                                          rows="3" placeholder="Parking instructions, building access codes, etc.">{{ current_user.special_instructions or '' }}</textarea>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary" id="saveAddressBtn">
+                                    📍 Save Address Information
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification Preferences Tab -->
+            <div class="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications-tab">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('auth.update_profile') }}" id="notificationsForm">
+                            <input type="hidden" name="form_type" value="notifications">
+                            
+                            <div class="mb-4">
+                                <h6 class="text-primary">📧 Email Notifications</h6>
+                                
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="email_notifications" 
+                                           name="email_notifications" {% if current_user.email_notifications %}checked{% endif %}>
+                                    <label class="form-check-label" for="email_notifications">
+                                        <strong>Booking Notifications</strong><br>
+                                        <small class="text-muted">Appointment confirmations, updates, and completion notices</small>
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="marketing_emails" 
+                                           name="marketing_emails" {% if current_user.marketing_emails %}checked{% endif %}>
+                                    <label class="form-check-label" for="marketing_emails">
+                                        <strong>Promotional Emails</strong><br>
+                                        <small class="text-muted">Special offers, device maintenance tips, and service updates</small>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6 class="text-primary">📱 SMS Notifications</h6>
+                                
+                                {% if current_user.phone %}
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="sms_opted_in" 
+                                               name="sms_opted_in" {% if current_user.sms_opted_in %}checked{% endif %}>
+                                        <label class="form-check-label" for="sms_opted_in">
+                                            <strong>SMS Alerts</strong><br>
+                                            <small class="text-muted">Real-time arrival updates and completion alerts to {{ current_user.phone }}</small>
+                                        </label>
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-warning">
+                                        <strong>Phone Number Required:</strong> Add a phone number in the Personal Info tab to enable SMS notifications.
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6 class="text-primary">🕒 Notification Timing</h6>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="notification_hours_start" class="form-label">Quiet Hours Start</label>
+                                        <select class="form-select" id="notification_hours_start" name="notification_hours_start">
+                                            {% for hour in range(24) %}
+                                                <option value="{{ hour }}" {% if current_user.notification_hours_start == hour %}selected{% endif %}>
+                                                    {{ "%02d:00"|format(hour) }} {% if hour < 12 %}AM{% else %}PM{% endif %}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="notification_hours_end" class="form-label">Quiet Hours End</label>
+                                        <select class="form-select" id="notification_hours_end" name="notification_hours_end">
+                                            {% for hour in range(24) %}
+                                                <option value="{{ hour }}" {% if current_user.notification_hours_end == hour %}selected{% endif %}>
+                                                    {{ "%02d:00"|format(hour) }} {% if hour < 12 %}AM{% else %}PM{% endif %}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-text">We won't send non-urgent notifications during these hours</div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    🔔 Save Notification Preferences
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Tab -->
+            <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('auth.change_password') }}" id="passwordForm">
+                            <div class="mb-4">
+                                <h6 class="text-primary">🔐 Change Password</h6>
+                                
+                                <div class="mb-3">
+                                    <label for="current_password" class="form-label">Current Password *</label>
+                                    <input type="password" class="form-control" id="current_password" 
+                                           name="current_password" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="new_password" class="form-label">New Password *</label>
+                                    <input type="password" class="form-control" id="new_password" 
+                                           name="new_password" required minlength="6">
+                                    <div class="form-text">At least 6 characters</div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="confirm_new_password" class="form-label">Confirm New Password *</label>
+                                    <input type="password" class="form-control" id="confirm_new_password" 
+                                           name="confirm_new_password" required>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-warning">
+                                        🔒 Change Password
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <hr>
+                        
+                        <div class="mb-4">
+                            <h6 class="text-primary">📊 Account Activity</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>Account Created:</strong></td>
+                                        <td>{{ current_user.created_at.strftime('%B %d, %Y at %I:%M %p') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Last Updated:</strong></td>
+                                        <td>{{ current_user.updated_at.strftime('%B %d, %Y at %I:%M %p') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Total Bookings:</strong></td>
+                                        <td>{{ current_user.bookings.count() }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-danger">
+                            <h6 class="alert-heading">⚠️ Danger Zone</h6>
+                            <p class="mb-2">These actions cannot be undone. Please proceed with caution.</p>
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                🗑️ Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteAccountModalLabel">⚠️ Delete Account</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>This action cannot be undone!</strong></p>
+                <p>Deleting your account will permanently remove:</p>
+                <ul>
+                    <li>Your profile information</li>
+                    <li>Booking history</li>
+                    <li>Communication preferences</li>
+                    <li>All associated data</li>
+                </ul>
+                <p>Type <strong>DELETE</strong> to confirm:</p>
+                <input type="text" class="form-control" id="deleteConfirmation" placeholder="Type DELETE">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('auth.delete_account') }}" class="d-inline">
+                    <button type="submit" class="btn btn-danger" id="deleteAccountBtn" disabled>
+                        🗑️ Permanently Delete Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ZIP code validation
+    const zipInput = document.getElementById('zip_code');
+    const zipValidation = document.getElementById('zipValidation');
+    
+    zipInput.addEventListener('blur', async function() {
+        const zipCode = this.value;
+        if (zipCode && zipCode.length === 5) {
+            try {
+                const response = await fetch('/api/validate-zip', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ zip_code: zipCode })
+                });
+                
+                const data = await response.json();
+                if (data.valid) {
+                    zipValidation.innerHTML = `<span class="text-success">✅ ${data.message}</span>`;
+                } else {
+                    zipValidation.innerHTML = `<span class="text-warning">⚠️ ${data.message}</span>`;
+                }
+            } catch (error) {
+                zipValidation.innerHTML = '<span class="text-danger">❌ Error validating ZIP code</span>';
+            }
+        }
+    });
+    
+    // Phone number formatting
+    const phoneInput = document.getElementById('phone');
+    phoneInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 6) {
+            value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+        } else if (value.length >= 3) {
+            value = value.replace(/(\d{3})(\d{3})/, '($1) $2');
+        }
+        e.target.value = value;
+    });
+    
+    // Password confirmation
+    const newPassword = document.getElementById('new_password');
+    const confirmPassword = document.getElementById('confirm_new_password');
+    
+    function validatePasswords() {
+        if (newPassword.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('Passwords do not match');
+            confirmPassword.classList.add('is-invalid');
+        } else {
+            confirmPassword.setCustomValidity('');
+            confirmPassword.classList.remove('is-invalid');
+        }
+    }
+    
+    if (newPassword && confirmPassword) {
+        newPassword.addEventListener('input', validatePasswords);
+        confirmPassword.addEventListener('input', validatePasswords);
+    }
+    
+    // Delete account confirmation
+    const deleteConfirmation = document.getElementById('deleteConfirmation');
+    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+    
+    deleteConfirmation.addEventListener('input', function() {
+        deleteAccountBtn.disabled = this.value !== 'DELETE';
+    });
+    
+    // Form submission feedback
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function() {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '⏳ Saving...';
+                submitBtn.disabled = true;
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

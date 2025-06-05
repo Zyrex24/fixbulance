@@ -1,0 +1,834 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency Dispatch Interface - Fixbulance Admin{% endblock %}
+
+{% block styles %}
+<style>
+    .dispatch-container {
+        min-height: 90vh;
+        background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, rgba(30, 58, 95, 0.02) 100%);
+        padding: 2rem 0;
+    }
+    
+    .emergency-header {
+        background: linear-gradient(135deg, var(--red) 0%, #dc2626 100%);
+        color: var(--white);
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 30px rgba(220, 38, 38, 0.3);
+        animation: pulse-header 3s infinite;
+    }
+    
+    @keyframes pulse-header {
+        0% { box-shadow: 0 8px 30px rgba(220, 38, 38, 0.3); }
+        50% { box-shadow: 0 8px 30px rgba(220, 38, 38, 0.5); }
+        100% { box-shadow: 0 8px 30px rgba(220, 38, 38, 0.3); }
+    }
+    
+    .emergency-badge {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: var(--white);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 700;
+        display: inline-block;
+        margin-bottom: 1rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+    }
+    
+    .emergency-grid {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .dispatch-card {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        background: var(--navy);
+        color: var(--white);
+        padding: 1.5rem;
+        border: none;
+    }
+    
+    .card-title {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+    
+    .emergency-booking {
+        border-left: 5px solid var(--red);
+        background: rgba(220, 38, 38, 0.05);
+        margin: 1rem;
+        border-radius: 8px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .emergency-booking:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(220, 38, 38, 0.15);
+    }
+    
+    .booking-priority {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .priority-emergency {
+        background: var(--red);
+        color: var(--white);
+        animation: pulse 2s infinite;
+    }
+    
+    .priority-urgent {
+        background: #f59e0b;
+        color: var(--white);
+    }
+    
+    .priority-high {
+        background: #3b82f6;
+        color: var(--white);
+    }
+    
+    .customer-details h5 {
+        color: var(--navy);
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        padding: 0.25rem 0;
+    }
+    
+    .detail-label {
+        color: var(--medium-gray);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .detail-value {
+        color: var(--navy);
+        font-weight: 600;
+        text-align: right;
+    }
+    
+    .dispatch-actions {
+        margin-top: 1.5rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+    
+    .dispatch-btn {
+        padding: 0.75rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-dispatch-now {
+        background: var(--red);
+        color: var(--white);
+        font-size: 1rem;
+        grid-column: 1 / -1;
+    }
+    
+    .btn-dispatch-now:hover {
+        background: #b91c1c;
+        color: var(--white);
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(220, 38, 38, 0.3);
+    }
+    
+    .btn-view-details {
+        background: var(--navy);
+        color: var(--white);
+    }
+    
+    .btn-view-details:hover {
+        background: var(--dark-navy);
+        color: var(--white);
+        text-decoration: none;
+    }
+    
+    .btn-contact {
+        background: #10b981;
+        color: var(--white);
+    }
+    
+    .btn-contact:hover {
+        background: #059669;
+        color: var(--white);
+        text-decoration: none;
+    }
+    
+    .van-status-panel {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+    }
+    
+    .van-item {
+        padding: 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .van-item:last-child {
+        border-bottom: none;
+    }
+    
+    .van-header {
+        display: flex;
+        justify-content-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .van-id {
+        font-weight: 700;
+        color: var(--navy);
+        font-size: 1.1rem;
+    }
+    
+    .van-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .status-available {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    
+    .status-dispatched {
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--red);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+    }
+    
+    .status-en-route {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    
+    .van-details {
+        font-size: 0.9rem;
+    }
+    
+    .van-details .detail-row {
+        margin-bottom: 0.25rem;
+    }
+    
+    .dispatch-controls {
+        margin-top: 1rem;
+        display: grid;
+        gap: 0.5rem;
+    }
+    
+    .control-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        background: var(--white);
+        color: var(--navy);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        text-align: center;
+    }
+    
+    .control-btn:hover {
+        border-color: var(--navy);
+        background: rgba(30, 58, 95, 0.05);
+        color: var(--navy);
+        text-decoration: none;
+    }
+    
+    .emergency-timer {
+        background: rgba(220, 38, 38, 0.1);
+        border: 2px solid var(--red);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .timer-display {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--red);
+        margin-bottom: 0.5rem;
+    }
+    
+    .timer-label {
+        color: var(--medium-gray);
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+    }
+    
+    @media (max-width: 768px) {
+        .dispatch-container {
+            padding: 1rem 0;
+        }
+        
+        .emergency-header {
+            padding: 1.5rem;
+        }
+        
+        .emergency-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .dispatch-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dispatch-container">
+    <div class="container-fluid">
+        <!-- Emergency Header -->
+        <div class="emergency-header">
+            <div class="emergency-badge">
+                <i class="fas fa-ambulance me-2"></i>
+                EMERGENCY DISPATCH CENTER
+            </div>
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-1">Emergency Response Coordination</h2>
+                    <p class="mb-0 opacity-90">
+                        Immediate dispatch for critical phone repair emergencies
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-light">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Timer -->
+        <div class="emergency-timer">
+            <div class="timer-display" id="emergencyTimer">00:00:00</div>
+            <div class="timer-label">Time Since Last Emergency Response</div>
+        </div>
+
+        <!-- Main Dispatch Interface -->
+        <div class="emergency-grid">
+            <!-- Emergency Bookings Queue -->
+            <div class="dispatch-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Emergency Dispatch Queue
+                    </h5>
+                </div>
+                
+                <div class="card-body p-0">
+                    <!-- Critical Emergency -->
+                    <div class="emergency-booking">
+                        <div class="booking-priority priority-emergency">
+                            <i class="fas fa-ambulance me-1"></i>
+                            CRITICAL EMERGENCY
+                        </div>
+                        
+                        <div class="customer-details">
+                            <h5>John Smith - iPhone 14 Pro</h5>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-phone me-1"></i>Phone:
+                                </span>
+                                <span class="detail-value">(555) 123-4567</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-map-marker-alt me-1"></i>Location:
+                                </span>
+                                <span class="detail-value">123 Main St, Orland Park, IL</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-tools me-1"></i>Service:
+                                </span>
+                                <span class="detail-value">Screen Replacement ($89)</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-clock me-1"></i>Requested:
+                                </span>
+                                <span class="detail-value">ASAP (12 minutes ago)</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-route me-1"></i>Distance:
+                                </span>
+                                <span class="detail-value">2.1 miles from base</span>
+                            </div>
+                        </div>
+                        
+                        <div class="dispatch-actions">
+                            <button class="dispatch-btn btn-dispatch-now" onclick="dispatchEmergency('booking-001')">
+                                <i class="fas fa-ambulance me-2"></i>
+                                DISPATCH NOW
+                            </button>
+                            <a href="#" class="dispatch-btn btn-view-details">
+                                <i class="fas fa-eye me-1"></i>Details
+                            </a>
+                            <a href="tel:5551234567" class="dispatch-btn btn-contact">
+                                <i class="fas fa-phone me-1"></i>Call Customer
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Urgent Booking -->
+                    <div class="emergency-booking">
+                        <div class="booking-priority priority-urgent">
+                            <i class="fas fa-clock me-1"></i>
+                            URGENT
+                        </div>
+                        
+                        <div class="customer-details">
+                            <h5>Sarah Johnson - Samsung Galaxy S23</h5>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-phone me-1"></i>Phone:
+                                </span>
+                                <span class="detail-value">(555) 987-6543</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-map-marker-alt me-1"></i>Location:
+                                </span>
+                                <span class="detail-value">456 Oak Ave, Tinley Park, IL</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-tools me-1"></i>Service:
+                                </span>
+                                <span class="detail-value">Battery Replacement ($69)</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-clock me-1"></i>Scheduled:
+                                </span>
+                                <span class="detail-value">2:00 PM Today</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-route me-1"></i>Distance:
+                                </span>
+                                <span class="detail-value">4.8 miles from base</span>
+                            </div>
+                        </div>
+                        
+                        <div class="dispatch-actions">
+                            <button class="dispatch-btn btn-dispatch-now" onclick="dispatchEmergency('booking-002')">
+                                <i class="fas fa-ambulance me-2"></i>
+                                DISPATCH NOW
+                            </button>
+                            <a href="#" class="dispatch-btn btn-view-details">
+                                <i class="fas fa-eye me-1"></i>Details
+                            </a>
+                            <a href="tel:5559876543" class="dispatch-btn btn-contact">
+                                <i class="fas fa-phone me-1"></i>Call Customer
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- High Priority Booking -->
+                    <div class="emergency-booking">
+                        <div class="booking-priority priority-high">
+                            <i class="fas fa-star me-1"></i>
+                            HIGH PRIORITY
+                        </div>
+                        
+                        <div class="customer-details">
+                            <h5>Mike Davis - iPhone 13</h5>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-phone me-1"></i>Phone:
+                                </span>
+                                <span class="detail-value">(555) 456-7890</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-map-marker-alt me-1"></i>Location:
+                                </span>
+                                <span class="detail-value">789 Pine St, Oak Forest, IL</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-tools me-1"></i>Service:
+                                </span>
+                                <span class="detail-value">Charging Port Repair ($59)</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-clock me-1"></i>Scheduled:
+                                </span>
+                                <span class="detail-value">4:00 PM Today</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">
+                                    <i class="fas fa-route me-1"></i>Distance:
+                                </span>
+                                <span class="detail-value">6.2 miles from base</span>
+                            </div>
+                        </div>
+                        
+                        <div class="dispatch-actions">
+                            <button class="dispatch-btn btn-dispatch-now" onclick="dispatchEmergency('booking-003')">
+                                <i class="fas fa-ambulance me-2"></i>
+                                DISPATCH NOW
+                            </button>
+                            <a href="#" class="dispatch-btn btn-view-details">
+                                <i class="fas fa-eye me-1"></i>Details
+                            </a>
+                            <a href="tel:5554567890" class="dispatch-btn btn-contact">
+                                <i class="fas fa-phone me-1"></i>Call Customer
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Van Status Panel -->
+            <div class="van-status-panel">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-van-shuttle me-2"></i>
+                        Emergency Response Fleet
+                    </h5>
+                </div>
+                
+                <!-- Van #1 -->
+                <div class="van-item">
+                    <div class="van-header">
+                        <span class="van-id">
+                            <i class="fas fa-ambulance me-2"></i>
+                            Emergency Van #1
+                        </span>
+                        <span class="van-status status-available">AVAILABLE</span>
+                    </div>
+                    
+                    <div class="van-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Location:</span>
+                            <span class="detail-value">Orland Park Base</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Technician:</span>
+                            <span class="detail-value">Alex Rodriguez</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">ETA to Emergency:</span>
+                            <span class="detail-value text-success">8 minutes</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Last Service:</span>
+                            <span class="detail-value">Completed 15 min ago</span>
+                        </div>
+                    </div>
+                    
+                    <div class="dispatch-controls">
+                        <button class="control-btn" onclick="assignVan('van-1', 'booking-001')">
+                            <i class="fas fa-plus me-1"></i>Assign to Emergency
+                        </button>
+                        <a href="#" class="control-btn">
+                            <i class="fas fa-route me-1"></i>Track Location
+                        </a>
+                        <a href="#" class="control-btn">
+                            <i class="fas fa-phone me-1"></i>Contact Technician
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Van #2 -->
+                <div class="van-item">
+                    <div class="van-header">
+                        <span class="van-id">
+                            <i class="fas fa-ambulance me-2"></i>
+                            Emergency Van #2
+                        </span>
+                        <span class="van-status status-en-route">EN ROUTE</span>
+                    </div>
+                    
+                    <div class="van-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Current Location:</span>
+                            <span class="detail-value">Palos Heights</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Technician:</span>
+                            <span class="detail-value">Maria Gonzalez</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Destination:</span>
+                            <span class="detail-value">Homer Glen Appointment</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">ETA:</span>
+                            <span class="detail-value">3:45 PM</span>
+                        </div>
+                    </div>
+                    
+                    <div class="dispatch-controls">
+                        <button class="control-btn" disabled>
+                            <i class="fas fa-clock me-1"></i>Currently Assigned
+                        </button>
+                        <a href="#" class="control-btn">
+                            <i class="fas fa-route me-1"></i>Track Location
+                        </a>
+                        <a href="#" class="control-btn">
+                            <i class="fas fa-phone me-1"></i>Contact Technician
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Emergency Actions -->
+                <div class="van-item">
+                    <h6 class="text-danger mb-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Emergency Response Actions
+                    </h6>
+                    
+                    <div class="dispatch-controls">
+                        <button class="control-btn text-danger" onclick="emergencyBroadcast()">
+                            <i class="fas fa-broadcast-tower me-1"></i>Emergency Broadcast
+                        </button>
+                        <button class="control-btn text-warning" onclick="callAllTechnicians()">
+                            <i class="fas fa-phone-alt me-1"></i>Call All Technicians
+                        </button>
+                        <a href="{{ url_for('admin.emergency_protocol') }}" class="control-btn">
+                            <i class="fas fa-clipboard-list me-1"></i>Emergency Protocol
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Emergency Timer
+    let emergencyStartTime = new Date() - (12 * 60 * 1000); // 12 minutes ago
+    
+    function updateEmergencyTimer() {
+        const now = new Date();
+        const elapsed = now - emergencyStartTime;
+        
+        const hours = Math.floor(elapsed / (1000 * 60 * 60));
+        const minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((elapsed % (1000 * 60)) / 1000);
+        
+        const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        document.getElementById('emergencyTimer').textContent = timeString;
+    }
+    
+    updateEmergencyTimer();
+    setInterval(updateEmergencyTimer, 1000);
+    
+    // Emergency Dispatch Function
+    window.dispatchEmergency = function(bookingId) {
+        if (confirm('CONFIRM EMERGENCY DISPATCH\n\nThis will immediately dispatch the nearest available van to the customer location. Continue?')) {
+            const btn = event.target;
+            const originalHTML = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>DISPATCHING...';
+            btn.disabled = true;
+            
+            // Simulate dispatch process
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-check me-2"></i>DISPATCHED';
+                btn.style.background = '#10b981';
+                
+                showEmergencyNotification('Emergency van dispatched successfully!', 'success');
+                
+                // Reset emergency timer
+                emergencyStartTime = new Date();
+                
+                // Update van status
+                updateVanStatus('van-1', 'DISPATCHED');
+                
+            }, 2000);
+        }
+    };
+    
+    // Assign Van Function
+    window.assignVan = function(vanId, bookingId) {
+        if (confirm(`Assign ${vanId} to emergency booking ${bookingId}?`)) {
+            showEmergencyNotification(`${vanId} assigned to emergency booking`, 'success');
+            updateVanStatus(vanId, 'ASSIGNED');
+        }
+    };
+    
+    // Update Van Status
+    function updateVanStatus(vanId, status) {
+        const vanElement = document.querySelector(`[data-van-id="${vanId}"]`);
+        if (vanElement) {
+            const statusElement = vanElement.querySelector('.van-status');
+            statusElement.textContent = status;
+            statusElement.className = `van-status status-${status.toLowerCase()}`;
+        }
+    }
+    
+    // Emergency Broadcast
+    window.emergencyBroadcast = function() {
+        if (confirm('Send emergency broadcast to all technicians?\n\nThis will alert all available technicians of a critical emergency.')) {
+            showEmergencyNotification('Emergency broadcast sent to all technicians', 'warning');
+        }
+    };
+    
+    // Call All Technicians
+    window.callAllTechnicians = function() {
+        if (confirm('Initiate emergency conference call with all technicians?')) {
+            showEmergencyNotification('Initiating emergency conference call...', 'info');
+        }
+    };
+    
+    // Emergency Notification System
+    function showEmergencyNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show`;
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '9999';
+        notification.style.minWidth = '350px';
+        notification.style.maxWidth = '500px';
+        
+        let iconClass = 'fas fa-info-circle';
+        if (type === 'success') iconClass = 'fas fa-check-circle';
+        if (type === 'warning') iconClass = 'fas fa-exclamation-triangle';
+        if (type === 'error') iconClass = 'fas fa-times-circle';
+        
+        notification.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="${iconClass} me-2" style="font-size: 1.2rem;"></i>
+                <div>
+                    <strong>EMERGENCY DISPATCH:</strong><br>
+                    ${message}
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+        
+        // Play emergency sound (optional)
+        if (type === 'warning' || type === 'error') {
+            playEmergencyAlert();
+        }
+    }
+    
+    // Emergency Alert Sound
+    function playEmergencyAlert() {
+        // In real implementation, play emergency alert sound
+        console.log('🚨 EMERGENCY ALERT SOUND');
+    }
+    
+    // Auto-refresh every 10 seconds for real-time updates
+    setInterval(() => {
+        // In real implementation, refresh emergency queue data
+        console.log('Refreshing emergency dispatch data...');
+    }, 10000);
+    
+    // Keyboard shortcuts for emergency operations
+    document.addEventListener('keydown', function(e) {
+        // F1 for emergency dispatch
+        if (e.key === 'F1') {
+            e.preventDefault();
+            const firstEmergencyBtn = document.querySelector('.btn-dispatch-now');
+            if (firstEmergencyBtn) {
+                firstEmergencyBtn.click();
+            }
+        }
+        
+        // F2 for emergency broadcast
+        if (e.key === 'F2') {
+            e.preventDefault();
+            emergencyBroadcast();
+        }
+        
+        // F3 for call all technicians
+        if (e.key === 'F3') {
+            e.preventDefault();
+            callAllTechnicians();
+        }
+    });
+    
+    // Critical emergency warning on page load
+    setTimeout(() => {
+        showEmergencyNotification('Critical emergency booking requires immediate attention!', 'warning');
+    }, 1000);
+});
+</script>
+{% endblock %} 

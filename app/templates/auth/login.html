@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Fixbulance Emergency Phone Repair Service{% endblock %}
+
+{% block styles %}
+<style>
+    .auth-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, rgba(227, 232, 216, 0.1) 0%, rgba(30, 58, 95, 0.05) 100%);
+        padding: 3rem 0;
+    }
+    
+    .auth-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+    }
+    
+    .auth-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--light-navy) 100%);
+        color: var(--white);
+        padding: 2rem;
+        text-align: center;
+        border: none;
+    }
+    
+    .auth-header h4 {
+        color: var(--white);
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .auth-subtitle {
+        opacity: 0.9;
+        margin-bottom: 0;
+    }
+    
+    .auth-body {
+        padding: 2.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-navy);
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control {
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--navy);
+        box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+    }
+    
+    .emergency-badge {
+        background-color: var(--red);
+        color: var(--white);
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+    
+    .test-accounts {
+        background: var(--light-gray);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .divider {
+        border: none;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+        margin: 2rem 0;
+    }
+    
+    @media (max-width: 768px) {
+        .auth-container {
+            padding: 1rem 0;
+        }
+        
+        .auth-body {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7">
+                <div class="card auth-card">
+                    <div class="card-header auth-header">
+                        <div class="emergency-badge">
+                            <i class="fas fa-user-shield me-1"></i>
+                            Secure Access
+                        </div>
+                        <h4>Welcome Back to Fixbulance</h4>
+                        <p class="auth-subtitle">Access your emergency repair account</p>
+                    </div>
+                    <div class="card-body auth-body">
+                        <form method="POST">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope me-2 text-primary"></i>Email Address
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       placeholder="Enter your email" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock me-2 text-primary"></i>Password
+                                </label>
+                                <input type="password" class="form-control" id="password" name="password" 
+                                       placeholder="Enter your password" required>
+                            </div>
+                            
+                            <div class="mb-4 form-check">
+                                <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                                <label class="form-check-label" for="remember_me">
+                                    <i class="fas fa-remember me-1"></i>Remember me on this device
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100 mb-3">
+                                <i class="fas fa-sign-in-alt me-2"></i>Access Emergency Portal
+                            </button>
+                        </form>
+                        
+                        <div class="divider"></div>
+                        
+                        <div class="text-center">
+                            <p class="mb-3 text-muted">Need emergency repair service?</p>
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-user-plus me-2"></i>Create Emergency Account
+                            </a>
+                        </div>
+                        
+                        <div class="test-accounts">
+                            <div class="text-center">
+                                <h6 class="text-dark mb-2">
+                                    <i class="fas fa-flask me-2"></i>Demo Access
+                                </h6>
+                                <small class="text-muted d-block mb-1">
+                                    <strong>Admin Portal:</strong> admin@repair.local / admin123
+                                </small>
+                                <small class="text-muted d-block">
+                                    <strong>Customer Account:</strong> customer@example.com / customer123
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                Your information is secure and encrypted
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

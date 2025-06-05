@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error - Mobile Repair Service{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="display-1">500</h1>
+                <h2 class="mb-3">Internal Server Error</h2>
+                <p class="lead">Oops! Something went wrong on our end.</p>
+                <p class="text-muted">We're working to fix this issue. Please try again in a few moments, or contact us if the problem persists.</p>
+                <div class="mt-4">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary me-2">🏠 Go Home</a>
+                    <a href="{{ url_for('main.contact') }}" class="btn btn-outline-primary">📞 Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

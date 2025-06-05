@@ -1,0 +1,701 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency Appointment Scheduling - Step 5: Book Time Slot - Fixbulance{% endblock %}
+
+{% block styles %}
+<style>
+    .booking-container {
+        min-height: 70vh;
+        background: linear-gradient(135deg, rgba(227, 232, 216, 0.1) 0%, rgba(30, 58, 95, 0.05) 100%);
+        padding: 3rem 0;
+    }
+    
+    .booking-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+    }
+    
+    .booking-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--light-navy) 100%);
+        color: var(--white);
+        padding: 2rem;
+        text-align: center;
+        border: none;
+    }
+    
+    .booking-header h4 {
+        color: var(--white);
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .emergency-badge {
+        background-color: var(--red);
+        color: var(--white);
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 1rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+    
+    .progress-bar-container {
+        margin: 2rem 0;
+    }
+    
+    .custom-progress {
+        height: 8px;
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .custom-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--red), #ff4757);
+        width: 83.33%; /* 5/6 steps */
+        transition: width 0.3s ease;
+    }
+    
+    .selections-summary {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: var(--white);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .form-section {
+        padding: 2.5rem;
+    }
+    
+    .section-header {
+        color: var(--navy);
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--light-gray);
+    }
+    
+    .emergency-priority {
+        background: rgba(220, 38, 38, 0.1);
+        border-left: 4px solid var(--red);
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .time-slot-card {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+        background: var(--white);
+    }
+    
+    .time-slot-card:hover {
+        border-color: var(--navy);
+        box-shadow: 0 8px 25px rgba(30, 58, 95, 0.15);
+        transform: translateY(-3px);
+    }
+    
+    .time-slot-card.selected {
+        border-color: var(--red);
+        background: rgba(220, 38, 38, 0.05);
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+    
+    .time-slot-card.unavailable {
+        background: #f8f9fa;
+        border-color: #dee2e6;
+        color: #6c757d;
+        cursor: not-allowed;
+    }
+    
+    .emergency-slot {
+        border-color: var(--red) !important;
+        background: rgba(220, 38, 38, 0.05);
+    }
+    
+    .emergency-slot .time-badge {
+        background: var(--red);
+        color: var(--white);
+    }
+    
+    .time-badge {
+        background: var(--navy);
+        color: var(--white);
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .date-selector {
+        background: var(--light-gray);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .date-option {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+        background: var(--white);
+    }
+    
+    .date-option:hover {
+        border-color: var(--navy);
+        box-shadow: 0 4px 15px rgba(30, 58, 95, 0.1);
+    }
+    
+    .date-option.selected {
+        border-color: var(--red);
+        background: rgba(220, 38, 38, 0.05);
+    }
+    
+    .step-navigation {
+        padding: 1.5rem 2.5rem;
+        background: var(--light-gray);
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    @media (max-width: 768px) {
+        .booking-container {
+            padding: 1rem 0;
+        }
+        
+        .form-section {
+            padding: 1.5rem;
+        }
+        
+        .step-navigation {
+            padding: 1rem 1.5rem;
+        }
+        
+        .time-slot-card {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="booking-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card booking-card">
+                    <div class="card-header booking-header">
+                        <div class="emergency-badge">
+                            <i class="fas fa-ambulance me-1"></i>
+                            Emergency Appointment Scheduling
+                        </div>
+                        <h4>Book Your Emergency Repair Time</h4>
+                        <p class="mb-0 opacity-90">Step 5 of 6: Choose when our emergency van should arrive</p>
+                        
+                        <div class="progress-bar-container">
+                            <div class="custom-progress">
+                                <div class="custom-progress-bar"></div>
+                            </div>
+                            <small class="text-white-50">Step 5: Emergency Appointment Scheduling</small>
+                        </div>
+                    </div>
+
+                    <!-- Previous Selections Summary -->
+                    <div class="selections-summary">
+                        <h6 class="mb-3">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>Emergency Service Summary</strong>
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-mobile-alt me-2"></i>
+                                    <strong>Device:</strong>&nbsp;{{ device_type }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-tools me-2"></i>
+                                    <strong>Service:</strong>&nbsp;{{ service.name }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-map-marker-alt me-2"></i>
+                                    <strong>Location:</strong>&nbsp;{{ location_city }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-clock me-2"></i>
+                                    <strong>Est. Time:</strong>&nbsp;{{ service.estimated_time }}min
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('booking.step6_review') }}" id="scheduleForm">
+                        <input type="hidden" name="device_type" value="{{ device_type }}">
+                        <input type="hidden" name="service_id" value="{{ service.id }}">
+                        <input type="hidden" name="location_data" value="{{ location_data }}">
+                        <input type="hidden" name="selected_date" id="selectedDate">
+                        <input type="hidden" name="selected_time" id="selectedTime">
+                        <input type="hidden" name="appointment_type" id="appointmentType">
+                        
+                        <div class="form-section">
+                            <!-- Emergency Priority Information -->
+                            <div class="emergency-priority">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Emergency Priority Scheduling:</strong> Same-day and next-day slots available for emergency repairs. 
+                                Choose the time that works best for your schedule.
+                            </div>
+
+                            <!-- Date Selection -->
+                            <h5 class="section-header">
+                                <i class="fas fa-calendar-alt me-2"></i>Choose Emergency Appointment Date
+                            </h5>
+                            
+                            <div class="date-selector">
+                                <div class="row" id="dateOptions">
+                                    <!-- Today -->
+                                    <div class="col-md-4">
+                                        <div class="date-option emergency-date" data-date="{{ today }}" data-type="emergency">
+                                            <div class="time-badge" style="background: var(--red);">EMERGENCY TODAY</div>
+                                            <h6 class="mb-1">{{ today_formatted }}</h6>
+                                            <small class="text-muted">Same-day emergency service</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tomorrow -->
+                                    <div class="col-md-4">
+                                        <div class="date-option" data-date="{{ tomorrow }}" data-type="priority">
+                                            <div class="time-badge">PRIORITY</div>
+                                            <h6 class="mb-1">{{ tomorrow_formatted }}</h6>
+                                            <small class="text-muted">Next-day priority service</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Day After -->
+                                    <div class="col-md-4">
+                                        <div class="date-option" data-date="{{ day_after }}" data-type="standard">
+                                            <div class="time-badge" style="background: var(--medium-gray);">STANDARD</div>
+                                            <h6 class="mb-1">{{ day_after_formatted }}</h6>
+                                            <small class="text-muted">Standard scheduling</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Time Slot Selection -->
+                            <h5 class="section-header">
+                                <i class="fas fa-clock me-2"></i>Available Emergency Time Slots
+                            </h5>
+                            
+                            <div id="timeSlots" style="display: none;">
+                                <!-- Emergency Slots (Today) -->
+                                <div id="emergencySlots" style="display: none;">
+                                    <h6 class="mb-3 text-danger">
+                                        <i class="fas fa-ambulance me-2"></i>Emergency Same-Day Slots
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-lg-3 col-md-4 col-6">
+                                            <div class="time-slot-card emergency-slot" data-time="ASAP" data-slot-type="emergency">
+                                                <div class="time-badge">EMERGENCY</div>
+                                                <h6>ASAP</h6>
+                                                <small>Within 2-4 hours</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-4 col-6">
+                                            <div class="time-slot-card emergency-slot" data-time="14:00" data-slot-type="emergency">
+                                                <div class="time-badge">EMERGENCY</div>
+                                                <h6>2:00 PM</h6>
+                                                <small>This afternoon</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-4 col-6">
+                                            <div class="time-slot-card emergency-slot" data-time="16:00" data-slot-type="emergency">
+                                                <div class="time-badge">EMERGENCY</div>
+                                                <h6>4:00 PM</h6>
+                                                <small>Late afternoon</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-4 col-6">
+                                            <div class="time-slot-card emergency-slot" data-time="18:00" data-slot-type="emergency">
+                                                <div class="time-badge">EMERGENCY</div>
+                                                <h6>6:00 PM</h6>
+                                                <small>Evening</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Priority Slots (Tomorrow) -->
+                                <div id="prioritySlots" style="display: none;">
+                                    <h6 class="mb-3 text-primary">
+                                        <i class="fas fa-star me-2"></i>Priority Next-Day Slots
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-lg-3 col-md-4 col-6">
+                                            <div class="time-slot-card" data-time="09:00" data-slot-type="priority">
+                                                <div class="time-badge">PRIORITY</div>
+                                                <h6>9:00 AM</h6>
+                                                <small>Early morning</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-4 col-6">
+                                            <div class="time-slot-card" data-time="11:00" data-slot-type="priority">
+                                                <div class="time-badge">PRIORITY</div>
+                                                <h6>11:00 AM</h6>
+                                                <small>Late morning</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-4 col-6">
+                                            <div class="time-slot-card" data-time="14:00" data-slot-type="priority">
+                                                <div class="time-badge">PRIORITY</div>
+                                                <h6>2:00 PM</h6>
+                                                <small>Afternoon</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-4 col-6">
+                                            <div class="time-slot-card" data-time="16:00" data-slot-type="priority">
+                                                <div class="time-badge">PRIORITY</div>
+                                                <h6>4:00 PM</h6>
+                                                <small>Late afternoon</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Standard Slots (Day After) -->
+                                <div id="standardSlots" style="display: none;">
+                                    <h6 class="mb-3 text-secondary">
+                                        <i class="fas fa-calendar me-2"></i>Standard Appointment Slots
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-lg-3 col-md-4 col-6">
+                                            <div class="time-slot-card" data-time="10:00" data-slot-type="standard">
+                                                <div class="time-badge" style="background: var(--medium-gray);">STANDARD</div>
+                                                <h6>10:00 AM</h6>
+                                                <small>Morning</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-4 col-6">
+                                            <div class="time-slot-card" data-time="13:00" data-slot-type="standard">
+                                                <div class="time-badge" style="background: var(--medium-gray);">STANDARD</div>
+                                                <h6>1:00 PM</h6>
+                                                <small>Lunch time</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-4 col-6">
+                                            <div class="time-slot-card" data-time="15:00" data-slot-type="standard">
+                                                <div class="time-badge" style="background: var(--medium-gray);">STANDARD</div>
+                                                <h6>3:00 PM</h6>
+                                                <small>Afternoon</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-4 col-6">
+                                            <div class="time-slot-card" data-time="17:00" data-slot-type="standard">
+                                                <div class="time-badge" style="background: var(--medium-gray);">STANDARD</div>
+                                                <h6>5:00 PM</h6>
+                                                <small>Evening</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Selected Appointment Summary -->
+                            <div id="appointmentSummary" style="display: none;" class="mt-4">
+                                <div class="emergency-priority">
+                                    <h6 class="mb-2">
+                                        <i class="fas fa-calendar-check me-2"></i>
+                                        <strong>Selected Emergency Appointment</strong>
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="mb-1">
+                                                <i class="fas fa-calendar me-2"></i>
+                                                <strong>Date:</strong> <span id="summaryDate"></span>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="mb-1">
+                                                <i class="fas fa-clock me-2"></i>
+                                                <strong>Time:</strong> <span id="summaryTime"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <p class="mb-0">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Type:</strong> <span id="summaryType"></span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="step-navigation">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('booking.step4_location') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Location
+                                </a>
+                                
+                                <div class="text-center">
+                                    <small class="text-muted">Emergency appointment scheduling</small>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary" id="continueBtn" disabled>
+                                    Continue to Payment <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Emergency Scheduling Information -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-clock me-2 text-danger"></i>
+                                    Emergency Response Times
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-2">
+                                        <i class="fas fa-ambulance text-danger me-2"></i>
+                                        <strong>ASAP Emergency:</strong> 2-4 hours response time
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-star text-primary me-2"></i>
+                                        <strong>Priority Next-Day:</strong> Scheduled appointment slots
+                                    </li>
+                                    <li class="mb-0">
+                                        <i class="fas fa-calendar text-secondary me-2"></i>
+                                        <strong>Standard Service:</strong> Regular appointment booking
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-shield-alt me-2 text-success"></i>
+                                    What to Expect
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-2">
+                                        <i class="fas fa-phone text-success me-2"></i>
+                                        <strong>Confirmation Call:</strong> We'll call to confirm your appointment
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-van-shuttle text-success me-2"></i>
+                                        <strong>Arrival Notification:</strong> 15-minute advance notice
+                                    </li>
+                                    <li class="mb-0">
+                                        <i class="fas fa-tools text-success me-2"></i>
+                                        <strong>On-Site Service:</strong> Professional repair at your location
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dateOptions = document.querySelectorAll('.date-option');
+    const timeSlots = document.getElementById('timeSlots');
+    const emergencySlots = document.getElementById('emergencySlots');
+    const prioritySlots = document.getElementById('prioritySlots');
+    const standardSlots = document.getElementById('standardSlots');
+    const appointmentSummary = document.getElementById('appointmentSummary');
+    const continueBtn = document.getElementById('continueBtn');
+    
+    let selectedDate = null;
+    let selectedTime = null;
+    let selectedType = null;
+    
+    // Date selection handling
+    dateOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove selection from all date options
+            dateOptions.forEach(opt => opt.classList.remove('selected'));
+            
+            // Add selection to clicked option
+            this.classList.add('selected');
+            
+            // Get selected date info
+            selectedDate = this.dataset.date;
+            const appointmentType = this.dataset.type;
+            
+            // Show appropriate time slots
+            timeSlots.style.display = 'block';
+            emergencySlots.style.display = 'none';
+            prioritySlots.style.display = 'none';
+            standardSlots.style.display = 'none';
+            
+            if (appointmentType === 'emergency') {
+                emergencySlots.style.display = 'block';
+            } else if (appointmentType === 'priority') {
+                prioritySlots.style.display = 'block';
+            } else {
+                standardSlots.style.display = 'block';
+            }
+            
+            // Clear previous time selection
+            document.querySelectorAll('.time-slot-card').forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            selectedTime = null;
+            updateContinueButton();
+            appointmentSummary.style.display = 'none';
+        });
+    });
+    
+    // Time slot selection handling
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.time-slot-card') && !e.target.closest('.time-slot-card').classList.contains('unavailable')) {
+            const timeSlot = e.target.closest('.time-slot-card');
+            
+            // Remove selection from all time slots
+            document.querySelectorAll('.time-slot-card').forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            
+            // Add selection to clicked slot
+            timeSlot.classList.add('selected');
+            
+            // Get selected time info
+            selectedTime = timeSlot.dataset.time;
+            selectedType = timeSlot.dataset.slotType;
+            
+            // Update form fields
+            document.getElementById('selectedDate').value = selectedDate;
+            document.getElementById('selectedTime').value = selectedTime;
+            document.getElementById('appointmentType').value = selectedType;
+            
+            // Show appointment summary
+            updateAppointmentSummary();
+            updateContinueButton();
+        }
+    });
+    
+    function updateAppointmentSummary() {
+        const dateText = formatDate(selectedDate);
+        const timeText = formatTime(selectedTime);
+        const typeText = formatType(selectedType);
+        
+        document.getElementById('summaryDate').textContent = dateText;
+        document.getElementById('summaryTime').textContent = timeText;
+        document.getElementById('summaryType').textContent = typeText;
+        
+        appointmentSummary.style.display = 'block';
+    }
+    
+    function updateContinueButton() {
+        if (selectedDate && selectedTime) {
+            continueBtn.disabled = false;
+            continueBtn.innerHTML = 'Continue to Payment <i class="fas fa-arrow-right ms-2"></i>';
+        } else {
+            continueBtn.disabled = true;
+            continueBtn.innerHTML = 'Select Date & Time First <i class="fas fa-clock ms-2"></i>';
+        }
+    }
+    
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    }
+    
+    function formatTime(timeStr) {
+        if (timeStr === 'ASAP') {
+            return 'As Soon As Possible (2-4 hours)';
+        }
+        
+        const [hours, minutes] = timeStr.split(':');
+        const time = new Date();
+        time.setHours(parseInt(hours), parseInt(minutes));
+        
+        return time.toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true 
+        });
+    }
+    
+    function formatType(type) {
+        switch(type) {
+            case 'emergency':
+                return 'Emergency Same-Day Service';
+            case 'priority':
+                return 'Priority Next-Day Service';
+            case 'standard':
+                return 'Standard Appointment';
+            default:
+                return 'Emergency Service';
+        }
+    }
+    
+    // Form submission handling
+    document.getElementById('scheduleForm').addEventListener('submit', function(e) {
+        if (!selectedDate || !selectedTime) {
+            e.preventDefault();
+            alert('Please select both a date and time for your emergency appointment.');
+            return;
+        }
+        
+        // Show loading state
+        continueBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading Payment...';
+        continueBtn.disabled = true;
+    });
+    
+    // Auto-select today for emergency bookings
+    if (dateOptions.length > 0) {
+        // Auto-highlight today's emergency option
+        const todayOption = document.querySelector('.date-option[data-type="emergency"]');
+        if (todayOption) {
+            todayOption.style.animation = 'pulse 2s infinite';
+        }
+    }
+});
+</script>
+{% endblock %} 

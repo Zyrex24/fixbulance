@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Mobile Repair Service{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="bg-navy text-white p-4 rounded">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="mb-1">Welcome back, {{ current_user.first_name }}!</h2>
+                        <p class="mb-0 opacity-75">Manage your device repair bookings and account settings</p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-light">
+                            <i class="fas fa-plus me-2"></i>Book New Repair
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bookings Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2 text-navy"></i>My Repair Bookings</h5>
+                    <span class="badge bg-secondary">{{ bookings|length }} Total</span>
+                </div>
+                <div class="card-body">
+                    {% if bookings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Service</th>
+                                        <th>Device</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Amount</th>
+                                        <th>Payment</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in bookings %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ booking.service.name }}</strong><br>
+                                                <small class="text-muted">{{ booking.service.device_type }}</small>
+                                            </td>
+                                            <td>{{ booking.device_model }}</td>
+                                            <td>{{ booking.appointment_date.strftime('%m/%d/%Y %I:%M %p') }}</td>
+                                            <td>
+                                                {% if booking.status == 'pending' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% elif booking.status == 'confirmed' %}
+                                                    <span class="badge bg-success">Confirmed</span>
+                                                {% elif booking.status == 'in_progress' %}
+                                                    <span class="badge bg-info">In Progress</span>
+                                                {% elif booking.status == 'completed' %}
+                                                    <span class="badge bg-primary">Completed</span>
+                                                {% elif booking.status == 'cancelled' %}
+                                                    <span class="badge bg-danger">Cancelled</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>${{ "%.2f"|format(booking.total_amount) }}</td>
+                                            <td>
+                                                {% if booking.payment_status == 'paid' %}
+                                                    <span class="badge bg-success">Paid</span>
+                                                {% elif booking.payment_status == 'pending' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% elif booking.payment_status == 'refunded' %}
+                                                    <span class="badge bg-secondary">Refunded</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar text-muted" style="font-size: 4rem;"></i>
+                            <h4 class="text-muted mt-3">No bookings yet</h4>
+                            <p class="text-muted">Ready to get your device repaired?</p>
+                            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Book Your First Repair
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Information -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-user me-2 text-navy"></i>Account Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <strong>Name:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {{ current_user.first_name }} {{ current_user.last_name }}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <strong>Email:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {{ current_user.email }}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <strong>Member Since:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            {{ current_user.created_at.strftime('%B %Y') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-chart-line me-2 text-navy"></i>Booking Statistics</h6>
+                </div>
+                <div class="card-body">
+                    {% set total_bookings = bookings|length %}
+                    {% set completed_bookings = bookings|selectattr("status", "equalto", "completed")|list|length %}
+                    {% set total_spent = bookings|selectattr("payment_status", "equalto", "paid")|map(attribute="total_amount")|sum %}
+                    
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <h3 class="text-navy">{{ total_bookings }}</h3>
+                            <small class="text-muted">Total Bookings</small>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="text-success">{{ completed_bookings }}</h3>
+                            <small class="text-muted">Completed</small>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="text-red">${{ "%.0f"|format(total_spent) }}</h3>
+                            <small class="text-muted">Total Spent</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technology Validation Info -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-info border-0" style="background-color: rgba(30, 58, 95, 0.1);">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-info-circle text-navy me-3"></i>
+                    <div>
+                        <strong>Technology Validation:</strong> This dashboard demonstrates user authentication, data persistence, and booking management functionality. In production, this would include real-time updates, payment history, and communication features.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

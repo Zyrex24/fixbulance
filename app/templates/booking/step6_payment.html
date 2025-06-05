@@ -1,0 +1,739 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency Payment & Confirmation - Step 6: Complete Booking - Fixbulance{% endblock %}
+
+{% block styles %}
+<style>
+    .booking-container {
+        min-height: 70vh;
+        background: linear-gradient(135deg, rgba(227, 232, 216, 0.1) 0%, rgba(30, 58, 95, 0.05) 100%);
+        padding: 3rem 0;
+    }
+    
+    .booking-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+    }
+    
+    .booking-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--light-navy) 100%);
+        color: var(--white);
+        padding: 2rem;
+        text-align: center;
+        border: none;
+    }
+    
+    .booking-header h4 {
+        color: var(--white);
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .emergency-badge {
+        background-color: var(--red);
+        color: var(--white);
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 1rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+    
+    .progress-bar-container {
+        margin: 2rem 0;
+    }
+    
+    .custom-progress {
+        height: 8px;
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .custom-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--red), #ff4757);
+        width: 100%; /* 6/6 steps */
+        transition: width 0.3s ease;
+    }
+    
+    .order-summary {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: var(--white);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .form-section {
+        padding: 2.5rem;
+    }
+    
+    .section-header {
+        color: var(--navy);
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--light-gray);
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-navy);
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--navy);
+        box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+    }
+    
+    .payment-method {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+        background: var(--white);
+    }
+    
+    .payment-method:hover {
+        border-color: var(--navy);
+        box-shadow: 0 8px 25px rgba(30, 58, 95, 0.15);
+    }
+    
+    .payment-method.selected {
+        border-color: var(--red);
+        background: rgba(220, 38, 38, 0.05);
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+    
+    .emergency-guarantee {
+        background: rgba(220, 38, 38, 0.1);
+        border-left: 4px solid var(--red);
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .security-info {
+        background: var(--light-gray);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .step-navigation {
+        padding: 1.5rem 2.5rem;
+        background: var(--light-gray);
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    .order-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .order-line:last-child {
+        border-bottom: none;
+        font-weight: 700;
+        font-size: 1.1rem;
+        padding-top: 1rem;
+        margin-top: 0.5rem;
+        border-top: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .booking-container {
+            padding: 1rem 0;
+        }
+        
+        .form-section {
+            padding: 1.5rem;
+        }
+        
+        .step-navigation {
+            padding: 1rem 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="booking-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card booking-card">
+                    <div class="card-header booking-header">
+                        <div class="emergency-badge">
+                            <i class="fas fa-ambulance me-1"></i>
+                            Emergency Booking Confirmation
+                        </div>
+                        <h4>Complete Your Emergency Repair</h4>
+                        <p class="mb-0 opacity-90">Step 6 of 6: Secure your emergency appointment with $15 deposit</p>
+                        
+                        <div class="progress-bar-container">
+                            <div class="custom-progress">
+                                <div class="custom-progress-bar"></div>
+                            </div>
+                            <small class="text-white-50">Step 6: Payment & Booking Confirmation</small>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="order-summary">
+                        <h5 class="mb-3">
+                            <i class="fas fa-clipboard-list me-2"></i>
+                            <strong>Emergency Service Order Summary</strong>
+                        </h5>
+                        
+                        <div class="order-line">
+                            <span><i class="fas fa-mobile-alt me-2"></i>Device:</span>
+                            <strong>{{ device_type }} {{ device_model }}</strong>
+                        </div>
+                        
+                        <div class="order-line">
+                            <span><i class="fas fa-tools me-2"></i>Service:</span>
+                            <strong>{{ service.name }}</strong>
+                        </div>
+                        
+                        <div class="order-line">
+                            <span><i class="fas fa-calendar me-2"></i>Date & Time:</span>
+                            <strong>{{ appointment_date_formatted }} at {{ appointment_time_formatted }}</strong>
+                        </div>
+                        
+                        <div class="order-line">
+                            <span><i class="fas fa-map-marker-alt me-2"></i>Location:</span>
+                            <strong>{{ location_summary }}</strong>
+                        </div>
+                        
+                        <div class="order-line">
+                            <span><i class="fas fa-clock me-2"></i>Estimated Time:</span>
+                            <strong>{{ service.estimated_time }} minutes</strong>
+                        </div>
+                        
+                        <div class="order-line">
+                            <span><i class="fas fa-dollar-sign me-2"></i>Service Cost:</span>
+                            <strong>${{ service.price }}</strong>
+                        </div>
+                        
+                        <div class="order-line">
+                            <span><i class="fas fa-credit-card me-2"></i>Deposit Required:</span>
+                            <strong>$15.00</strong>
+                        </div>
+                        
+                        <div class="order-line">
+                            <span><i class="fas fa-calculator me-2"></i>Total Due Now:</span>
+                            <strong>$15.00</strong>
+                        </div>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('booking.confirm_booking') }}" id="paymentForm">
+                        <input type="hidden" name="booking_data" value="{{ booking_data }}">
+                        <input type="hidden" name="payment_method" id="selectedPaymentMethod">
+                        
+                        <div class="form-section">
+                            <!-- Emergency Guarantee -->
+                            <div class="emergency-guarantee">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                <strong>Emergency Service Guarantee:</strong> Professional repair or no charge. 
+                                If we can't fix your device, you pay nothing beyond the $15 deposit.
+                            </div>
+
+                            <!-- Payment Method Selection -->
+                            <h5 class="section-header">
+                                <i class="fas fa-credit-card me-2"></i>Choose Payment Method
+                            </h5>
+                            
+                            <div class="row">
+                                <!-- Credit/Debit Card -->
+                                <div class="col-md-6">
+                                    <div class="payment-method" data-method="card">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-credit-card me-3 text-primary" style="font-size: 1.5rem;"></i>
+                                            <div>
+                                                <h6 class="mb-1"><strong>Credit/Debit Card</strong></h6>
+                                                <small class="text-muted">Visa, MasterCard, American Express</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- PayPal -->
+                                <div class="col-md-6">
+                                    <div class="payment-method" data-method="paypal">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fab fa-paypal me-3 text-primary" style="font-size: 1.5rem;"></i>
+                                            <div>
+                                                <h6 class="mb-1"><strong>PayPal</strong></h6>
+                                                <small class="text-muted">Pay with your PayPal account</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Credit Card Form -->
+                            <div id="cardPaymentForm" style="display: none;">
+                                <h6 class="mt-4 mb-3">
+                                    <i class="fas fa-credit-card me-2"></i>Card Payment Information
+                                </h6>
+                                
+                                <div class="row">
+                                    <!-- Card Number -->
+                                    <div class="col-md-8">
+                                        <div class="mb-3">
+                                            <label for="card_number" class="form-label">
+                                                <i class="fas fa-credit-card me-1"></i>Card Number *
+                                            </label>
+                                            <input type="text" class="form-control" id="card_number" name="card_number" 
+                                                   placeholder="1234 5678 9012 3456" maxlength="19">
+                                            <div class="form-text">Enter your 16-digit card number</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- CVV -->
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="card_cvv" class="form-label">
+                                                <i class="fas fa-lock me-1"></i>CVV *
+                                            </label>
+                                            <input type="text" class="form-control" id="card_cvv" name="card_cvv" 
+                                                   placeholder="123" maxlength="4">
+                                            <div class="form-text">3-4 digit security code</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <!-- Expiry Month -->
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="card_month" class="form-label">
+                                                <i class="fas fa-calendar me-1"></i>Expiry Month *
+                                            </label>
+                                            <select class="form-select" id="card_month" name="card_month">
+                                                <option value="">Select Month</option>
+                                                <option value="01">01 - January</option>
+                                                <option value="02">02 - February</option>
+                                                <option value="03">03 - March</option>
+                                                <option value="04">04 - April</option>
+                                                <option value="05">05 - May</option>
+                                                <option value="06">06 - June</option>
+                                                <option value="07">07 - July</option>
+                                                <option value="08">08 - August</option>
+                                                <option value="09">09 - September</option>
+                                                <option value="10">10 - October</option>
+                                                <option value="11">11 - November</option>
+                                                <option value="12">12 - December</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Expiry Year -->
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="card_year" class="form-label">
+                                                <i class="fas fa-calendar me-1"></i>Expiry Year *
+                                            </label>
+                                            <select class="form-select" id="card_year" name="card_year">
+                                                <option value="">Select Year</option>
+                                                <!-- Years will be populated by JavaScript -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Cardholder Name -->
+                                <div class="mb-3">
+                                    <label for="card_name" class="form-label">
+                                        <i class="fas fa-user me-1"></i>Cardholder Name *
+                                    </label>
+                                    <input type="text" class="form-control" id="card_name" name="card_name" 
+                                           placeholder="John Doe">
+                                    <div class="form-text">Name as it appears on your card</div>
+                                </div>
+                            </div>
+
+                            <!-- PayPal Form -->
+                            <div id="paypalPaymentForm" style="display: none;">
+                                <div class="text-center mt-4">
+                                    <div class="security-info">
+                                        <i class="fab fa-paypal me-2 text-primary" style="font-size: 2rem;"></i>
+                                        <h6 class="mb-2">PayPal Payment</h6>
+                                        <p class="mb-3">You'll be redirected to PayPal to complete your $15 deposit payment securely.</p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-shield-alt me-1"></i>
+                                            PayPal Buyer Protection included
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contact Information -->
+                            <h5 class="section-header mt-4">
+                                <i class="fas fa-user me-2"></i>Emergency Contact Information
+                            </h5>
+                            
+                            <div class="row">
+                                <!-- Name -->
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="customer_name" class="form-label">
+                                            <i class="fas fa-user me-1"></i>Full Name *
+                                        </label>
+                                        <input type="text" class="form-control" id="customer_name" name="customer_name" 
+                                               placeholder="John Doe" required>
+                                    </div>
+                                </div>
+                                
+                                <!-- Phone -->
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="customer_phone" class="form-label">
+                                            <i class="fas fa-phone me-1"></i>Phone Number *
+                                        </label>
+                                        <input type="tel" class="form-control" id="customer_phone" name="customer_phone" 
+                                               placeholder="(555) 123-4567" required>
+                                        <div class="form-text">For appointment confirmation and updates</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="customer_email" class="form-label">
+                                    <i class="fas fa-envelope me-1"></i>Email Address *
+                                </label>
+                                <input type="email" class="form-control" id="customer_email" name="customer_email" 
+                                       placeholder="john@example.com" required>
+                                <div class="form-text">We'll send your booking confirmation and receipt here</div>
+                            </div>
+
+                            <!-- Security Information -->
+                            <div class="security-info">
+                                <h6 class="mb-2">
+                                    <i class="fas fa-shield-alt me-2 text-success"></i>
+                                    <strong>Secure Payment Processing</strong>
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <ul class="list-unstyled mb-0">
+                                            <li class="mb-1">
+                                                <i class="fas fa-lock text-success me-2"></i>
+                                                SSL encrypted payment processing
+                                            </li>
+                                            <li class="mb-1">
+                                                <i class="fas fa-shield-alt text-success me-2"></i>
+                                                PCI DSS compliant security
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul class="list-unstyled mb-0">
+                                            <li class="mb-1">
+                                                <i class="fas fa-undo text-success me-2"></i>
+                                                100% refund guarantee
+                                            </li>
+                                            <li class="mb-1">
+                                                <i class="fas fa-phone text-success me-2"></i>
+                                                24/7 customer support
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="step-navigation">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('booking.step5_schedule') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Scheduling
+                                </a>
+                                
+                                <div class="text-center">
+                                    <small class="text-muted">Secure $15 deposit payment</small>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success btn-lg" id="confirmBtn" disabled>
+                                    <i class="fas fa-credit-card me-2"></i>Confirm & Pay $15
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Payment Information -->
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-info-circle me-2 text-primary"></i>
+                                    Deposit Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-2">
+                                        <i class="fas fa-dollar-sign text-primary me-2"></i>
+                                        <strong>$15 deposit</strong> secures your appointment
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-calculator text-primary me-2"></i>
+                                        <strong>Balance due</strong> at time of service
+                                    </li>
+                                    <li class="mb-0">
+                                        <i class="fas fa-undo text-primary me-2"></i>
+                                        <strong>Full refund</strong> if repair not completed
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-clock me-2 text-warning"></i>
+                                    What Happens Next
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-warning me-2"></i>
+                                        <strong>Instant confirmation</strong> via email & SMS
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-phone text-warning me-2"></i>
+                                        <strong>Confirmation call</strong> within 30 minutes
+                                    </li>
+                                    <li class="mb-0">
+                                        <i class="fas fa-ambulance text-warning me-2"></i>
+                                        <strong>Van arrives</strong> at scheduled time
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-headset me-2 text-success"></i>
+                                    Need Help?
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-2">
+                                        <i class="fas fa-phone text-success me-2"></i>
+                                        <strong>Emergency Hotline:</strong> (555) 123-4567
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-envelope text-success me-2"></i>
+                                        <strong>Email:</strong> help@fixbulance.com
+                                    </li>
+                                    <li class="mb-0">
+                                        <i class="fas fa-comments text-success me-2"></i>
+                                        <strong>Live Chat:</strong> Available 24/7
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentMethods = document.querySelectorAll('.payment-method');
+    const cardForm = document.getElementById('cardPaymentForm');
+    const paypalForm = document.getElementById('paypalPaymentForm');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const selectedPaymentMethod = document.getElementById('selectedPaymentMethod');
+    
+    let selectedMethod = null;
+    
+    // Populate years for card expiry
+    const yearSelect = document.getElementById('card_year');
+    const currentYear = new Date().getFullYear();
+    for (let i = 0; i < 15; i++) {
+        const year = currentYear + i;
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        yearSelect.appendChild(option);
+    }
+    
+    // Payment method selection
+    paymentMethods.forEach(method => {
+        method.addEventListener('click', function() {
+            // Remove selection from all methods
+            paymentMethods.forEach(m => m.classList.remove('selected'));
+            
+            // Add selection to clicked method
+            this.classList.add('selected');
+            
+            // Get selected method
+            selectedMethod = this.dataset.method;
+            selectedPaymentMethod.value = selectedMethod;
+            
+            // Show appropriate form
+            cardForm.style.display = 'none';
+            paypalForm.style.display = 'none';
+            
+            if (selectedMethod === 'card') {
+                cardForm.style.display = 'block';
+            } else if (selectedMethod === 'paypal') {
+                paypalForm.style.display = 'block';
+            }
+            
+            updateConfirmButton();
+        });
+    });
+    
+    // Card number formatting
+    document.getElementById('card_number').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+        
+        if (formattedValue.length > 19) {
+            formattedValue = formattedValue.substring(0, 19);
+        }
+        
+        e.target.value = formattedValue;
+        updateConfirmButton();
+    });
+    
+    // CVV formatting
+    document.getElementById('card_cvv').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        updateConfirmButton();
+    });
+    
+    // Phone formatting
+    document.getElementById('customer_phone').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        let formattedValue = '';
+        
+        if (value.length > 0) {
+            formattedValue = '(' + value.substring(0, 3);
+        }
+        if (value.length >= 4) {
+            formattedValue += ') ' + value.substring(3, 6);
+        }
+        if (value.length >= 7) {
+            formattedValue += '-' + value.substring(6, 10);
+        }
+        
+        e.target.value = formattedValue;
+        updateConfirmButton();
+    });
+    
+    // Form validation
+    function updateConfirmButton() {
+        const name = document.getElementById('customer_name').value.trim();
+        const phone = document.getElementById('customer_phone').value.trim();
+        const email = document.getElementById('customer_email').value.trim();
+        
+        let paymentValid = false;
+        
+        if (selectedMethod === 'card') {
+            const cardNumber = document.getElementById('card_number').value.replace(/\s/g, '');
+            const cvv = document.getElementById('card_cvv').value;
+            const month = document.getElementById('card_month').value;
+            const year = document.getElementById('card_year').value;
+            const cardName = document.getElementById('card_name').value.trim();
+            
+            paymentValid = cardNumber.length >= 15 && cvv.length >= 3 && 
+                          month && year && cardName.length > 0;
+        } else if (selectedMethod === 'paypal') {
+            paymentValid = true; // PayPal validation happens on their side
+        }
+        
+        const contactValid = name.length > 0 && phone.length >= 10 && 
+                           email.includes('@') && email.includes('.');
+        
+        if (selectedMethod && paymentValid && contactValid) {
+            confirmBtn.disabled = false;
+            if (selectedMethod === 'card') {
+                confirmBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Confirm & Pay $15';
+            } else {
+                confirmBtn.innerHTML = '<i class="fab fa-paypal me-2"></i>Pay with PayPal $15';
+            }
+        } else {
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-clock me-2"></i>Complete Required Fields';
+        }
+    }
+    
+    // Add event listeners to all form fields
+    document.querySelectorAll('input, select').forEach(field => {
+        field.addEventListener('input', updateConfirmButton);
+        field.addEventListener('change', updateConfirmButton);
+    });
+    
+    // Form submission
+    document.getElementById('paymentForm').addEventListener('submit', function(e) {
+        if (!selectedMethod) {
+            e.preventDefault();
+            alert('Please select a payment method.');
+            return;
+        }
+        
+        // Show loading state
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing Payment...';
+        confirmBtn.disabled = true;
+        
+        // For PayPal, handle redirect
+        if (selectedMethod === 'paypal') {
+            // In real implementation, this would redirect to PayPal
+            setTimeout(() => {
+                // Simulate PayPal processing
+                alert('Redirecting to PayPal for secure payment...');
+            }, 1000);
+        }
+    });
+    
+    // Auto-select card payment method
+    if (paymentMethods.length > 0) {
+        paymentMethods[0].click();
+    }
+});
+</script>
+{% endblock %} 

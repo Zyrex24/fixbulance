@@ -1,0 +1,685 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency Location Verification - Step 4: Service Area - Fixbulance{% endblock %}
+
+{% block styles %}
+<style>
+    .booking-container {
+        min-height: 70vh;
+        background: linear-gradient(135deg, rgba(227, 232, 216, 0.1) 0%, rgba(30, 58, 95, 0.05) 100%);
+        padding: 3rem 0;
+    }
+    
+    .booking-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+    }
+    
+    .booking-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--light-navy) 100%);
+        color: var(--white);
+        padding: 2rem;
+        text-align: center;
+        border: none;
+    }
+    
+    .booking-header h4 {
+        color: var(--white);
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .emergency-badge {
+        background-color: var(--red);
+        color: var(--white);
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 1rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+    
+    .progress-bar-container {
+        margin: 2rem 0;
+    }
+    
+    .custom-progress {
+        height: 8px;
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .custom-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--red), #ff4757);
+        width: 66.67%; /* 4/6 steps */
+        transition: width 0.3s ease;
+    }
+    
+    .selections-summary {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: var(--white);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .form-section {
+        padding: 2.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-navy);
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--navy);
+        box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+    }
+    
+    .section-header {
+        color: var(--navy);
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--light-gray);
+    }
+    
+    .location-valid {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: var(--white);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .location-invalid {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: var(--white);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .location-checking {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: var(--white);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .emergency-info {
+        background: rgba(220, 38, 38, 0.1);
+        border-left: 4px solid var(--red);
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .address-suggestion {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .address-suggestion:hover {
+        border-color: var(--navy);
+        background: rgba(30, 58, 95, 0.05);
+    }
+    
+    .address-suggestion.selected {
+        border-color: var(--red);
+        background: rgba(220, 38, 38, 0.05);
+    }
+    
+    .step-navigation {
+        padding: 1.5rem 2.5rem;
+        background: var(--light-gray);
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    .service-area-map {
+        background: var(--light-gray);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        margin: 1rem 0;
+    }
+    
+    @media (max-width: 768px) {
+        .booking-container {
+            padding: 1rem 0;
+        }
+        
+        .form-section {
+            padding: 1.5rem;
+        }
+        
+        .step-navigation {
+            padding: 1rem 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="booking-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card booking-card">
+                    <div class="card-header booking-header">
+                        <div class="emergency-badge">
+                            <i class="fas fa-ambulance me-1"></i>
+                            Emergency Location Verification
+                        </div>
+                        <h4>Service Area Verification</h4>
+                        <p class="mb-0 opacity-90">Step 4 of 6: Verify we can reach you for emergency repair</p>
+                        
+                        <div class="progress-bar-container">
+                            <div class="custom-progress">
+                                <div class="custom-progress-bar"></div>
+                            </div>
+                            <small class="text-white-50">Step 4: Location & Service Area Verification</small>
+                        </div>
+                    </div>
+
+                    <!-- Previous Selections Summary -->
+                    <div class="selections-summary">
+                        <h6 class="mb-3">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>Emergency Service Summary</strong>
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-mobile-alt me-2"></i>
+                                    <strong>Device:</strong>&nbsp;{{ device_type }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-tools me-2"></i>
+                                    <strong>Service:</strong>&nbsp;{{ service.name }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Model:</strong>&nbsp;{{ device_model or 'Specified' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('booking.step5_schedule') }}" id="locationForm">
+                        <input type="hidden" name="device_type" value="{{ device_type }}">
+                        <input type="hidden" name="service_id" value="{{ service.id }}">
+                        <input type="hidden" name="device_model" value="{{ device_model }}">
+                        <input type="hidden" name="device_details" value="{{ device_details }}">
+                        <input type="hidden" name="validated_address" id="validatedAddress">
+                        <input type="hidden" name="location_verified" id="locationVerified" value="false">
+                        
+                        <div class="form-section">
+                            <!-- Emergency Service Area Information -->
+                            <div class="emergency-info">
+                                <i class="fas fa-map-marked-alt me-2"></i>
+                                <strong>Emergency Service Area:</strong> We provide mobile emergency repair within a 10-mile radius of Orland Park, IL. Enter your address below to verify service availability.
+                            </div>
+
+                            <!-- Location Input Section -->
+                            <h5 class="section-header">
+                                <i class="fas fa-map-marker-alt me-2"></i>Emergency Service Location
+                            </h5>
+                            
+                            <div class="row">
+                                <!-- Street Address -->
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label for="street_address" class="form-label">
+                                            <i class="fas fa-home me-1"></i>Street Address *
+                                        </label>
+                                        <input type="text" class="form-control" id="street_address" name="service_address" 
+                                               placeholder="123 Main Street" required>
+                                        <div class="form-text">Where should our emergency repair van meet you?</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Unit/Apt -->
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="unit_apt" class="form-label">
+                                            <i class="fas fa-building me-1"></i>Unit/Apt
+                                        </label>
+                                        <input type="text" class="form-control" id="unit_apt" name="unit_apt" 
+                                               placeholder="Apt 4B">
+                                        <div class="form-text">Optional</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <!-- City -->
+                                <div class="col-md-5">
+                                    <div class="mb-3">
+                                        <label for="city" class="form-label">
+                                            <i class="fas fa-city me-1"></i>City *
+                                        </label>
+                                        <input type="text" class="form-control" id="city" name="service_city" 
+                                               placeholder="Orland Park" required>
+                                    </div>
+                                </div>
+                                
+                                <!-- State -->
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="state" class="form-label">
+                                            <i class="fas fa-flag me-1"></i>State *
+                                        </label>
+                                        <select class="form-select" id="state" name="service_state" required>
+                                            <option value="">Select State</option>
+                                            <option value="IL" selected>Illinois</option>
+                                            <option value="IN">Indiana</option>
+                                            <option value="WI">Wisconsin</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- ZIP Code -->
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="zip_code" class="form-label">
+                                            <i class="fas fa-mail-bulk me-1"></i>ZIP Code *
+                                        </label>
+                                        <input type="text" class="form-control" id="zip_code" name="service_zip_code" 
+                                               placeholder="60462" required maxlength="5" pattern="[0-9]{5}">
+                                        <div class="form-text">5-digit ZIP code</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Verify Location Button -->
+                            <div class="text-center mb-4">
+                                <button type="button" class="btn btn-primary btn-lg" id="verifyLocationBtn">
+                                    <i class="fas fa-search-location me-2"></i>Verify Emergency Service Availability
+                                </button>
+                            </div>
+
+                            <!-- Location Verification Results -->
+                            <div id="locationResults" style="display: none;">
+                                <!-- Valid Location -->
+                                <div id="locationValid" class="location-valid" style="display: none;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check-circle me-3" style="font-size: 2rem;"></i>
+                                        <div>
+                                            <h6 class="mb-1"><strong>✅ Emergency Service Available!</strong></h6>
+                                            <p class="mb-0 opacity-90">
+                                                Great news! Your location is within our emergency service area. 
+                                                Our van can reach you for emergency repair.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <small class="opacity-90">
+                                            <i class="fas fa-route me-1"></i>
+                                            <strong>Distance from base:</strong> <span id="distanceText">Calculating...</span>
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- Invalid Location -->
+                                <div id="locationInvalid" class="location-invalid" style="display: none;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-times-circle me-3" style="font-size: 2rem;"></i>
+                                        <div>
+                                            <h6 class="mb-1"><strong>❌ Outside Service Area</strong></h6>
+                                            <p class="mb-0 opacity-90">
+                                                Unfortunately, your location is outside our current 10-mile emergency service radius from Orland Park, IL.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <small class="opacity-90">
+                                            <i class="fas fa-phone me-1"></i>
+                                            Please call us at <strong>(555) 123-4567</strong> to discuss alternative options.
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- Checking Location -->
+                                <div id="locationChecking" class="location-checking" style="display: none;">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-spinner fa-spin me-3" style="font-size: 2rem;"></i>
+                                        <div>
+                                            <h6 class="mb-1"><strong>Verifying Emergency Service Area...</strong></h6>
+                                            <p class="mb-0 opacity-90">
+                                                Checking if your location is within our 10-mile emergency service radius.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Address Suggestions -->
+                            <div id="addressSuggestions" style="display: none;">
+                                <h6 class="mb-3">
+                                    <i class="fas fa-map-signs me-2"></i>Did you mean one of these addresses?
+                                </h6>
+                                <div id="suggestionsList"></div>
+                            </div>
+
+                            <!-- Additional Location Details -->
+                            <div id="additionalDetails" style="display: none;">
+                                <h5 class="section-header mt-4">
+                                    <i class="fas fa-info-circle me-2"></i>Emergency Service Details
+                                </h5>
+                                
+                                <div class="row">
+                                    <!-- Location Type -->
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="location_type" class="form-label">
+                                                <i class="fas fa-building me-1"></i>Location Type *
+                                            </label>
+                                            <select class="form-select" id="location_type" name="location_type" required>
+                                                <option value="">Select location type</option>
+                                                <option value="home">Home/Residence</option>
+                                                <option value="office">Office/Workplace</option>
+                                                <option value="public">Public Place (Mall, Restaurant, etc.)</option>
+                                                <option value="other">Other</option>
+                                            </select>
+                                            <div class="form-text">Helps our technician locate you</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Parking Instructions -->
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="parking_instructions" class="form-label">
+                                                <i class="fas fa-parking me-1"></i>Parking Instructions
+                                            </label>
+                                            <textarea class="form-control" id="parking_instructions" name="parking_instructions" rows="2" 
+                                                      placeholder="Any special parking instructions for our emergency van?"></textarea>
+                                            <div class="form-text">Optional but helpful for our technician</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="step-navigation">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{{ url_for('booking.step3_details') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Device Details
+                                </a>
+                                
+                                <div class="text-center">
+                                    <small class="text-muted">Emergency service area verification</small>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary" id="continueBtn" disabled>
+                                    Continue to Scheduling <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Emergency Service Area Information -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-map-marked-alt me-2 text-primary"></i>
+                                    Fixbulance Service Area
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="service-area-map">
+                                    <i class="fas fa-map" style="font-size: 3rem; color: var(--navy); margin-bottom: 1rem;"></i>
+                                    <h6>10-Mile Emergency Service Radius</h6>
+                                    <p class="text-muted mb-3">Centered in Orland Park, Illinois</p>
+                                    <small class="text-muted">
+                                        <strong>Coverage includes:</strong> Orland Park, Tinley Park, Oak Forest, 
+                                        Palos Heights, Homer Glen, and surrounding areas
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-ambulance me-2 text-success"></i>
+                                    Emergency Response Promise
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-2">
+                                        <i class="fas fa-clock text-success me-2"></i>
+                                        <strong>Same-Day Service:</strong> Emergency repairs within hours
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-route text-success me-2"></i>
+                                        <strong>Mobile Convenience:</strong> We come directly to you
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-shield-alt text-success me-2"></i>
+                                        <strong>Service Guarantee:</strong> Professional repair or no charge
+                                    </li>
+                                    <li class="mb-0">
+                                        <i class="fas fa-phone text-success me-2"></i>
+                                        <strong>Emergency Hotline:</strong> (555) 123-4567
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const verifyBtn = document.getElementById('verifyLocationBtn');
+    const continueBtn = document.getElementById('continueBtn');
+    const locationResults = document.getElementById('locationResults');
+    const locationValid = document.getElementById('locationValid');
+    const locationInvalid = document.getElementById('locationInvalid');
+    const locationChecking = document.getElementById('locationChecking');
+    const additionalDetails = document.getElementById('additionalDetails');
+    const locationVerified = document.getElementById('locationVerified');
+    const validatedAddress = document.getElementById('validatedAddress');
+    
+    // Orland Park, IL coordinates (approximate center)
+    const baseLocation = { lat: 41.6306, lng: -87.8540 };
+    const serviceRadius = 10; // miles
+    
+    verifyBtn.addEventListener('click', function() {
+        const streetAddress = document.getElementById('street_address').value.trim();
+        const city = document.getElementById('city').value.trim();
+        const state = document.getElementById('state').value;
+        const zipCode = document.getElementById('zip_code').value.trim();
+        
+        if (!streetAddress || !city || !state || !zipCode) {
+            alert('Please fill in all required address fields before verifying.');
+            return;
+        }
+        
+        // Show checking state
+        locationResults.style.display = 'block';
+        locationChecking.style.display = 'block';
+        locationValid.style.display = 'none';
+        locationInvalid.style.display = 'none';
+        verifyBtn.disabled = true;
+        verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Verifying Location...';
+        
+        // Simulate location verification (in real app, this would call geocoding API)
+        setTimeout(() => {
+            verifyLocation(streetAddress, city, state, zipCode);
+        }, 2000);
+    });
+    
+    function verifyLocation(street, city, state, zip) {
+        // Simulate address validation and distance calculation
+        const fullAddress = `${street}, ${city}, ${state} ${zip}`;
+        
+        // Simulate geocoding - in real app, use Google Maps Geocoding API
+        const isValidAddress = validateAddress(street, city, state, zip);
+        const distance = calculateDistance(city, state, zip);
+        const isInServiceArea = distance <= serviceRadius;
+        
+        locationChecking.style.display = 'none';
+        
+        if (isValidAddress && isInServiceArea) {
+            // Valid location within service area
+            locationValid.style.display = 'block';
+            document.getElementById('distanceText').textContent = `${distance.toFixed(1)} miles`;
+            additionalDetails.style.display = 'block';
+            continueBtn.disabled = false;
+            locationVerified.value = 'true';
+            validatedAddress.value = fullAddress;
+            
+            verifyBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Location Verified';
+            verifyBtn.classList.remove('btn-primary');
+            verifyBtn.classList.add('btn-success');
+            
+        } else if (isValidAddress && !isInServiceArea) {
+            // Valid address but outside service area
+            locationInvalid.style.display = 'block';
+            continueBtn.disabled = true;
+            locationVerified.value = 'false';
+            
+            verifyBtn.innerHTML = '<i class="fas fa-times-circle me-2"></i>Outside Service Area';
+            verifyBtn.classList.remove('btn-primary');
+            verifyBtn.classList.add('btn-danger');
+            
+        } else {
+            // Invalid address
+            showAddressSuggestions(street, city, state, zip);
+            verifyBtn.disabled = false;
+            verifyBtn.innerHTML = '<i class="fas fa-search-location me-2"></i>Verify Emergency Service Availability';
+        }
+    }
+    
+    function validateAddress(street, city, state, zip) {
+        // Simple validation - in real app, use proper address validation API
+        return street.length > 3 && city.length > 2 && state && zip.match(/^\d{5}$/);
+    }
+    
+    function calculateDistance(city, state, zip) {
+        // Simulate distance calculation based on ZIP code
+        const zipNum = parseInt(zip);
+        const orlandParkZips = [60462, 60467, 60477]; // Orland Park area ZIP codes
+        
+        // Calculate approximate distance based on ZIP code proximity
+        if (orlandParkZips.includes(zipNum)) {
+            return Math.random() * 3; // 0-3 miles
+        } else if (zip.startsWith('604') || zip.startsWith('605')) {
+            return 3 + Math.random() * 7; // 3-10 miles (SW suburbs)
+        } else if (zip.startsWith('606') || zip.startsWith('607')) {
+            return 8 + Math.random() * 8; // 8-16 miles (closer to Chicago)
+        } else {
+            return 15 + Math.random() * 20; // 15+ miles (outside area)
+        }
+    }
+    
+    function showAddressSuggestions(street, city, state, zip) {
+        // Show address suggestions for invalid addresses
+        const suggestions = [
+            `${street}, Orland Park, IL 60462`,
+            `${street}, Tinley Park, IL 60477`,
+            `${street}, Oak Forest, IL 60452`
+        ];
+        
+        const suggestionsDiv = document.getElementById('addressSuggestions');
+        const listDiv = document.getElementById('suggestionsList');
+        
+        listDiv.innerHTML = '';
+        suggestions.forEach(address => {
+            const suggestionDiv = document.createElement('div');
+            suggestionDiv.className = 'address-suggestion';
+            suggestionDiv.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-map-marker-alt me-3 text-primary"></i>
+                    <div>
+                        <strong>${address}</strong>
+                        <br><small class="text-muted">Click to use this address</small>
+                    </div>
+                </div>
+            `;
+            
+            suggestionDiv.addEventListener('click', function() {
+                // Parse and fill the address
+                const parts = address.split(', ');
+                document.getElementById('street_address').value = parts[0];
+                document.getElementById('city').value = parts[1];
+                document.getElementById('state').value = parts[2].split(' ')[0];
+                document.getElementById('zip_code').value = parts[2].split(' ')[1];
+                
+                suggestionsDiv.style.display = 'none';
+                verifyBtn.disabled = false;
+            });
+            
+            listDiv.appendChild(suggestionDiv);
+        });
+        
+        suggestionsDiv.style.display = 'block';
+    }
+    
+    // ZIP code formatting
+    document.getElementById('zip_code').addEventListener('input', function(e) {
+        this.value = this.value.replace(/\D/g, '').slice(0, 5);
+    });
+    
+    // Form submission handling
+    document.getElementById('locationForm').addEventListener('submit', function(e) {
+        if (locationVerified.value !== 'true') {
+            e.preventDefault();
+            alert('Please verify your location is within our service area before continuing.');
+            return;
+        }
+        
+        // Show loading state
+        continueBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading Schedule...';
+        continueBtn.disabled = true;
+    });
+});
+</script>
+{% endblock %} 

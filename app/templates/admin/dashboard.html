@@ -1,0 +1,723 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency Dispatch Dashboard - Fixbulance Admin{% endblock %}
+
+{% block styles %}
+<style>
+    .admin-container {
+        min-height: 90vh;
+        background: linear-gradient(135deg, rgba(227, 232, 216, 0.05) 0%, rgba(30, 58, 95, 0.02) 100%);
+        padding: 2rem 0;
+    }
+    
+    .dashboard-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--light-navy) 100%);
+        color: var(--white);
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .emergency-status {
+        background-color: var(--red);
+        color: var(--white);
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 1rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: var(--white);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid var(--navy);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .stat-card.emergency {
+        border-left-color: var(--red);
+    }
+    
+    .stat-card.success {
+        border-left-color: #10b981;
+    }
+    
+    .stat-card.warning {
+        border-left-color: #f59e0b;
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--medium-gray);
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .dashboard-section {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+    
+    .section-header {
+        background: var(--light-gray);
+        padding: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .section-title {
+        color: var(--navy);
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin: 0;
+    }
+    
+    .section-content {
+        padding: 0;
+    }
+    
+    .booking-row {
+        display: grid;
+        grid-template-columns: 1fr 150px 120px 150px 120px 80px;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+    }
+    
+    .booking-row:hover {
+        background: rgba(30, 58, 95, 0.02);
+    }
+    
+    .booking-row:last-child {
+        border-bottom: none;
+    }
+    
+    .booking-header {
+        background: var(--navy);
+        color: var(--white);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .booking-header:hover {
+        background: var(--navy);
+    }
+    
+    .customer-info h6 {
+        margin: 0 0 0.25rem 0;
+        color: var(--navy);
+        font-weight: 600;
+    }
+    
+    .customer-info small {
+        color: var(--medium-gray);
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    .status-emergency {
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--red);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+    }
+    
+    .status-priority {
+        background: rgba(30, 58, 95, 0.1);
+        color: var(--navy);
+        border: 1px solid rgba(30, 58, 95, 0.3);
+    }
+    
+    .status-scheduled {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    
+    .status-completed {
+        background: rgba(107, 114, 128, 0.1);
+        color: #6b7280;
+        border: 1px solid rgba(107, 114, 128, 0.3);
+    }
+    
+    .action-btn {
+        padding: 0.375rem 0.75rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+    
+    .btn-primary {
+        background: var(--navy);
+        color: var(--white);
+    }
+    
+    .btn-primary:hover {
+        background: var(--dark-navy);
+        color: var(--white);
+        text-decoration: none;
+    }
+    
+    .btn-emergency {
+        background: var(--red);
+        color: var(--white);
+    }
+    
+    .btn-emergency:hover {
+        background: #b91c1c;
+        color: var(--white);
+        text-decoration: none;
+    }
+    
+    .btn-success {
+        background: #10b981;
+        color: var(--white);
+    }
+    
+    .btn-success:hover {
+        background: #059669;
+        color: var(--white);
+        text-decoration: none;
+    }
+    
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .quick-action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: var(--white);
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        color: var(--navy);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .quick-action-btn:hover {
+        border-color: var(--navy);
+        background: rgba(30, 58, 95, 0.05);
+        color: var(--navy);
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+    
+    .quick-action-btn i {
+        margin-right: 0.5rem;
+        font-size: 1.1rem;
+    }
+    
+    .service-area-map {
+        background: var(--light-gray);
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        margin: 1.5rem;
+    }
+    
+    .map-placeholder {
+        background: var(--white);
+        border: 2px dashed #cbd5e1;
+        border-radius: 8px;
+        padding: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .map-placeholder i {
+        font-size: 3rem;
+        color: var(--medium-gray);
+        margin-bottom: 1rem;
+    }
+    
+    @media (max-width: 768px) {
+        .admin-container {
+            padding: 1rem 0;
+        }
+        
+        .dashboard-header {
+            padding: 1.5rem;
+        }
+        
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .booking-row {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+            padding: 1rem;
+        }
+        
+        .booking-header {
+            display: none;
+        }
+        
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="container-fluid">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div class="emergency-status">
+                <i class="fas fa-ambulance me-1"></i>
+                EMERGENCY DISPATCH ACTIVE
+            </div>
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-1">Fixbulance Dispatch Center</h2>
+                    <p class="mb-0 opacity-90">
+                        Emergency mobile phone repair operations - Orland Park, IL service area
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="d-flex align-items-center justify-content-md-end">
+                        <i class="fas fa-clock me-2"></i>
+                        <span id="currentTime">{{ current_time }}</span>
+                    </div>
+                    <small class="opacity-75">Central Standard Time</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card emergency">
+                <div class="stat-value" id="emergencyCount">{{ stats.emergency_bookings }}</div>
+                <div class="stat-label">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Emergency Bookings
+                </div>
+            </div>
+            
+            <div class="stat-card warning">
+                <div class="stat-value" id="todayCount">{{ stats.today_bookings }}</div>
+                <div class="stat-label">
+                    <i class="fas fa-calendar-day me-1"></i>
+                    Today's Bookings
+                </div>
+            </div>
+            
+            <div class="stat-card success">
+                <div class="stat-value" id="completedCount">{{ stats.completed_today }}</div>
+                <div class="stat-label">
+                    <i class="fas fa-check-circle me-1"></i>
+                    Completed Today
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value" id="revenueCount">${{ stats.today_revenue }}</div>
+                <div class="stat-label">
+                    <i class="fas fa-dollar-sign me-1"></i>
+                    Today's Revenue
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Active Bookings -->
+            <div class="col-lg-8">
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="section-title">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                Active Emergency Bookings
+                            </h5>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-primary" onclick="refreshBookings()">
+                                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                                </button>
+                                <a href="{{ url_for('admin.bookings') }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-calendar me-1"></i>View All Bookings
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section-content">
+                        <!-- Booking Headers -->
+                        <div class="booking-row booking-header">
+                            <div>Customer & Device</div>
+                            <div>Service</div>
+                            <div>Status</div>
+                            <div>Appointment</div>
+                            <div>Location</div>
+                            <div>Actions</div>
+                        </div>
+                        
+                        <!-- Sample Emergency Booking -->
+                        <div class="booking-row">
+                            <div class="customer-info">
+                                <h6>John Smith</h6>
+                                <small>iPhone 14 Pro - Screen Replacement</small>
+                                <br><small class="text-muted">📞 (555) 123-4567</small>
+                            </div>
+                            <div>
+                                <strong>$89</strong>
+                                <br><small class="text-muted">Screen Repair</small>
+                            </div>
+                            <div>
+                                <span class="status-badge status-emergency">EMERGENCY</span>
+                            </div>
+                            <div>
+                                <strong>ASAP</strong>
+                                <br><small class="text-muted">Within 2 hours</small>
+                            </div>
+                            <div>
+                                <small>Orland Park<br>2.1 miles</small>
+                            </div>
+                            <div>
+                                <a href="#" class="action-btn btn-emergency mb-1">
+                                    <i class="fas fa-ambulance me-1"></i>Dispatch
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Sample Priority Booking -->
+                        <div class="booking-row">
+                            <div class="customer-info">
+                                <h6>Sarah Johnson</h6>
+                                <small>Samsung Galaxy S23 - Battery</small>
+                                <br><small class="text-muted">📞 (555) 987-6543</small>
+                            </div>
+                            <div>
+                                <strong>$69</strong>
+                                <br><small class="text-muted">Battery Replace</small>
+                            </div>
+                            <div>
+                                <span class="status-badge status-priority">PRIORITY</span>
+                            </div>
+                            <div>
+                                <strong>2:00 PM</strong>
+                                <br><small class="text-muted">Today</small>
+                            </div>
+                            <div>
+                                <small>Tinley Park<br>4.8 miles</small>
+                            </div>
+                            <div>
+                                <a href="#" class="action-btn btn-primary mb-1">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Sample Scheduled Booking -->
+                        <div class="booking-row">
+                            <div class="customer-info">
+                                <h6>Mike Davis</h6>
+                                <small>iPhone 13 - Charging Port</small>
+                                <br><small class="text-muted">📞 (555) 456-7890</small>
+                            </div>
+                            <div>
+                                <strong>$59</strong>
+                                <br><small class="text-muted">Port Repair</small>
+                            </div>
+                            <div>
+                                <span class="status-badge status-scheduled">SCHEDULED</span>
+                            </div>
+                            <div>
+                                <strong>4:00 PM</strong>
+                                <br><small class="text-muted">Today</small>
+                            </div>
+                            <div>
+                                <small>Oak Forest<br>6.2 miles</small>
+                            </div>
+                            <div>
+                                <a href="#" class="action-btn btn-success mb-1">
+                                    <i class="fas fa-check me-1"></i>Complete
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- No bookings message -->
+                        <div id="noBookings" style="display: none;" class="text-center py-4">
+                            <i class="fas fa-calendar-check text-muted" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                            <h6 class="text-muted">No active bookings</h6>
+                            <p class="text-muted">All emergency repairs completed!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="col-lg-4">
+                <!-- Quick Actions -->
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="fas fa-bolt me-2"></i>
+                            Quick Actions
+                        </h5>
+                    </div>
+                    <div class="quick-actions">
+                        <a href="{{ url_for('booking.start') }}" class="quick-action-btn">
+                            <i class="fas fa-plus"></i>
+                            New Booking
+                        </a>
+                        <a href="{{ url_for('admin.bookings', status='emergency') }}" class="quick-action-btn">
+                            <i class="fas fa-ambulance"></i>
+                            Emergency Dispatch
+                        </a>
+                        <a href="{{ url_for('admin.customers') }}" class="quick-action-btn">
+                            <i class="fas fa-sms"></i>
+                            Customer Management
+                        </a>
+                        <a href="{{ url_for('admin.reports') }}" class="quick-action-btn">
+                            <i class="fas fa-chart-bar"></i>
+                            Service Reports
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Service Area Map -->
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="fas fa-map-marked-alt me-2"></i>
+                            Service Area Coverage
+                        </h5>
+                    </div>
+                    <div class="service-area-map">
+                        <div class="map-placeholder">
+                            <i class="fas fa-map"></i>
+                            <h6 class="mb-2">10-Mile Service Radius</h6>
+                            <p class="text-muted mb-3">Orland Park, IL Service Area</p>
+                            <small class="text-muted">
+                                <strong>Coverage:</strong> Orland Park, Tinley Park, Oak Forest, 
+                                Palos Heights, Homer Glen, and surrounding areas
+                            </small>
+                        </div>
+                        <a href="{{ url_for('admin.service_area') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-expand-arrows-alt me-1"></i>
+                            View Service Area
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Van Status -->
+                <div class="dashboard-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
+                            <i class="fas fa-van-shuttle me-2"></i>
+                            Van Status
+                        </h5>
+                    </div>
+                    <div class="section-content p-3">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-circle text-success me-2"></i>
+                                <strong>Van #1 - Active</strong>
+                            </div>
+                            <span class="status-badge status-scheduled">
+                                <i class="fas fa-tools me-1"></i>Ready
+                            </span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <small class="text-muted d-block">Current Location:</small>
+                            <strong>Orland Park Base</strong>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <small class="text-muted d-block">Next Appointment:</small>
+                            <strong>2:00 PM - Sarah Johnson</strong>
+                            <br><small class="text-muted">Tinley Park (4.8 miles)</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <small class="text-muted d-block">Estimated Arrival:</small>
+                            <strong class="text-success">1:45 PM</strong>
+                        </div>
+                        
+                        <a href="{{ url_for('admin.bookings') }}" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-route me-1"></i>
+                            View All Bookings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update current time every second
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        });
+        document.getElementById('currentTime').textContent = timeString;
+    }
+    
+    updateTime();
+    setInterval(updateTime, 1000);
+    
+    // Auto-refresh bookings every 30 seconds
+    function autoRefresh() {
+        // In real implementation, this would make an AJAX call to refresh booking data
+        console.log('Auto-refreshing booking data...');
+        // updateBookingData();
+    }
+    
+    setInterval(autoRefresh, 30000);
+    
+    // Refresh bookings function
+    window.refreshBookings = function() {
+        const refreshBtn = document.querySelector('[onclick="refreshBookings()"]');
+        const originalHTML = refreshBtn.innerHTML;
+        
+        refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
+        refreshBtn.disabled = true;
+        
+        // Simulate API call
+        setTimeout(() => {
+            refreshBtn.innerHTML = originalHTML;
+            refreshBtn.disabled = false;
+            
+            // Show success notification
+            showNotification('Bookings refreshed successfully', 'success');
+        }, 1500);
+    };
+    
+    // Notification system
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'success' ? 'success' : 'info'} alert-dismissible fade show`;
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '9999';
+        notification.style.minWidth = '300px';
+        
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 3000);
+    }
+    
+    // Emergency booking sound alert (optional)
+    function playEmergencyAlert() {
+        // In real implementation, play emergency sound for new urgent bookings
+        console.log('Emergency booking alert!');
+    }
+    
+    // Handle emergency dispatch actions
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-emergency')) {
+            e.preventDefault();
+            const confirmed = confirm('Dispatch emergency van to this location immediately?');
+            if (confirmed) {
+                showNotification('Emergency dispatch initiated! Van en route.', 'success');
+                // In real app, would trigger emergency dispatch API call
+            }
+        }
+    });
+    
+    // Keyboard shortcuts for admin efficiency
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+R for refresh
+        if (e.ctrlKey && e.key === 'r') {
+            e.preventDefault();
+            refreshBookings();
+        }
+        
+        // Ctrl+N for new booking
+        if (e.ctrlKey && e.key === 'n') {
+            e.preventDefault();
+            window.location.href = '/admin/new-booking';
+        }
+        
+        // Ctrl+E for emergency dispatch
+        if (e.ctrlKey && e.key === 'e') {
+            e.preventDefault();
+            window.location.href = '/admin/emergency-dispatch';
+        }
+    });
+    
+    // Monitor window visibility for auto-refresh when returning to tab
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            // Refresh when user returns to dashboard tab
+            setTimeout(refreshBookings, 500);
+        }
+    });
+});
+</script>
+{% endblock %} 
