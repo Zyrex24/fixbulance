@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Completed - {{ business_name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+        .header { background-color: #28a745; color: white; padding: 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .content { padding: 30px; }
+        .completion-box { background-color: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #28a745; }
+        .service-details { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0; }
+        .review-section { background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+        .button { display: inline-block; background-color: #ffc107; color: #212529; padding: 15px 30px; text-decoration: none; border-radius: 8px; margin: 15px 0; font-weight: bold; font-size: 16px; }
+        .button:hover { background-color: #e0a800; }
+        .success { color: #28a745; font-weight: bold; }
+        .highlight { color: #1e3a5f; font-weight: bold; }
+        .stars { font-size: 24px; color: #ffc107; }
+        .work-summary { background-color: #e3f2fd; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #1e3a5f; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎉 Service Completed!</h1>
+            <p>{{ business_name }} - Thank you for choosing us!</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <h2>Service Complete</h2>
+            <p>Hi {{ customer_name }},</p>
+            <p>Great news! Your device repair has been completed successfully. We hope you're satisfied with our service!</p>
+
+            <!-- Completion Summary -->
+            <div class="completion-box">
+                <h3>✅ Service Completion Summary</h3>
+                <p><strong>Booking Number:</strong> #{{ booking.id }}</p>
+                <p><strong>Completed Date:</strong> {{ completed_date.strftime('%A, %B %d, %Y at %I:%M %p') }}</p>
+                <p><strong>Device:</strong> {{ booking.device_model }}</p>
+                <p><strong>Final Amount:</strong> <span class="success">${{ "%.2f"|format(final_amount) }}</span></p>
+                <p><strong>Status:</strong> <span class="success">COMPLETED ✅</span></p>
+            </div>
+
+            <!-- Services Performed -->
+            <h3>Services Performed</h3>
+            {% for booking_service in services %}
+            <div class="work-summary">
+                <h4>{{ booking_service.service.name }}</h4>
+                <p><strong>Status:</strong> {{ booking_service.status.title() }}</p>
+                {% if booking_service.work_notes %}
+                <p><strong>Work Notes:</strong> {{ booking_service.work_notes }}</p>
+                {% endif %}
+                {% if booking_service.completion_notes %}
+                <p><strong>Completion Notes:</strong> {{ booking_service.completion_notes }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <!-- Work Details -->
+            {% if work_performed or parts_used %}
+            <div class="service-details">
+                <h3>Work Details</h3>
+                {% if work_performed %}
+                <p><strong>Work Performed:</strong> {{ work_performed }}</p>
+                {% endif %}
+                {% if parts_used %}
+                <p><strong>Parts Used:</strong> {{ parts_used }}</p>
+                {% endif %}
+                {% if technician_notes %}
+                <p><strong>Technician Notes:</strong> {{ technician_notes }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Review Request Section -->
+            <div class="review-section">
+                <h3>🌟 Rate Your Experience</h3>
+                <p>Your feedback helps us improve and helps other customers make informed decisions.</p>
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p><strong>How was your experience with {{ business_name }}?</strong></p>
+                <a href="{{ review_link }}" class="button">Leave a Review</a>
+                <p style="font-size: 12px; margin-top: 15px;">Click the button above to share your experience and rate our service</p>
+            </div>
+
+            <!-- Warranty & Support -->
+            <div class="service-details">
+                <h3>🛡️ Warranty & Support</h3>
+                <ul>
+                    <li><strong>Warranty:</strong> 30-day warranty on all parts and labor</li>
+                    <li><strong>Support:</strong> Contact us if you experience any issues</li>
+                    <li><strong>Follow-up:</strong> We may call to ensure everything is working perfectly</li>
+                    <li><strong>Future Service:</strong> Get priority booking as a returning customer</li>
+                </ul>
+            </div>
+
+            <!-- Care Instructions -->
+            <div style="background-color: #e8f5e8; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h4>📱 Device Care Tips</h4>
+                <ul>
+                    <li>Use a protective case and screen protector</li>
+                    <li>Avoid exposing your device to extreme temperatures</li>
+                    <li>Keep your device away from water and moisture</li>
+                    <li>Charge your battery regularly, but avoid overcharging</li>
+                    <li>Keep your software updated for optimal performance</li>
+                </ul>
+            </div>
+
+            <!-- Contact Information -->
+            <h3>Contact Information</h3>
+            <p><strong>Phone:</strong> {{ business_phone }}</p>
+            <p><strong>Email:</strong> {{ support_email }}</p>
+            <p><strong>Technician:</strong> {{ business_owner }}</p>
+
+            <p>Thank you again for choosing {{ business_name }}! We appreciate your business and look forward to serving you in the future.</p>
+            
+            <p>Best regards,<br>{{ business_owner }}<br>{{ business_name }} Team</p>
+
+            <!-- Social Proof -->
+            <div style="text-align: center; margin-top: 30px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+                <p><strong>Join hundreds of satisfied customers!</strong></p>
+                <p>Professional mobile repair service serving Orland Park, IL and Southwest Chicago suburbs</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>&copy; {{ current_year }} {{ business_name }}. All rights reserved.</p>
+            <p>Professional Mobile Phone Repair Service in Orland Park, IL and Southwest Chicago Suburbs</p>
+            <p>Thank you for choosing {{ business_name }} for your mobile repair needs!</p>
+        </div>
+    </div>
+</body>
+</html> 

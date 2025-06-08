@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation - {{ business_name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+        .header { background-color: #1e3a5f; color: white; padding: 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .content { padding: 30px; }
+        .booking-details { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .service-item { background-color: #e3f2fd; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #1e3a5f; }
+        .total-section { background-color: #e8f5e8; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+        .button { display: inline-block; background-color: #1e3a5f; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 10px 0; }
+        .highlight { color: #1e3a5f; font-weight: bold; }
+        .warning { background-color: #fff3cd; padding: 15px; border-radius: 5px; border-left: 4px solid #ffc107; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>{{ business_name }}</h1>
+            <p>Mobile Phone Repair Service</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <h2>Booking Confirmation</h2>
+            <p>Hi {{ customer_name }},</p>
+            <p>Thank you for choosing {{ business_name }}! Your booking has been received and is being processed.</p>
+
+            <!-- Booking Details -->
+            <div class="booking-details">
+                <h3>Booking Details</h3>
+                <p><strong>Booking Number:</strong> #{{ booking.id }}</p>
+                <p><strong>Scheduled Date:</strong> {{ scheduled_date.strftime('%A, %B %d, %Y') }}</p>
+                <p><strong>Scheduled Time:</strong> {{ scheduled_time.strftime('%I:%M %p') }}</p>
+                <p><strong>Service Address:</strong> {{ service_address }}</p>
+                <p><strong>Device:</strong> {{ booking.device_model }}</p>
+                <p><strong>Issue Description:</strong> {{ booking.issue_description }}</p>
+            </div>
+
+            <!-- Services -->
+            <h3>Services Requested ({{ total_services }})</h3>
+            {% for booking_service in services %}
+            <div class="service-item">
+                <h4>{{ booking_service.service.name }}</h4>
+                <p><strong>Quantity:</strong> {{ booking_service.quantity }}</p>
+                <p><strong>Estimated Price:</strong> ${{ "%.2f"|format(booking_service.price_snapshot) }}</p>
+                <p><strong>Estimated Time:</strong> {{ booking_service.estimated_time }} minutes</p>
+                {% if booking_service.service.description %}
+                <p><em>{{ booking_service.service.description }}</em></p>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <!-- Total Section -->
+            <div class="total-section">
+                <h3>Payment Summary</h3>
+                <p><strong>Estimated Total:</strong> <span class="highlight">${{ "%.2f"|format(estimated_total) }}</span></p>
+                <p><strong>Deposit Required:</strong> <span class="highlight">${{ "%.2f"|format(deposit_amount) }}</span></p>
+                <p><strong>Remaining Balance:</strong> ${{ "%.2f"|format(estimated_total - deposit_amount) }} <em>(due after service completion)</em></p>
+            </div>
+
+            <!-- Warning Notice -->
+            <div class="warning">
+                <h4>⚠️ Important Notice</h4>
+                <p><strong>Your booking is not confirmed yet.</strong> Please complete the deposit payment to secure your appointment time. We will contact you within 24 hours to confirm the final details.</p>
+            </div>
+
+            <!-- Next Steps -->
+            <h3>Next Steps</h3>
+            <ol>
+                <li><strong>Pay Deposit:</strong> Complete the ${{ "%.2f"|format(deposit_amount) }} deposit payment to secure your appointment</li>
+                <li><strong>Confirmation:</strong> We'll contact you within 24 hours to confirm details</li>
+                <li><strong>Service Day:</strong> Our technician will arrive within 30 minutes of your scheduled time</li>
+                <li><strong>Payment:</strong> Pay the remaining balance after service completion</li>
+            </ol>
+
+            <!-- Contact Information -->
+            <h3>Contact Information</h3>
+            <p><strong>Phone:</strong> {{ business_phone }}</p>
+            <p><strong>Email:</strong> {{ support_email }}</p>
+            <p><strong>Business Owner:</strong> {{ business_owner }}</p>
+
+            <p>If you have any questions or need to modify your booking, please contact us immediately.</p>
+            
+            <p>Thank you for choosing {{ business_name }}!</p>
+            <p>Best regards,<br>{{ business_owner }}<br>{{ business_name }} Team</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>&copy; {{ current_year }} {{ business_name }}. All rights reserved.</p>
+            <p>Professional Mobile Phone Repair Service in Orland Park, IL and Southwest Chicago Suburbs</p>
+            <p>This email was sent to confirm your booking. Please keep this for your records.</p>
+        </div>
+    </div>
+</body>
+</html> 

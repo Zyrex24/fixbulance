@@ -300,7 +300,7 @@ def init_db():
         
         # Create admin user
         admin_user = User(
-            email='admin@repair.com',
+            email='admin@fixbulance.com',
             password_hash=generate_password_hash('admin123'),
             first_name='Admin',
             last_name='User',

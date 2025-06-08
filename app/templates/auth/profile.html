@@ -51,7 +51,7 @@
             <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="personal-tab">
                 <div class="card">
                     <div class="card-body">
-                        <form method="POST" action="{{ url_for('auth.update_profile') }}" id="personalInfoForm">
+                        <form method="POST" action="{{ url_for('auth.profile') }}" id="personalInfoForm">
                             <input type="hidden" name="form_type" value="personal">
                             
                             <div class="row">
@@ -84,7 +84,7 @@
                                     <div class="mb-3">
                                         <label for="phone" class="form-label">Phone Number</label>
                                         <input type="tel" class="form-control" id="phone" name="phone" 
-                                               value="{{ current_user.phone or '' }}" placeholder="(555) 123-4567">
+                                               value="{{ current_user.phone or '' }}" placeholder="(708) 555-0123">
                                         <div class="form-text">Required for SMS notifications and service calls</div>
                                     </div>
                                 </div>
@@ -111,13 +111,13 @@
                             </div>
                         </div>
                         
-                        <form method="POST" action="{{ url_for('auth.update_profile') }}" id="addressForm">
+                        <form method="POST" action="{{ url_for('auth.profile') }}" id="addressForm">
                             <input type="hidden" name="form_type" value="address">
                             
                             <div class="mb-3">
-                                <label for="street_address" class="form-label">Street Address</label>
-                                <input type="text" class="form-control" id="street_address" name="street_address" 
-                                       value="{{ current_user.street_address or '' }}" placeholder="123 Main Street">
+                                <label for="address" class="form-label">Street Address</label>
+                                <input type="text" class="form-control" id="address" name="address" 
+                                       value="{{ current_user.address or '' }}" placeholder="123 Main Street">
                             </div>
                             
                             <div class="row">
@@ -149,6 +149,7 @@
                                 </div>
                             </div>
                             
+                            <!-- Apartment and Special Instructions fields temporarily disabled - not in User model
                             <div class="mb-3">
                                 <label for="apartment" class="form-label">Apartment/Suite (Optional)</label>
                                 <input type="text" class="form-control" id="apartment" name="apartment" 
@@ -160,6 +161,7 @@
                                 <textarea class="form-control" id="special_instructions" name="special_instructions" 
                                           rows="3" placeholder="Parking instructions, building access codes, etc.">{{ current_user.special_instructions or '' }}</textarea>
                             </div>
+                            -->
                             
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary" id="saveAddressBtn">
@@ -175,7 +177,7 @@
             <div class="tab-pane fade" id="notifications" role="tabpanel" aria-labelledby="notifications-tab">
                 <div class="card">
                     <div class="card-body">
-                        <form method="POST" action="{{ url_for('auth.update_profile') }}" id="notificationsForm">
+                        <form method="POST" action="{{ url_for('auth.profile') }}" id="notificationsForm">
                             <input type="hidden" name="form_type" value="notifications">
                             
                             <div class="mb-4">
@@ -308,12 +310,13 @@
                                     </tr>
                                     <tr>
                                         <td><strong>Total Bookings:</strong></td>
-                                        <td>{{ current_user.bookings.count() }}</td>
+                                        <td>{{ current_user.total_bookings }}</td>
                                     </tr>
                                 </table>
                             </div>
                         </div>
                         
+                        <!-- Delete Account functionality temporarily disabled - route not implemented
                         <div class="alert alert-danger">
                             <h6 class="alert-heading">⚠️ Danger Zone</h6>
                             <p class="mb-2">These actions cannot be undone. Please proceed with caution.</p>
@@ -321,6 +324,7 @@
                                 🗑️ Delete Account
                             </button>
                         </div>
+                        -->
                     </div>
                 </div>
             </div>
@@ -328,37 +332,7 @@
     </div>
 </div>
 
-<!-- Delete Account Modal -->
-<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="deleteAccountModalLabel">⚠️ Delete Account</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p><strong>This action cannot be undone!</strong></p>
-                <p>Deleting your account will permanently remove:</p>
-                <ul>
-                    <li>Your profile information</li>
-                    <li>Booking history</li>
-                    <li>Communication preferences</li>
-                    <li>All associated data</li>
-                </ul>
-                <p>Type <strong>DELETE</strong> to confirm:</p>
-                <input type="text" class="form-control" id="deleteConfirmation" placeholder="Type DELETE">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form method="POST" action="{{ url_for('auth.delete_account') }}" class="d-inline">
-                    <button type="submit" class="btn btn-danger" id="deleteAccountBtn" disabled>
-                        🗑️ Permanently Delete Account
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Delete Account Modal functionality removed - route not implemented -->
 {% endblock %}
 
 {% block scripts %}

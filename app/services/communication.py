@@ -12,19 +12,24 @@ class CommunicationService:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
     
-    def send_email(self, to_email, subject, html_content, text_content=None):
+    def send_email(self, to_email, subject, html_content, text_content=None, from_email=None):
         """Send email using SendGrid"""
         try:
+            # Use appropriate sender email based on context
+            if not from_email:
+                from_email = current_app.config.get('MAIL_DEFAULT_SENDER', 'info@fixbulance.com')
+            
             # For now, simulate email sending
             # In production, would integrate with SendGrid API
             
-            self.logger.info(f"Email sent to {to_email}: {subject}")
+            self.logger.info(f"Email sent from {from_email} to {to_email}: {subject}")
             
             return {
                 'success': True,
                 'message': 'Email sent successfully',
                 'message_id': f"email_{datetime.utcnow().timestamp()}",
-                'delivery_status': 'sent'
+                'delivery_status': 'sent',
+                'from_email': from_email
             }
             
         except Exception as e:
@@ -96,7 +101,8 @@ class CommunicationService:
                     booking.customer_email,
                     email_subject,
                     email_html,
-                    email_text
+                    email_text,
+                    from_email=current_app.config.get('MAIL_APPOINTMENTS', 'appointments@fixbulance.com')
                 )
                 results['email'] = email_result
             
@@ -146,7 +152,8 @@ class CommunicationService:
                 email_result = self.send_email(
                     booking.customer_email,
                     email_subject,
-                    email_html
+                    email_html,
+                    from_email=current_app.config.get('MAIL_SUPPORT', 'support@fixbulance.com')
                 )
                 results['email'] = email_result
             
@@ -176,7 +183,8 @@ class CommunicationService:
                 email_result = self.send_email(
                     booking.customer_email,
                     email_subject,
-                    email_html
+                    email_html,
+                    from_email=current_app.config.get('MAIL_SUPPORT', 'support@fixbulance.com')
                 )
                 results['email'] = email_result
             
@@ -229,7 +237,7 @@ class CommunicationService:
                 <div style="background: #f8f9fa; padding: 15px; margin: 20px 0; border-left: 4px solid #1e3a5f;">
                     <h4>What's Next?</h4>
                     <p>Our technician will arrive 15 minutes before your scheduled time and will call you upon arrival.</p>
-                    <p>For any changes or questions, call us at <strong>(555) 123-4567</strong></p>
+                    <p>For any changes or questions, call us at <strong>(708) 971-4053</strong></p>
                 </div>
             </div>
             
@@ -260,14 +268,14 @@ class CommunicationService:
         
         Our technician will arrive 15 minutes before your scheduled time and will call you upon arrival.
         
-        For any changes or questions, call us at (555) 123-4567
+        For any changes or questions, call us at (708) 971-4053
         
         Thank you for choosing Fixbulance!
         """
     
     def get_confirmation_sms_text(self, booking):
         """Generate SMS text for booking confirmation"""
-        return f"Fixbulance booking confirmed! {booking.device_type} repair on {booking.preferred_date} at {booking.preferred_time}. Ref: {booking.booking_reference}. Questions? Call (555) 123-4567"
+        return f"Fixbulance booking confirmed! {booking.device_type} repair on {booking.preferred_date} at {booking.preferred_time}. Ref: {booking.booking_reference}. Questions? Call (708) 971-4053"
     
     def get_enroute_email_html(self, booking, technician_name, eta_minutes):
         """Generate HTML email for en route notification"""
@@ -291,7 +299,7 @@ class CommunicationService:
                     <p>• Your technician will call upon arrival</p>
                 </div>
                 
-                <p>For real-time updates, call <strong>(555) 123-4567</strong></p>
+                <p>For real-time updates, call <strong>(708) 971-4053</strong></p>
             </div>
         </div>
         """

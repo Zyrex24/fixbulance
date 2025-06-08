@@ -1,0 +1,47 @@
+name: fixbulance-app
+services:
+- name: web
+  source_dir: /
+  github:
+    repo: your-username/fixbulance-app
+    branch: main
+    deploy_on_push: true
+  run_command: gunicorn --worker-tmp-dir /dev/shm --config gunicorn_config.py run:app
+  environment_slug: python
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 8080
+  health_check:
+    http_path: /
+  envs:
+  - key: FLASK_ENV
+    value: production
+  - key: SECRET_KEY
+    type: SECRET
+  - key: DATABASE_URL
+    type: SECRET
+  - key: MAIL_SERVER
+    value: mail.privateemail.com
+  - key: MAIL_PORT
+    value: "587"
+  - key: MAIL_USE_TLS
+    value: "true"
+  - key: MAIL_USERNAME
+    type: SECRET
+  - key: MAIL_PASSWORD
+    type: SECRET
+  - key: STRIPE_PUBLISHABLE_KEY
+    type: SECRET
+  - key: STRIPE_SECRET_KEY
+    type: SECRET
+
+databases:
+- name: fixbulance-db
+  engine: PG
+  production: false
+  version: "12"
+
+domains:
+- domain: fixbulance.com
+  type: PRIMARY
+  zone: fixbulance.com 

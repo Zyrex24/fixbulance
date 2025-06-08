@@ -1,0 +1,64 @@
+{{ business_name }} - Mobile Phone Repair Service
+Booking Confirmation #{{ booking.id }}
+
+Hi {{ customer_name }},
+
+Thank you for choosing {{ business_name }}! Your booking has been received and is being processed.
+
+BOOKING DETAILS
+===============
+Booking Number: #{{ booking.id }}
+Scheduled Date: {{ scheduled_date.strftime('%A, %B %d, %Y') }}
+Scheduled Time: {{ scheduled_time.strftime('%I:%M %p') }}
+Service Address: {{ service_address }}
+Device: {{ booking.device_model }}
+Issue Description: {{ booking.issue_description }}
+
+SERVICES REQUESTED ({{ total_services }})
+==================
+{% for booking_service in services %}
+• {{ booking_service.service.name }}
+  Quantity: {{ booking_service.quantity }}
+  Estimated Price: ${{ "%.2f"|format(booking_service.price_snapshot) }}
+  Estimated Time: {{ booking_service.estimated_time }} minutes
+  {% if booking_service.service.description %}
+  Description: {{ booking_service.service.description }}
+  {% endif %}
+
+{% endfor %}
+
+PAYMENT SUMMARY
+===============
+Estimated Total: ${{ "%.2f"|format(estimated_total) }}
+Deposit Required: ${{ "%.2f"|format(deposit_amount) }}
+Remaining Balance: ${{ "%.2f"|format(estimated_total - deposit_amount) }} (due after service completion)
+
+IMPORTANT NOTICE
+================
+⚠️ Your booking is not confirmed yet. Please complete the deposit payment to secure your appointment time. We will contact you within 24 hours to confirm the final details.
+
+NEXT STEPS
+==========
+1. Pay Deposit: Complete the ${{ "%.2f"|format(deposit_amount) }} deposit payment to secure your appointment
+2. Confirmation: We'll contact you within 24 hours to confirm details
+3. Service Day: Our technician will arrive within 30 minutes of your scheduled time
+4. Payment: Pay the remaining balance after service completion
+
+CONTACT INFORMATION
+===================
+Phone: {{ business_phone }}
+Email: {{ support_email }}
+Business Owner: {{ business_owner }}
+
+If you have any questions or need to modify your booking, please contact us immediately.
+
+Thank you for choosing {{ business_name }}!
+
+Best regards,
+{{ business_owner }}
+{{ business_name }} Team
+
+---
+© {{ current_year }} {{ business_name }}. All rights reserved.
+Professional Mobile Phone Repair Service in Orland Park, IL and Southwest Chicago Suburbs
+This email was sent to confirm your booking. Please keep this for your records. 

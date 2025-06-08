@@ -406,96 +406,72 @@
                             <div>Actions</div>
                         </div>
                         
-                        <!-- Sample Emergency Booking -->
+                        <!-- Real Booking Data -->
+                        {% if today_bookings %}
+                        {% for booking in today_bookings[:5] %}
                         <div class="booking-row">
                             <div class="customer-info">
-                                <h6>John Smith</h6>
-                                <small>iPhone 14 Pro - Screen Replacement</small>
-                                <br><small class="text-muted">📞 (555) 123-4567</small>
+                                <h6>{{ booking.customer.full_name }}</h6>
+                                <small>{{ booking.device_type }} {% if booking.device_model %}{{ booking.device_model }}{% endif %} - {% if booking.service %}{{ booking.service.name }}{% else %}{{ booking.issue_description[:30] }}...{% endif %}</small>
+                                {% if booking.customer.phone %}
+                                <br><small class="text-muted">📞 {{ booking.customer.phone }}</small>
+                                {% endif %}
                             </div>
                             <div>
-                                <strong>$89</strong>
-                                <br><small class="text-muted">Screen Repair</small>
+                                {% if booking.service %}
+                                <strong>${{ "%.0f"|format(booking.service.base_price) }}</strong>
+                                <br><small class="text-muted">{{ booking.service.name }}</small>
+                                {% else %}
+                                <strong>TBD</strong>
+                                <br><small class="text-muted">Quote needed</small>
+                                {% endif %}
                             </div>
                             <div>
-                                <span class="status-badge status-emergency">EMERGENCY</span>
+                                {% if booking.status == 'pending' %}
+                                <span class="status-badge status-emergency">PENDING</span>
+                                {% elif booking.status == 'confirmed' %}
+                                <span class="status-badge status-priority">CONFIRMED</span>
+                                {% elif booking.status == 'in_progress' %}
+                                <span class="status-badge status-priority">IN PROGRESS</span>
+                                {% elif booking.status == 'completed' %}
+                                <span class="status-badge status-completed">COMPLETED</span>
+                                {% else %}
+                                <span class="status-badge status-scheduled">{{ booking.status.upper() }}</span>
+                                {% endif %}
                             </div>
                             <div>
-                                <strong>ASAP</strong>
-                                <br><small class="text-muted">Within 2 hours</small>
-                            </div>
-                            <div>
-                                <small>Orland Park<br>2.1 miles</small>
-                            </div>
-                            <div>
-                                <a href="#" class="action-btn btn-emergency mb-1">
-                                    <i class="fas fa-ambulance me-1"></i>Dispatch
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <!-- Sample Priority Booking -->
-                        <div class="booking-row">
-                            <div class="customer-info">
-                                <h6>Sarah Johnson</h6>
-                                <small>Samsung Galaxy S23 - Battery</small>
-                                <br><small class="text-muted">📞 (555) 987-6543</small>
-                            </div>
-                            <div>
-                                <strong>$69</strong>
-                                <br><small class="text-muted">Battery Replace</small>
-                            </div>
-                            <div>
-                                <span class="status-badge status-priority">PRIORITY</span>
-                            </div>
-                            <div>
-                                <strong>2:00 PM</strong>
+                                {% if booking.scheduled_time %}
+                                <strong>{{ booking.scheduled_time.strftime('%I:%M %p') }}</strong>
                                 <br><small class="text-muted">Today</small>
+                                {% else %}
+                                <strong>Not scheduled</strong>
+                                <br><small class="text-muted">Needs scheduling</small>
+                                {% endif %}
                             </div>
                             <div>
-                                <small>Tinley Park<br>4.8 miles</small>
+                                <small>
+                                    {% if booking.city %}
+                                    {{ booking.city }}
+                                    {% else %}
+                                    Location TBD
+                                    {% endif %}
+                                </small>
                             </div>
                             <div>
-                                <a href="#" class="action-btn btn-primary mb-1">
+                                <a href="{{ url_for('admin.booking_detail', booking_id=booking.id) }}" class="action-btn btn-primary mb-1">
                                     <i class="fas fa-eye me-1"></i>View
                                 </a>
                             </div>
                         </div>
-                        
-                        <!-- Sample Scheduled Booking -->
-                        <div class="booking-row">
-                            <div class="customer-info">
-                                <h6>Mike Davis</h6>
-                                <small>iPhone 13 - Charging Port</small>
-                                <br><small class="text-muted">📞 (555) 456-7890</small>
-                            </div>
-                            <div>
-                                <strong>$59</strong>
-                                <br><small class="text-muted">Port Repair</small>
-                            </div>
-                            <div>
-                                <span class="status-badge status-scheduled">SCHEDULED</span>
-                            </div>
-                            <div>
-                                <strong>4:00 PM</strong>
-                                <br><small class="text-muted">Today</small>
-                            </div>
-                            <div>
-                                <small>Oak Forest<br>6.2 miles</small>
-                            </div>
-                            <div>
-                                <a href="#" class="action-btn btn-success mb-1">
-                                    <i class="fas fa-check me-1"></i>Complete
-                                </a>
-                            </div>
-                        </div>
-                        
+                        {% endfor %}
+                        {% else %}
                         <!-- No bookings message -->
-                        <div id="noBookings" style="display: none;" class="text-center py-4">
+                        <div class="text-center py-4">
                             <i class="fas fa-calendar-check text-muted" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                            <h6 class="text-muted">No active bookings</h6>
-                            <p class="text-muted">All emergency repairs completed!</p>
+                            <h6 class="text-muted">No bookings for today</h6>
+                            <p class="text-muted">Ready for new emergency repairs!</p>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

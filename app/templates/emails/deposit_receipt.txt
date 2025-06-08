@@ -1,0 +1,67 @@
+{{ business_name }} - Payment Receipt
+✅ PAYMENT RECEIVED
+
+Hi {{ customer_name }},
+
+We have successfully received your deposit payment. Your appointment is now secured!
+
+PAYMENT RECEIPT
+===============
+Transaction ID: {{ transaction_id }}
+Payment Date: {{ payment.created_at.strftime('%A, %B %d, %Y at %I:%M %p') }}
+Amount Paid: ${{ "%.2f"|format(amount_paid) }}
+Payment Method: {{ payment_method }}
+Status: PAID ✅
+
+BOOKING INFORMATION
+===================
+Booking Number: #{{ booking.id }}
+Service Date: {{ service_date.strftime('%A, %B %d, %Y') }}
+Service Time: {{ service_time.strftime('%I:%M %p') }}
+Device: {{ booking.device_model }}
+
+SERVICES BOOKED
+===============
+{% for booking_service in services %}
+• {{ booking_service.service.name }}
+  Quantity: {{ booking_service.quantity }}
+  Price: ${{ "%.2f"|format(booking_service.price_snapshot) }}
+
+{% endfor %}
+
+PAYMENT SUMMARY
+===============
+Deposit Paid: ${{ "%.2f"|format(amount_paid) }} ✅
+Remaining Balance: ${{ "%.2f"|format(remaining_balance) }}
+(The remaining balance will be due after service completion)
+
+WHAT'S NEXT?
+============
+1. Confirmation Call: We will contact you within 24 hours to confirm final details
+2. Service Day: Our technician will arrive within 30 minutes of your scheduled time  
+3. Service Completion: Pay the remaining balance of ${{ "%.2f"|format(remaining_balance) }} after service
+4. Review: Share your experience to help other customers
+
+IMPORTANT NOTES
+===============
+📋 Please keep this receipt for your records
+✅ Your appointment is now confirmed and secured
+⏰ If you need to reschedule, please call us at least 4 hours in advance
+📞 Our technician will call you 30 minutes before arrival
+
+CONTACT INFORMATION
+===================
+Phone: {{ business_phone }}
+Email: {{ support_email }}
+Technician: {{ business_owner }}
+
+Thank you for choosing {{ business_name }}! We look forward to providing you with excellent service.
+
+Best regards,
+{{ business_owner }}
+{{ business_name }} Team
+
+---
+© {{ current_year }} {{ business_name }}. All rights reserved.
+Professional Mobile Phone Repair Service in Orland Park, IL and Southwest Chicago Suburbs
+This is your official payment receipt. Please keep for your records. 

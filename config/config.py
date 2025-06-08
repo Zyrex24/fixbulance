@@ -6,16 +6,41 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
-    # Email settings (SendGrid)
-    MAIL_SERVER = 'smtp.sendgrid.net'
+    # Email settings (Namecheap)
+    MAIL_SERVER = 'mail.privateemail.com'  # Namecheap Private Email SMTP
     MAIL_PORT = 587
     MAIL_USE_TLS = True
-    MAIL_USERNAME = 'apikey'
-    MAIL_PASSWORD = os.environ.get('SENDGRID_API_KEY')
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME') or 'booking@fixbulance.com'
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD') or '#AsAs1234'
+    
+    # Fixbulance Email Addresses
+    MAIL_DEFAULT_SENDER = 'booking@fixbulance.com'
+    MAIL_SUPPORT = 'support@fixbulance.com'
+    MAIL_ADMIN = 'admin@fixbulance.com'
+    MAIL_BILLING = 'billing@fixbulance.com'
+    MAIL_APPOINTMENTS = 'appointments@fixbulance.com'
+    MAIL_BOOKING = 'booking@fixbulance.com'
+    
+    # Business Owner Information
+    BUSINESS_OWNER_FIRST_NAME = 'Ahmed'
+    BUSINESS_OWNER_LAST_NAME = 'Khalil'
+    BUSINESS_PHONE = '+1 708 971 4053'
+    BUSINESS_PHONE_DISPLAY = '(708) 971-4053'
     
     # Stripe settings
-    STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY')
+    STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')
     STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+    STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+    
+    # Stripe business configuration
+    STRIPE_BUSINESS_NAME = 'Fixbulance'
+    STRIPE_BUSINESS_DESCRIPTION = 'Mobile Phone Repair Service'
+    STRIPE_SUCCESS_URL = os.environ.get('STRIPE_SUCCESS_URL', 'http://localhost:5000/booking/payment-success')
+    STRIPE_CANCEL_URL = os.environ.get('STRIPE_CANCEL_URL', 'http://localhost:5000/booking/payment-cancel')
+    
+    # Payment settings
+    DEPOSIT_AMOUNT = 15.00  # Fixed $15 deposit for all bookings
+    MINIMUM_PAYMENT_AMOUNT = 1.00  # Minimum payment amount in USD
     
     # SMS settings (Twilio)
     TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
@@ -49,9 +74,11 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
         'sqlite:///repair_service_dev.db'
     
-    # Use test keys in development
-    STRIPE_PUBLIC_KEY = 'pk_test_placeholder'
-    STRIPE_SECRET_KEY = 'sk_test_placeholder'
+    # Stripe keys must be set via environment variables
+    # Create a .env file or set these environment variables:
+    # STRIPE_PUBLISHABLE_KEY=pk_test_your_key_here
+    # STRIPE_SECRET_KEY=sk_test_your_key_here
+    # STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
 
 class ProductionConfig(Config):
     """Production configuration"""

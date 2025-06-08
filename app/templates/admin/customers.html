@@ -1,0 +1,488 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Customers - Admin Dashboard - Fixbulance{% endblock %}
+
+{% block styles %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--light-navy) 100%);
+        color: var(--white);
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .search-card {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .customer-card {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .customer-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .customer-avatar {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+    }
+    
+    .customer-info {
+        flex: 1;
+    }
+    
+    .customer-meta {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .customer-stats {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .stats-item {
+        text-align: center;
+        padding: 0.5rem;
+    }
+    
+    .stats-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary);
+    }
+    
+    .stats-label {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+    
+    .customer-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-muted);
+    }
+    
+    .badge-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .badge-active { background-color: #d4edda; color: #155724; }
+    .badge-new { background-color: #cce7ff; color: #004085; }
+    
+    @media (max-width: 768px) {
+        .customer-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        
+        .customer-actions {
+            width: 100%;
+            justify-content: stretch;
+        }
+        
+        .customer-actions .btn {
+            flex: 1;
+        }
+        
+        .customer-avatar {
+            margin-right: 0.5rem;
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-2">👥 Customer Management</h1>
+                <p class="mb-0 opacity-75">View and manage all registered customers</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Search -->
+    <div class="search-card">
+        <h5 class="mb-3">🔍 Search Customers</h5>
+        <div class="row">
+            <div class="col-md-10 mb-3">
+                <div class="position-relative">
+                    <input type="text" 
+                           id="customer-search" 
+                           class="form-control" 
+                           placeholder="Search by name, email, or phone number... (start typing for real-time search)"
+                           value="{{ search }}"
+                           autocomplete="off">
+                    <div class="position-absolute top-50 end-0 translate-middle-y pe-3" id="search-loading" style="display: none;">
+                        <i class="fas fa-spinner fa-spin text-primary"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-2 mb-3">
+                <div class="d-grid">
+                    <a href="{{ url_for('admin.customers') }}" class="btn btn-outline-secondary" id="clear-search">
+                        <i class="fas fa-times me-2"></i>Clear
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Results -->
+    <div id="customer-results">
+    {% if customers.items %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">
+            📊 Showing {{ customers.total }} customer{{ 's' if customers.total != 1 else '' }}
+            {% if search %}
+            matching "{{ search }}"
+            {% endif %}
+        </h5>
+        <div class="text-muted">
+            Page {{ customers.page }} of {{ customers.pages }}
+        </div>
+    </div>
+
+    {% for customer in customers.items %}
+    <div class="customer-card">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-start">
+                    <div class="customer-avatar">
+                        {{ customer.first_name[0] if customer.first_name else 'U' }}{{ customer.last_name[0] if customer.last_name else '' }}
+                    </div>
+                    
+                    <div class="customer-info">
+                                                 <div class="customer-meta">
+                             <h6 class="mb-0">{{ customer.full_name }}</h6>
+                             <span class="badge badge-status badge-active">Active</span>
+                         </div>
+                        
+                        <div class="row mt-2">
+                            <div class="col-sm-6">
+                                <p class="mb-1">
+                                    <i class="fas fa-envelope me-2 text-primary"></i>
+                                    <a href="mailto:{{ customer.email }}" class="text-decoration-none">
+                                        {{ customer.email }}
+                                    </a>
+                                </p>
+                                {% if customer.phone %}
+                                <p class="mb-1">
+                                    <i class="fas fa-phone me-2 text-success"></i>
+                                    <a href="tel:{{ customer.phone }}" class="text-decoration-none">
+                                        {{ customer.phone }}
+                                    </a>
+                                </p>
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-6">
+                                {% if customer.created_at %}
+                                <p class="mb-1">
+                                    <i class="fas fa-calendar-plus me-2 text-info"></i>
+                                    Joined {{ customer.created_at.strftime('%B %d, %Y') }}
+                                </p>
+                                {% endif %}
+                                {% if customer.last_login %}
+                                <p class="mb-1">
+                                    <i class="fas fa-clock me-2 text-muted"></i>
+                                    Last login {{ customer.last_login.strftime('%B %d, %Y') }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="customer-stats mb-3">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="stats-item">
+                                <div class="stats-value">{{ customer.bookings | length }}</div>
+                                <div class="stats-label">Bookings</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stats-item">
+                                                                 <div class="stats-value">
+                                     {% set total_spent = 0 %}
+                                     {% for booking in customer.bookings %}
+                                     {% if booking.status == 'completed' and booking.final_amount %}
+                                     {% set total_spent = total_spent + booking.final_amount %}
+                                     {% endif %}
+                                     {% endfor %}
+                                     ${{ "%.0f"|format(total_spent) }}
+                                 </div>
+                                <div class="stats-label">Total Spent</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="customer-actions">
+                    <a href="{{ url_for('admin.customer_detail', customer_id=customer.id) }}" 
+                       class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i>View Details
+                    </a>
+                    
+                    <a href="mailto:{{ customer.email }}" 
+                       class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-envelope me-1"></i>Email
+                    </a>
+                    
+                    {% if customer.phone %}
+                    <a href="tel:{{ customer.phone }}" 
+                       class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-phone me-1"></i>Call
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Pagination -->
+    {% if customers.pages > 1 %}
+    <div class="pagination-wrapper">
+        <nav aria-label="Customers pagination">
+            <ul class="pagination">
+                {% if customers.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.customers', page=customers.prev_num, search=search) }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in customers.iter_pages() %}
+                {% if page_num %}
+                {% if page_num != customers.page %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.customers', page=page_num, search=search) }}">
+                        {{ page_num }}
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item active">
+                    <span class="page-link">{{ page_num }}</span>
+                </li>
+                {% endif %}
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">…</span>
+                </li>
+                {% endif %}
+                {% endfor %}
+                
+                {% if customers.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('admin.customers', page=customers.next_num, search=search) }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state">
+        <div class="mb-4">
+            <i class="fas fa-users fa-4x text-muted"></i>
+        </div>
+        <h4 class="text-muted">No Customers Found</h4>
+        <p class="text-muted mb-4">
+            {% if search %}
+            No customers match your search for "{{ search }}". Try adjusting your search criteria.
+            {% else %}
+            No customers have registered yet.
+            {% endif %}
+        </p>
+        {% if search %}
+        <a href="{{ url_for('admin.customers') }}" class="btn btn-primary">
+            <i class="fas fa-times me-2"></i>Clear Search
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let searchTimeout;
+    const searchInput = document.getElementById('customer-search');
+    const searchLoading = document.getElementById('search-loading');
+    const customerResults = document.getElementById('customer-results');
+    const clearButton = document.getElementById('clear-search');
+    
+    // Auto-focus search input if no search term
+    if (searchInput && !searchInput.value.trim()) {
+        searchInput.focus();
+    }
+    
+    // Real-time search functionality
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.trim();
+        
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+        
+        // Show loading spinner
+        searchLoading.style.display = 'block';
+        
+        // Set new timeout for search
+        searchTimeout = setTimeout(() => {
+            performSearch(searchTerm);
+        }, 300); // 300ms delay to avoid too many requests
+    });
+    
+    // Clear search functionality
+    clearButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        searchInput.value = '';
+        searchInput.focus();
+        performSearch('');
+    });
+    
+    function performSearch(searchTerm) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('search', searchTerm);
+        url.searchParams.delete('page'); // Reset to first page
+        
+        fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Parse the response and extract the customer results
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newResults = doc.getElementById('customer-results');
+            
+            if (newResults) {
+                customerResults.innerHTML = newResults.innerHTML;
+            }
+            
+            // Hide loading spinner
+            searchLoading.style.display = 'none';
+            
+            // Update URL without page reload
+            if (searchTerm) {
+                history.pushState({}, '', url.toString());
+            } else {
+                history.pushState({}, '', "{{ url_for('admin.customers') }}");
+            }
+        })
+        .catch(error => {
+            console.error('Search error:', error);
+            searchLoading.style.display = 'none';
+            
+            // Show error message
+            customerResults.innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Search temporarily unavailable. Please try again or refresh the page.
+                </div>
+            `;
+        });
+    }
+    
+    // Handle pagination clicks for AJAX
+    document.addEventListener('click', function(e) {
+        const paginationLink = e.target.closest('.pagination .page-link[href]');
+        if (paginationLink) {
+            e.preventDefault();
+            
+            const url = new URL(paginationLink.href);
+            searchLoading.style.display = 'block';
+            
+            fetch(url.toString(), {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newResults = doc.getElementById('customer-results');
+                
+                if (newResults) {
+                    customerResults.innerHTML = newResults.innerHTML;
+                }
+                
+                searchLoading.style.display = 'none';
+                history.pushState({}, '', url.toString());
+                
+                // Scroll to top of results
+                customerResults.scrollIntoView({ behavior: 'smooth' });
+            })
+            .catch(error => {
+                console.error('Pagination error:', error);
+                searchLoading.style.display = 'none';
+            });
+        }
+    });
+});
+</script>
+{% endblock %} 

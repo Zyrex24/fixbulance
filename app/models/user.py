@@ -1,6 +1,7 @@
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
+import secrets
 from app import db
 
 class User(UserMixin, db.Model):
@@ -30,6 +31,13 @@ class User(UserMixin, db.Model):
     is_active = db.Column(db.Boolean, default=True)
     email_verified = db.Column(db.Boolean, default=False)
     email_verification_token = db.Column(db.String(100))
+    
+    # Password reset
+    password_reset_token = db.Column(db.String(100))
+    password_reset_expires = db.Column(db.DateTime)
+    
+    # Stripe integration
+    stripe_customer_id = db.Column(db.String(255), unique=True, index=True)
     
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -72,6 +80,30 @@ class User(UserMixin, db.Model):
     def update_last_login(self):
         """Update last login timestamp"""
         self.last_login = datetime.utcnow()
+        db.session.commit()
+    
+    def generate_password_reset_token(self):
+        """Generate a password reset token"""
+        self.password_reset_token = secrets.token_urlsafe(32)
+        self.password_reset_expires = datetime.utcnow() + timedelta(hours=1)  # 1 hour expiry
+        db.session.commit()
+        return self.password_reset_token
+    
+    def verify_password_reset_token(self, token):
+        """Verify password reset token"""
+        if not self.password_reset_token or not self.password_reset_expires:
+            return False
+        
+        if datetime.utcnow() > self.password_reset_expires:
+            return False
+        
+        return self.password_reset_token == token
+    
+    def reset_password(self, new_password):
+        """Reset password and clear reset token"""
+        self.set_password(new_password)
+        self.password_reset_token = None
+        self.password_reset_expires = None
         db.session.commit()
     
     def to_dict(self):

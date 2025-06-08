@@ -1,0 +1,447 @@
+{% extends "base.html" %}
+
+{% block title %}Reports & Analytics - Admin Dashboard - Fixbulance{% endblock %}
+
+{% block styles %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--light-navy) 100%);
+        color: var(--white);
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.2s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .stat-icon.revenue {
+        background: linear-gradient(135deg, #28a745, #20c997);
+    }
+    
+    .stat-icon.customers {
+        background: linear-gradient(135deg, #007bff, #6f42c1);
+    }
+    
+    .stat-icon.bookings {
+        background: linear-gradient(135deg, #fd7e14, #e83e8c);
+    }
+    
+    .stat-icon.completion {
+        background: linear-gradient(135deg, #17a2b8, #6610f2);
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--navy);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+    
+    .stat-change {
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    
+    .stat-change.positive {
+        color: #28a745;
+    }
+    
+    .stat-change.negative {
+        color: #dc3545;
+    }
+    
+    .chart-card {
+        background: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .service-stats-table {
+        width: 100%;
+        margin-top: 1rem;
+    }
+    
+    .service-stats-table th {
+        background: #f8f9fa;
+        border: none;
+        font-weight: 600;
+        color: var(--navy);
+        padding: 1rem;
+    }
+    
+    .service-stats-table td {
+        border: none;
+        padding: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .service-bar {
+        background: #e9ecef;
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+    
+    .service-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+    
+    .monthly-highlight {
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(32, 201, 151, 0.1));
+        border: 2px solid rgba(40, 167, 69, 0.2);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-reports {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-muted);
+    }
+    
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-2">📊 Reports & Analytics</h1>
+                <p class="mb-0 opacity-75">Business insights and performance metrics</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Key Performance Indicators -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon revenue">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-value">${{ "%.0f"|format(stats.total_revenue) }}</div>
+            <div class="stat-label">Total Revenue</div>
+            <div class="stat-change">
+                <i class="fas fa-info-circle me-1"></i>
+                All-time earnings
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon customers">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-value">{{ stats.total_customers }}</div>
+            <div class="stat-label">Total Customers</div>
+            <div class="stat-change">
+                <i class="fas fa-user-plus me-1"></i>
+                Registered users
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon bookings">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-value">{{ stats.total_bookings }}</div>
+            <div class="stat-label">Total Bookings</div>
+            <div class="stat-change">
+                <i class="fas fa-chart-line me-1"></i>
+                Service requests
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon completion">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-value">{{ "%.1f"|format(stats.completion_rate) }}%</div>
+            <div class="stat-label">Completion Rate</div>
+            <div class="stat-change {{ 'positive' if stats.completion_rate >= 75 else 'negative' }}">
+                <i class="fas fa-{{ 'arrow-up' if stats.completion_rate >= 75 else 'arrow-down' }} me-1"></i>
+                {{ 'Excellent' if stats.completion_rate >= 75 else 'Needs improvement' }}
+            </div>
+        </div>
+    </div>
+
+    <!-- This Month's Performance -->
+    <div class="chart-card">
+        <div class="monthly-highlight">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-2">
+                        <i class="fas fa-calendar-alt me-2 text-success"></i>
+                        This Month's Performance
+                    </h5>
+                    <p class="mb-0 text-muted">
+                        Current month activity and revenue summary
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="h4 text-success mb-1">
+                        ${{ "%.0f"|format(stats.monthly_revenue) }}
+                    </div>
+                    <div class="text-muted">
+                        {{ stats.monthly_bookings }} booking{{ 's' if stats.monthly_bookings != 1 else '' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Popularity -->
+    <div class="chart-card">
+        <h5 class="mb-3">
+            <i class="fas fa-trophy me-2 text-warning"></i>
+            Most Popular Services
+        </h5>
+        
+        {% if stats.service_stats %}
+        <div class="table-responsive">
+            <table class="service-stats-table">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Device Type</th>
+                        <th class="text-center">Bookings</th>
+                        <th>Popularity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set max_bookings = stats.service_stats[0].booking_count if stats.service_stats else 1 %}
+                    {% for service in stats.service_stats %}
+                    <tr>
+                        <td>
+                            <strong>{{ service.name }}</strong>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ service.device_type }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="h6 text-primary mb-0">{{ service.booking_count }}</span>
+                        </td>
+                        <td style="width: 200px;">
+                            <div class="service-bar">
+                                <div class="service-bar-fill" 
+                                     style="width: {{ (service.booking_count / max_bookings * 100) }}%">
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-reports">
+            <div class="mb-3">
+                <i class="fas fa-chart-bar fa-3x text-muted"></i>
+            </div>
+            <h6 class="text-muted">No Service Data Available</h6>
+            <p class="text-muted mb-0">
+                Service popularity data will appear here once bookings are created.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Business Insights -->
+    <div class="chart-card">
+        <h5 class="mb-3">
+            <i class="fas fa-lightbulb me-2 text-info"></i>
+            Business Insights
+        </h5>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="border-start border-3 border-primary ps-3 mb-3">
+                    <h6 class="text-primary">Revenue Performance</h6>
+                    <p class="mb-0 text-muted">
+                        {% if stats.total_revenue > 0 %}
+                        Your business has generated ${{ "%.0f"|format(stats.total_revenue) }} in total revenue 
+                                                 with an average of ${{ "%.0f"|format(stats.total_revenue / (stats.total_customers if stats.total_customers > 0 else 1)) }} per customer.
+                        {% else %}
+                        Start tracking revenue by completing more service bookings.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="border-start border-3 border-success ps-3 mb-3">
+                    <h6 class="text-success">Customer Growth</h6>
+                    <p class="mb-0 text-muted">
+                        {% if stats.total_customers > 0 %}
+                        You have {{ stats.total_customers }} registered customer{{ 's' if stats.total_customers != 1 else '' }} 
+                                                 with {{ "%.1f"|format(stats.total_bookings / (stats.total_customers if stats.total_customers > 0 else 1)) }} average bookings per customer.
+                        {% else %}
+                        Focus on customer acquisition to grow your business.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="border-start border-3 border-warning ps-3 mb-3">
+                    <h6 class="text-warning">Service Efficiency</h6>
+                    <p class="mb-0 text-muted">
+                        {% if stats.completion_rate >= 80 %}
+                        Excellent completion rate! You're delivering consistent service quality.
+                        {% elif stats.completion_rate >= 60 %}
+                        Good completion rate. Consider streamlining processes to improve efficiency.
+                        {% else %}
+                        Focus on improving service completion rates to enhance customer satisfaction.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="border-start border-3 border-info ps-3 mb-3">
+                    <h6 class="text-info">Monthly Trends</h6>
+                    <p class="mb-0 text-muted">
+                        {% if stats.monthly_bookings > 0 %}
+                        This month: {{ stats.monthly_bookings }} booking{{ 's' if stats.monthly_bookings != 1 else '' }} 
+                        generating ${{ "%.0f"|format(stats.monthly_revenue) }} in revenue.
+                        {% else %}
+                        No bookings this month yet. Focus on marketing and customer outreach.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="chart-card">
+        <h5 class="mb-3">
+            <i class="fas fa-bolt me-2 text-danger"></i>
+            Quick Actions
+        </h5>
+        
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <a href="{{ url_for('admin.bookings') }}" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-calendar-check me-2"></i>
+                    View All Bookings
+                </a>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <a href="{{ url_for('admin.customers') }}" class="btn btn-outline-success w-100">
+                    <i class="fas fa-users me-2"></i>
+                    Manage Customers
+                </a>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <a href="{{ url_for('admin.services') }}" class="btn btn-outline-info w-100">
+                    <i class="fas fa-wrench me-2"></i>
+                    Service Management
+                </a>
+            </div>
+            
+            <div class="col-md-3 mb-3">
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-warning w-100">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate stat cards on load
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.5s ease';
+            
+            requestAnimationFrame(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            });
+        }, index * 100);
+    });
+    
+    // Animate service bars
+    setTimeout(() => {
+        const serviceBars = document.querySelectorAll('.service-bar-fill');
+        serviceBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 100);
+        });
+    }, 500);
+});
+</script>
+{% endblock %} 

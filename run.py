@@ -12,7 +12,7 @@ from app.models.booking import Booking
 from app.models.service_area import ServiceZipCode
 
 # Create Flask application
-app = create_app(os.getenv('FLASK_CONFIG') or 'development')
+app = create_app()
 
 @app.shell_context_processor
 def make_shell_context():
@@ -39,10 +39,10 @@ def seed_db():
     
     # Create admin user
     admin = User(
-        email='admin@repair.local',
-        first_name='Admin',
-        last_name='User',
-        phone='555-123-4567',
+        email='admin@fixbulance.com',
+        first_name='Ahmed',
+        last_name='Khalil',
+        phone='+1 708 971 4053',
         is_admin=True
     )
     admin.set_password('admin123')
@@ -50,10 +50,10 @@ def seed_db():
     
     # Create sample customer
     customer = User(
-        email='customer@example.com',
+        email='customer@fixbulance.com',
         first_name='John',
         last_name='Doe',
-        phone='555-987-6543',
+        phone='(708) 555-0123',
         address='123 Main St',
         city='Orland Park',
         state='IL',
@@ -142,8 +142,8 @@ def seed_db():
     db.session.commit()
     print("Database seeded successfully!")
     print("\nSample accounts:")
-    print("Admin: admin@repair.local / admin123")
-    print("Customer: customer@example.com / customer123")
+    print("Admin: admin@fixbulance.com / admin123")
+    print("Customer: customer@fixbulance.com / customer123")
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000) 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8000))) 

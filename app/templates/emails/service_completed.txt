@@ -1,0 +1,88 @@
+{{ business_name }} - Service Completed
+🎉 SERVICE COMPLETED!
+
+Hi {{ customer_name }},
+
+Great news! Your device repair has been completed successfully. We hope you're satisfied with our service!
+
+SERVICE COMPLETION SUMMARY
+===========================
+✅ Booking Number: #{{ booking.id }}
+📅 Completed Date: {{ completed_date.strftime('%A, %B %d, %Y at %I:%M %p') }}
+📱 Device: {{ booking.device_model }}
+💰 Final Amount: ${{ "%.2f"|format(final_amount) }}
+✅ Status: COMPLETED
+
+SERVICES PERFORMED
+==================
+{% for booking_service in services %}
+• {{ booking_service.service.name }}
+  Status: {{ booking_service.status.title() }}
+  {% if booking_service.work_notes %}
+  Work Notes: {{ booking_service.work_notes }}
+  {% endif %}
+  {% if booking_service.completion_notes %}
+  Completion Notes: {{ booking_service.completion_notes }}
+  {% endif %}
+
+{% endfor %}
+
+{% if work_performed or parts_used %}
+WORK DETAILS
+============
+{% if work_performed %}
+Work Performed: {{ work_performed }}
+{% endif %}
+{% if parts_used %}
+Parts Used: {{ parts_used }}
+{% endif %}
+{% if technician_notes %}
+Technician Notes: {{ technician_notes }}
+{% endif %}
+{% endif %}
+
+🌟 RATE YOUR EXPERIENCE
+========================
+Your feedback helps us improve and helps other customers make informed decisions.
+
+⭐⭐⭐⭐⭐
+
+How was your experience with {{ business_name }}?
+
+👉 LEAVE A REVIEW: {{ review_link }}
+
+Click the link above to share your experience and rate our service!
+
+🛡️ WARRANTY & SUPPORT
+======================
+✅ Warranty: 30-day warranty on all parts and labor
+📞 Support: Contact us if you experience any issues  
+🔄 Follow-up: We may call to ensure everything is working perfectly
+⭐ Future Service: Get priority booking as a returning customer
+
+📱 DEVICE CARE TIPS
+===================
+• Use a protective case and screen protector
+• Avoid exposing your device to extreme temperatures
+• Keep your device away from water and moisture
+• Charge your battery regularly, but avoid overcharging
+• Keep your software updated for optimal performance
+
+CONTACT INFORMATION
+===================
+Phone: {{ business_phone }}
+Email: {{ support_email }}
+Technician: {{ business_owner }}
+
+Thank you again for choosing {{ business_name }}! We appreciate your business and look forward to serving you in the future.
+
+Best regards,
+{{ business_owner }}
+{{ business_name }} Team
+
+---
+Join hundreds of satisfied customers!
+Professional mobile repair service serving Orland Park, IL and Southwest Chicago suburbs
+
+© {{ current_year }} {{ business_name }}. All rights reserved.
+Thank you for choosing {{ business_name }} for your mobile repair needs! 

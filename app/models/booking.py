@@ -7,7 +7,9 @@ class Booking(db.Model):
     
     # Foreign keys
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=False)
+    # NOTE: service_id is deprecated in favor of many-to-many relationship via BookingService
+    # Keeping for backward compatibility during migration
+    service_id = db.Column(db.Integer, db.ForeignKey('service.id'))
     
     # Booking details (Multi-step wizard data)
     device_model = db.Column(db.String(100), nullable=False)
@@ -30,11 +32,15 @@ class Booking(db.Model):
     
     # Status tracking (Card-based admin dashboard)
     status = db.Column(db.String(20), default='pending', index=True)
-    # pending -> confirmed -> in_progress -> completed -> cancelled
+    # pending -> deposit_paid -> confirmed -> in_progress -> completed -> cancelled
     
     previous_status = db.Column(db.String(20))
     status_updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     status_updated_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    
+    # Multi-service information (NEW)
+    total_services_count = db.Column(db.Integer, default=1)
+    combined_estimated_duration = db.Column(db.Integer, default=60)  # Total time for all services
     
     # Payment information
     deposit_amount = db.Column(db.Float, default=15.00)
@@ -80,11 +86,12 @@ class Booking(db.Model):
     def status_color(self):
         """Get Bootstrap color class for status (Card-based dashboard design)"""
         status_colors = {
-            'pending': 'warning',      # Orange
-            'confirmed': 'success',    # Green
-            'in_progress': 'primary',  # Blue
-            'completed': 'info',       # Light blue
-            'cancelled': 'danger'      # Red
+            'pending': 'warning',        # Orange
+            'deposit_paid': 'success',   # Green - deposit received, clearly visible
+            'confirmed': 'primary',      # Blue - confirmed by admin
+            'in_progress': 'info',       # Light blue - work in progress
+            'completed': 'dark',         # Dark - completed
+            'cancelled': 'danger'        # Red
         }
         return status_colors.get(self.status, 'secondary')
     
@@ -93,12 +100,26 @@ class Booking(db.Model):
         """Get icon for status display"""
         status_icons = {
             'pending': 'clock',
+            'deposit_paid': 'credit-card',    # Credit card icon for paid
             'confirmed': 'check-circle',
             'in_progress': 'tools',
             'completed': 'check-square',
             'cancelled': 'x-circle'
         }
         return status_icons.get(self.status, 'circle')
+    
+    @property
+    def status_display(self):
+        """Get human-readable status display"""
+        status_displays = {
+            'pending': 'Pending Payment',
+            'deposit_paid': 'Deposit Paid',
+            'confirmed': 'Confirmed',
+            'in_progress': 'In Progress',
+            'completed': 'Completed',
+            'cancelled': 'Cancelled'
+        }
+        return status_displays.get(self.status, self.status.replace('_', ' ').title())
     
     @property
     def payment_status_display(self):
@@ -128,8 +149,8 @@ class Booking(db.Model):
         now = datetime.now()
         time_until = self.appointment_datetime - now
         
-        # Urgent if within 2 hours and not confirmed
-        return time_until.total_seconds() < 7200 and self.status == 'pending'
+        # Urgent if within 2 hours and not confirmed or deposit paid
+        return time_until.total_seconds() < 7200 and self.status in ['pending', 'deposit_paid']
     
     def update_status(self, new_status, updated_by_user_id=None):
         """Update booking status with tracking"""
@@ -160,6 +181,119 @@ class Booking(db.Model):
         self.photo_filenames = json.dumps(photos)
         self.photos_uploaded = True
     
+    # NEW: Multi-service methods
+    @property
+    def services(self):
+        """Get all services associated with this booking"""
+        return [bs.service for bs in self.booking_services if bs.service]
+    
+    @property
+    def services_list(self):
+        """Get list of BookingService objects"""
+        return self.booking_services
+    
+    @property
+    def services_count(self):
+        """Get count of services in this booking"""
+        return len(self.booking_services)
+    
+    @property
+    def total_services_cost(self):
+        """Calculate total cost of all services"""
+        return sum(bs.total_cost for bs in self.booking_services)
+    
+    @property
+    def services_display_names(self):
+        """Get comma-separated list of service names"""
+        return ', '.join([bs.service_display_name for bs in self.booking_services])
+    
+    @property
+    def combined_duration_display(self):
+        """Get formatted combined duration display"""
+        if self.combined_estimated_duration < 60:
+            return f"{self.combined_estimated_duration} min"
+        else:
+            hours = self.combined_estimated_duration // 60
+            minutes = self.combined_estimated_duration % 60
+            if minutes == 0:
+                return f"{hours}h"
+            else:
+                return f"{hours}h {minutes}m"
+    
+    @property
+    def is_multi_service(self):
+        """Check if this booking has multiple services"""
+        return len(self.booking_services) > 1
+    
+    @property
+    def emergency_services_count(self):
+        """Count emergency services in this booking"""
+        return len([bs for bs in self.booking_services if bs.service and bs.service.is_emergency_service])
+    
+    @property
+    def has_emergency_services(self):
+        """Check if booking contains emergency services"""
+        return self.emergency_services_count > 0
+    
+    def add_service(self, service, quantity=1):
+        """Add a service to this booking"""
+        from app.models.booking_service import BookingService
+        
+        # Check if service already exists in booking
+        existing = next((bs for bs in self.booking_services if bs.service_id == service.id), None)
+        if existing:
+            existing.quantity += quantity
+            existing.price_snapshot = service.base_price  # Update to current price
+        else:
+            booking_service = BookingService.create_from_service(self.id, service, quantity)
+            db.session.add(booking_service)
+        
+        self._recalculate_totals()
+    
+    def remove_service(self, service_id):
+        """Remove a service from this booking"""
+        booking_service = next((bs for bs in self.booking_services if bs.service_id == service_id), None)
+        if booking_service:
+            db.session.delete(booking_service)
+            self._recalculate_totals()
+            return True
+        return False
+    
+    def update_service_quantity(self, service_id, quantity):
+        """Update quantity of a service in this booking"""
+        booking_service = next((bs for bs in self.booking_services if bs.service_id == service_id), None)
+        if booking_service:
+            if quantity <= 0:
+                return self.remove_service(service_id)
+            else:
+                booking_service.quantity = quantity
+                self._recalculate_totals()
+                return True
+        return False
+    
+    def _recalculate_totals(self):
+        """Recalculate total cost and duration"""
+        self.total_services_count = len(self.booking_services)
+        self.total_estimated_cost = self.total_services_cost
+        self.combined_estimated_duration = sum(bs.estimated_time * bs.quantity for bs in self.booking_services)
+        
+        # Recalculate deposit amount (could be custom logic)
+        if self.has_emergency_services:
+            # Emergency services might require higher deposit
+            self.deposit_amount = min(25.00, self.total_estimated_cost * 0.2)
+        else:
+            self.deposit_amount = min(15.00, self.total_estimated_cost * 0.15)
+    
+    # For backward compatibility - return primary service if exists
+    @property
+    def primary_service(self):
+        """Get primary service (for backward compatibility)"""
+        if self.service_id and self.service:
+            return self.service
+        elif self.booking_services:
+            return self.booking_services[0].service
+        return None
+    
     def to_dict(self):
         """Convert to dictionary for API responses"""
         return {
@@ -171,6 +305,7 @@ class Booking(db.Model):
             'service_address': self.service_address,
             'service_zip_code': self.service_zip_code,
             'status': self.status,
+            'status_display': self.status_display,
             'status_color': self.status_color,
             'status_icon': self.status_icon,
             'payment_status': self.payment_status,
@@ -180,12 +315,24 @@ class Booking(db.Model):
             'final_amount': self.final_amount,
             'is_same_day': self.is_same_day,
             'is_urgent': self.is_urgent,
+            # Multi-service information
+            'total_services_count': self.total_services_count,
+            'services_count': self.services_count,
+            'is_multi_service': self.is_multi_service,
+            'services_display_names': self.services_display_names,
+            'combined_estimated_duration': self.combined_estimated_duration,
+            'combined_duration_display': self.combined_duration_display,
+            'has_emergency_services': self.has_emergency_services,
+            'emergency_services_count': self.emergency_services_count,
+            'total_services_cost': self.total_services_cost,
+            'services': [bs.to_dict() for bs in self.booking_services],
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
 
 # Booking status constants
 BOOKING_STATUSES = [
     'pending',
+    'deposit_paid',
     'confirmed', 
     'in_progress',
     'completed',

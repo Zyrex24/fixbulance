@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Successful - Fixbulance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Success Header -->
+            <div class="text-center mb-4">
+                <div class="alert alert-success border-0 shadow-sm">
+                    <div class="mb-3">
+                        <i class="fas fa-check-circle fa-4x text-success"></i>
+                    </div>
+                    <h2 class="text-success mb-2">🎉 Payment Successful!</h2>
+                    <p class="mb-0 lead">Your booking has been confirmed with Fixbulance</p>
+                </div>
+            </div>
+
+            {% if payment and booking %}
+            <!-- Payment Details -->
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">💳 Payment Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                <div class="col-6"><strong>Amount Paid:</strong></div>
+                                <div class="col-6 text-end">${{ "%.2f"|format(payment.amount) }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6"><strong>Payment Type:</strong></div>
+                                <div class="col-6 text-end">{{ payment.payment_type.title() }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6"><strong>Payment Method:</strong></div>
+                                <div class="col-6 text-end">{{ payment.display_card_info }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6"><strong>Transaction ID:</strong></div>
+                                <div class="col-6 text-end">
+                                    <small class="text-muted">{{ payment.stripe_payment_intent_id[:12] }}...</small>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6"><strong>Status:</strong></div>
+                                <div class="col-6 text-end">
+                                    <span class="badge bg-{{ payment.status_color }}">
+                                        <i class="fas fa-{{ payment.status_icon }}"></i> {{ payment.status.title() }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            {% if payment.receipt_url %}
+                            <hr>
+                            <div class="text-center">
+                                <a href="{{ payment.receipt_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                    📧 View Receipt
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">📱 Booking Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                <div class="col-6"><strong>Booking #:</strong></div>
+                                <div class="col-6 text-end">{{ booking.id }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6"><strong>Device:</strong></div>
+                                <div class="col-6 text-end">{{ booking.device_model or 'Mobile Device' }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6"><strong>Service:</strong></div>
+                                <div class="col-6 text-end">{{ booking.service.display_name if booking.service else 'Repair Service' }}</div>
+                            </div>
+                            {% if booking.appointment_datetime %}
+                            <div class="row mb-2">
+                                <div class="col-6"><strong>Scheduled:</strong></div>
+                                <div class="col-6 text-end">{{ booking.appointment_datetime.strftime('%m/%d/%Y %I:%M %p') }}</div>
+                            </div>
+                            {% endif %}
+                            <div class="row">
+                                <div class="col-6"><strong>Status:</strong></div>
+                                <div class="col-6 text-end">
+                                    <span class="badge bg-{{ booking.status_color }}">
+                                        <i class="fas fa-{{ booking.status_icon }}"></i> {{ booking.status.title() }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Steps -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">📋 What Happens Next?</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="border rounded p-3 h-100">
+                                <i class="fas fa-envelope fa-2x text-primary mb-2"></i>
+                                <h6>Confirmation Email</h6>
+                                <p class="mb-0 small text-muted">You'll receive a booking confirmation email with all details within 5 minutes.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="border rounded p-3 h-100">
+                                <i class="fas fa-phone fa-2x text-success mb-2"></i>
+                                <h6>Contact Before Arrival</h6>
+                                <p class="mb-0 small text-muted">Ahmed will call you 30 minutes before arriving at your location.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="border rounded p-3 h-100">
+                                <i class="fas fa-tools fa-2x text-warning mb-2"></i>
+                                <h6>Professional Repair</h6>
+                                <p class="mb-0 small text-muted">Expert repair service at your location. Balance due upon completion.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Contact Information -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">📞 Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <h6 class="text-primary">Emergency Support</h6>
+                            <a href="tel:{{ config.BUSINESS_PHONE }}" class="btn btn-primary">
+                                📞 {{ config.BUSINESS_PHONE_DISPLAY }}
+                            </a>
+                            <p class="small text-muted mt-1">Available 24/7 for emergencies</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h6 class="text-info">Email Support</h6>
+                            <a href="mailto:{{ config.MAIL_SUPPORT }}?subject=Booking #{{ booking.id if booking else 'Support' }}" class="btn btn-info">
+                                📧 {{ config.MAIL_SUPPORT }}
+                            </a>
+                            <p class="small text-muted mt-1">For questions or changes</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h6 class="text-success">Billing Questions</h6>
+                            <a href="mailto:{{ config.MAIL_BILLING }}?subject=Payment Question - Booking #{{ booking.id if booking else 'Payment' }}" class="btn btn-success">
+                                💰 {{ config.MAIL_BILLING }}
+                            </a>
+                            <p class="small text-muted mt-1">Payment and receipt questions</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {% if booking %}
+                    <a href="{{ url_for('booking.view_booking', booking_id=booking.id) }}" class="btn btn-primary w-100">
+                        📱 View Booking Details
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <a href="{{ url_for('auth.dashboard') if current_user.is_authenticated else url_for('main.index') }}" class="btn btn-outline-secondary w-100">
+                        🏠 Back to {{ 'Dashboard' if current_user.is_authenticated else 'Home' }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Business Information -->
+            <div class="text-center mt-4">
+                <div class="alert alert-light border">
+                    <h6 class="text-primary mb-2">Thank you for choosing Fixbulance!</h6>
+                    <p class="mb-0">
+                        <small class="text-muted">
+                            Ahmed Khalil • Mobile Phone Repair Expert<br>
+                            Serving Orland Park, IL and surrounding areas<br>
+                            Professional • Reliable • Convenient
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

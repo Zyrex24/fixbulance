@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Receipt - {{ business_name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+        .header { background-color: #28a745; color: white; padding: 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .content { padding: 30px; }
+        .receipt-box { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border: 2px solid #28a745; }
+        .payment-details { background-color: #e8f5e8; padding: 15px; border-radius: 5px; margin: 15px 0; }
+        .service-summary { background-color: #e3f2fd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+        .success { color: #28a745; font-weight: bold; }
+        .highlight { color: #1e3a5f; font-weight: bold; }
+        .status-paid { background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>✅ Payment Received</h1>
+            <p>{{ business_name }} - Thank you for your payment!</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <h2>Payment Receipt</h2>
+            <p>Hi {{ customer_name }},</p>
+            <p>We have successfully received your deposit payment. Your appointment is now secured!</p>
+
+            <!-- Payment Receipt -->
+            <div class="receipt-box">
+                <h3>🧾 Payment Receipt</h3>
+                <p><strong>Transaction ID:</strong> {{ transaction_id }}</p>
+                <p><strong>Payment Date:</strong> {{ payment.created_at.strftime('%A, %B %d, %Y at %I:%M %p') }}</p>
+                <p><strong>Amount Paid:</strong> <span class="success">${{ "%.2f"|format(amount_paid) }}</span></p>
+                <p><strong>Payment Method:</strong> {{ payment_method }}</p>
+                <p><strong>Status:</strong> <span class="status-paid">PAID</span></p>
+            </div>
+
+            <!-- Booking Information -->
+            <div class="payment-details">
+                <h3>Booking Information</h3>
+                <p><strong>Booking Number:</strong> #{{ booking.id }}</p>
+                <p><strong>Service Date:</strong> {{ service_date.strftime('%A, %B %d, %Y') }}</p>
+                <p><strong>Service Time:</strong> {{ service_time.strftime('%I:%M %p') }}</p>
+                <p><strong>Device:</strong> {{ booking.device_model }}</p>
+            </div>
+
+            <!-- Services -->
+            <h3>Services Booked</h3>
+            {% for booking_service in services %}
+            <div class="service-summary">
+                <h4>{{ booking_service.service.name }}</h4>
+                <p><strong>Quantity:</strong> {{ booking_service.quantity }}</p>
+                <p><strong>Price:</strong> ${{ "%.2f"|format(booking_service.price_snapshot) }}</p>
+            </div>
+            {% endfor %}
+
+            <!-- Payment Summary -->
+            <div class="payment-details">
+                <h3>Payment Summary</h3>
+                <p><strong>Deposit Paid:</strong> <span class="success">${{ "%.2f"|format(amount_paid) }}</span></p>
+                <p><strong>Remaining Balance:</strong> <span class="highlight">${{ "%.2f"|format(remaining_balance) }}</span></p>
+                <p><em>The remaining balance will be due after service completion.</em></p>
+            </div>
+
+            <!-- Next Steps -->
+            <h3>What's Next?</h3>
+            <ol>
+                <li><strong>Confirmation Call:</strong> We will contact you within 24 hours to confirm final details</li>
+                <li><strong>Service Day:</strong> Our technician will arrive within 30 minutes of your scheduled time</li>
+                <li><strong>Service Completion:</strong> Pay the remaining balance of ${{ "%.2f"|format(remaining_balance) }} after service</li>
+                <li><strong>Review:</strong> Share your experience to help other customers</li>
+            </ol>
+
+            <!-- Important Notes -->
+            <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; border-left: 4px solid #ffc107; margin: 20px 0;">
+                <h4>📋 Important Notes</h4>
+                <ul>
+                    <li>Keep this receipt for your records</li>
+                    <li>Your appointment is now confirmed and secured</li>
+                    <li>If you need to reschedule, please call us at least 4 hours in advance</li>
+                    <li>Our technician will call you 30 minutes before arrival</li>
+                </ul>
+            </div>
+
+            <!-- Contact Information -->
+            <h3>Contact Information</h3>
+            <p><strong>Phone:</strong> {{ business_phone }}</p>
+            <p><strong>Email:</strong> {{ support_email }}</p>
+            <p><strong>Technician:</strong> {{ business_owner }}</p>
+
+            <p>Thank you for choosing {{ business_name }}! We look forward to providing you with excellent service.</p>
+            
+            <p>Best regards,<br>{{ business_owner }}<br>{{ business_name }} Team</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>&copy; {{ current_year }} {{ business_name }}. All rights reserved.</p>
+            <p>Professional Mobile Phone Repair Service in Orland Park, IL and Southwest Chicago Suburbs</p>
+            <p>This is your official payment receipt. Please keep for your records.</p>
+        </div>
+    </div>
+</body>
+</html> 

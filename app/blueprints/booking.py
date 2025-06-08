@@ -337,39 +337,93 @@ def my_bookings():
 @booking_bp.route('/booking/<int:booking_id>')
 @login_required
 def view_booking(booking_id):
-    """View specific booking details"""
-    booking = Booking.query.get_or_404(booking_id)
+    """View detailed booking information"""
+    booking = Booking.query.filter_by(
+        id=booking_id,
+        user_id=current_user.id
+    ).first()
     
-    # Check if user owns this booking or is admin
-    if booking.user_id != current_user.id and not current_user.is_admin:
-        flash('Unauthorized access.', 'danger')
-        return redirect(url_for('auth.dashboard'))
+    if not booking:
+        flash('Booking not found.', 'danger')
+        return redirect(url_for('booking.my_bookings'))
     
     return render_template('booking/booking_detail.html', booking=booking)
 
-# API endpoint for checking available time slots
-@booking_bp.route('/api/available-slots')
-def api_available_slots():
-    """Get available time slots for a specific date"""
-    date_str = request.args.get('date')
-    if not date_str:
-        return jsonify({'error': 'Date is required'}), 400
+@booking_bp.route('/booking/<int:booking_id>/edit')
+@login_required
+def edit_booking(booking_id):
+    """Edit an existing booking - redirect to contact for now"""
+    booking = Booking.query.filter_by(
+        id=booking_id,
+        user_id=current_user.id,
+        status='pending'  # Only allow editing pending bookings
+    ).first()
+    
+    if not booking:
+        flash('Booking not found or cannot be edited.', 'warning')
+        return redirect(url_for('booking.my_bookings'))
+    
+    flash('To modify your booking, please call us at (708) 971-4053. Our team will be happy to help with any changes.', 'info')
+    return redirect(url_for('booking.view_booking', booking_id=booking_id))
+
+@booking_bp.route('/booking/<int:booking_id>/cancel', methods=['POST'])
+@login_required
+def cancel_booking(booking_id):
+    """Cancel an existing booking"""
+    booking = Booking.query.filter_by(
+        id=booking_id,
+        user_id=current_user.id
+    ).first()
+    
+    if not booking:
+        flash('Booking not found.', 'danger')
+        return redirect(url_for('booking.my_bookings'))
+    
+    if booking.status not in ['pending', 'confirmed']:
+        flash('This booking cannot be cancelled.', 'warning')
+        return redirect(url_for('booking.view_booking', booking_id=booking_id))
+    
+    # Update booking status
+    booking.status = 'cancelled'
+    booking.updated_at = datetime.utcnow()
     
     try:
-        requested_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        db.session.commit()
+        flash(f'Booking #{booking.id} has been cancelled successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('An error occurred while cancelling your booking. Please try again.', 'danger')
+    
+    return redirect(url_for('booking.my_bookings'))
+
+@booking_bp.route('/api/available-slots')
+def api_available_slots():
+    """API endpoint to get available time slots for a given date"""
+    date_str = request.args.get('date')
+    
+    if not date_str:
+        return jsonify({'error': 'Date parameter is required'}), 400
+    
+    try:
+        # Parse the date
+        selected_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        
+        # Check if date is in the future
+        if selected_date <= date.today():
+            return jsonify({'error': 'Date must be in the future'}), 400
+        
+        # Generate available time slots (simplified for now)
+        time_slots = [
+            {'time': '09:00', 'display': '9:00 AM', 'available': True},
+            {'time': '10:00', 'display': '10:00 AM', 'available': True},
+            {'time': '11:00', 'display': '11:00 AM', 'available': True},
+            {'time': '13:00', 'display': '1:00 PM', 'available': True},
+            {'time': '14:00', 'display': '2:00 PM', 'available': True},
+            {'time': '15:00', 'display': '3:00 PM', 'available': True},
+            {'time': '16:00', 'display': '4:00 PM', 'available': True},
+        ]
+        
+        return jsonify({'slots': time_slots})
+        
     except ValueError:
-        return jsonify({'error': 'Invalid date format'}), 400
-    
-    # Get existing bookings for this date
-    existing_bookings = Booking.query.filter_by(scheduled_date=requested_date).all()
-    booked_times = [booking.scheduled_time.strftime('%H:%M') for booking in existing_bookings]
-    
-    # Available time slots
-    all_slots = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00']
-    available_slots = [slot for slot in all_slots if slot not in booked_times]
-    
-    return jsonify({
-        'date': date_str,
-        'available_slots': available_slots,
-        'booked_slots': booked_times
-    }) 
+        return jsonify({'error': 'Invalid date format'}), 400 

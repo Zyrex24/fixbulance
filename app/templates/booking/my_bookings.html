@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}My Bookings - Fixbulance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">📱 My Repair Bookings</h2>
+                <a href="{{ url_for('booking.start') }}" class="btn btn-primary">
+                    ➕ New Booking
+                </a>
+            </div>
+
+            {% if bookings %}
+                <div class="row">
+                    {% for booking in bookings %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">Booking #{{ booking.id }}</h6>
+                                <span class="badge bg-{% if booking.status == 'pending' %}warning{% elif booking.status == 'confirmed' %}info{% elif booking.status == 'in_progress' %}primary{% elif booking.status == 'completed' %}success{% elif booking.status == 'cancelled' %}danger{% else %}secondary{% endif %}">
+                                    {{ booking.status.replace('_', ' ').title() }}
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <h6 class="text-primary">📱 Device & Service</h6>
+                                    <p class="mb-1"><strong>Device:</strong> {{ booking.device_type }}</p>
+                                    <p class="mb-1"><strong>Issue:</strong> {{ booking.issue_description }}</p>
+                                    {% if booking.service %}
+                                    <p class="mb-1"><strong>Service:</strong> {{ booking.service.display_name }}</p>
+                                    <p class="mb-0"><strong>Price:</strong> ${{ "%.2f"|format(booking.service.base_price) }}</p>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <h6 class="text-primary">📅 Schedule</h6>
+                                    {% if booking.scheduled_datetime %}
+                                    <p class="mb-1"><strong>Date:</strong> {{ booking.scheduled_datetime.strftime('%B %d, %Y') }}</p>
+                                    <p class="mb-0"><strong>Time:</strong> {{ booking.scheduled_datetime.strftime('%I:%M %p') }}</p>
+                                    {% else %}
+                                    <p class="mb-0 text-muted">Not scheduled yet</p>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <h6 class="text-primary">📍 Location</h6>
+                                    {% if booking.address %}
+                                    <p class="mb-0">{{ booking.address }}</p>
+                                    {% else %}
+                                    <p class="mb-0 text-muted">Address not provided</p>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    <h6 class="text-primary">💳 Payment</h6>
+                                    <p class="mb-0">
+                                        <span class="badge bg-{% if booking.payment_status == 'paid' %}success{% elif booking.payment_status == 'partial' %}warning{% else %}secondary{% endif %}">
+                                            {{ booking.payment_status.title() }}
+                                        </span>
+                                    </p>
+                                </div>
+
+                                <div class="mb-3">
+                                    <small class="text-muted">
+                                        <strong>Created:</strong> {{ booking.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-flex gap-2">
+                                    <a href="{{ url_for('booking.view_booking', booking_id=booking.id) }}" class="btn btn-outline-primary btn-sm">
+                                        👁️ View
+                                    </a>
+                                    {% if booking.status == 'pending' %}
+                                    <a href="{{ url_for('booking.edit_booking', booking_id=booking.id) }}" class="btn btn-outline-warning btn-sm">
+                                        ✏️ Edit
+                                    </a>
+                                    <form method="POST" action="{{ url_for('booking.cancel_booking', booking_id=booking.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                                            ❌ Cancel
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Booking Details Modals -->
+                {% for booking in bookings %}
+                <div class="modal fade" id="detailsModal{{ booking.id }}" tabindex="-1" aria-labelledby="detailsModalLabel{{ booking.id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="detailsModalLabel{{ booking.id }}">📱 Booking #{{ booking.id }} Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="text-primary">📱 Device Information</h6>
+                                        <table class="table table-sm">
+                                            <tr>
+                                                <td><strong>Device Type:</strong></td>
+                                                <td>{{ booking.device_type }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Device Model:</strong></td>
+                                                <td>{{ booking.device_model or 'Not specified' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Issue:</strong></td>
+                                                <td>{{ booking.issue_description }}</td>
+                                            </tr>
+                                            {% if booking.service %}
+                                            <tr>
+                                                <td><strong>Service:</strong></td>
+                                                <td>{{ booking.service.display_name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Service Price:</strong></td>
+                                                <td>${{ "%.2f"|format(booking.service.base_price) }}</td>
+                                            </tr>
+                                            {% endif %}
+                                        </table>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-primary">📅 Booking Information</h6>
+                                        <table class="table table-sm">
+                                            <tr>
+                                                <td><strong>Status:</strong></td>
+                                                <td>
+                                                    <span class="badge bg-{% if booking.status == 'pending' %}warning{% elif booking.status == 'confirmed' %}info{% elif booking.status == 'in_progress' %}primary{% elif booking.status == 'completed' %}success{% elif booking.status == 'cancelled' %}danger{% else %}secondary{% endif %}">
+                                                        {{ booking.status.replace('_', ' ').title() }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Payment Status:</strong></td>
+                                                <td>
+                                                    <span class="badge bg-{% if booking.payment_status == 'paid' %}success{% elif booking.payment_status == 'partial' %}warning{% else %}secondary{% endif %}">
+                                                        {{ booking.payment_status.title() }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            {% if booking.scheduled_datetime %}
+                                            <tr>
+                                                <td><strong>Scheduled Date:</strong></td>
+                                                <td>{{ booking.scheduled_datetime.strftime('%B %d, %Y') }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Scheduled Time:</strong></td>
+                                                <td>{{ booking.scheduled_datetime.strftime('%I:%M %p') }}</td>
+                                            </tr>
+                                            {% endif %}
+                                            <tr>
+                                                <td><strong>Created:</strong></td>
+                                                <td>{{ booking.created_at.strftime('%B %d, %Y at %I:%M %p') }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Last Updated:</strong></td>
+                                                <td>{{ booking.updated_at.strftime('%B %d, %Y at %I:%M %p') }}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                {% if booking.address %}
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <h6 class="text-primary">📍 Service Address</h6>
+                                        <p class="border p-3 rounded bg-light">{{ booking.address }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if booking.notes %}
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <h6 class="text-primary">📝 Additional Notes</h6>
+                                        <p class="border p-3 rounded bg-light">{{ booking.notes }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <a href="{{ url_for('booking.view_booking', booking_id=booking.id) }}" class="btn btn-primary">
+                                    👁️ View Full Details
+                                </a>
+                                {% if booking.status in ['pending', 'confirmed'] and booking.status != 'cancelled' %}
+                                <a href="tel:(708) 971-4053" class="btn btn-outline-primary">
+                                    📞 Call Support
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-mobile-alt fa-3x text-muted"></i>
+                    </div>
+                    <h4 class="text-muted">No Bookings Yet</h4>
+                    <p class="text-muted mb-4">You haven't made any repair bookings yet. Ready to get your device fixed?</p>
+                    <a href="{{ url_for('booking.start') }}" class="btn btn-primary btn-lg">
+                        📱 Book Your First Repair
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any booking-specific JavaScript here
+    console.log('My Bookings page loaded');
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,681 @@
+{% extends "base.html" %}
+
+{% block title %}Services & Pricing Management{% endblock %}
+
+{% block extra_css %}
+<style>
+.service-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+.service-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.service-card.emergency {
+    border-left-color: #dc3545;
+}
+.service-card.standard {
+    border-left-color: #0d6efd;
+}
+.service-card.premium {
+    border-left-color: #ffc107;
+}
+.service-card.diagnostic {
+    border-left-color: #20c997;
+}
+.price-input {
+    width: 100px;
+    text-align: right;
+}
+.category-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+.quick-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+.pricing-breakdown {
+    background: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+}
+.stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 1rem;
+}
+.bulk-actions {
+    background: #e3f2fd;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">🛠️ Services & Pricing Management</h1>
+                    <p class="text-muted mb-0">Manage repair services, categories, and pricing structure</p>
+                </div>
+                <div>
+                    <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addServiceModal">
+                        <i class="fas fa-plus"></i> Add New Service
+                    </button>
+                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                        <i class="fas fa-tags"></i> Add Category
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ services|length }}</h3>
+                    <small>Total Services</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ categories|length }}</h3>
+                    <small>Service Categories</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">${{ total_revenue|round(2) }}</h3>
+                    <small>Est. Total Value</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ emergency_services_count }}</h3>
+                    <small>Emergency Services</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div class="bulk-actions">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h5 class="mb-2">🔧 Bulk Actions</h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary" onclick="selectAllServices()">
+                        <i class="fas fa-check-square"></i> Select All
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="clearSelection()">
+                        <i class="fas fa-square"></i> Clear Selection
+                    </button>
+                    <button class="btn btn-sm btn-warning" onclick="bulkPriceUpdate()" disabled id="bulk-update-btn">
+                        <i class="fas fa-dollar-sign"></i> Update Prices
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="d-flex justify-content-end gap-2">
+                    <select class="form-select form-select-sm" id="categoryFilter" onchange="filterByCategory()">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="text" class="form-control form-control-sm" placeholder="Search services..." 
+                           id="searchServices" onkeyup="searchServices()">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services Grid -->
+    <div class="row" id="servicesGrid">
+        {% for service in services %}
+        <div class="col-lg-6 col-xl-4 mb-3 service-item" data-category="{{ service.category_id }}" data-service-id="{{ service.id }}">
+            <div class="card service-card h-100 {{ service.category.name.lower().replace(' ', '_') if service.category else 'standard' }}">
+                <div class="card-header d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center mb-1">
+                            <input type="checkbox" class="form-check-input me-2 service-checkbox" 
+                                   value="{{ service.id }}" onchange="toggleBulkActions()">
+                            <h6 class="mb-0">{{ service.name }}</h6>
+                        </div>
+                        {% if service.category %}
+                        <span class="badge category-badge 
+                              {% if service.category.is_emergency %}bg-danger
+                              {% elif service.category.requires_admin_approval %}bg-warning
+                              {% else %}bg-primary{% endif %}">
+                            {{ service.category.name }}
+                        </span>
+                        {% endif %}
+                        {% if service.is_emergency %}
+                        <span class="badge bg-danger badge-sm ms-1">🚨 Emergency</span>
+                        {% endif %}
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="editService({{ service.id }})">
+                                <i class="fas fa-edit"></i> Edit Service
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="viewPriceHistory({{ service.id }})">
+                                <i class="fas fa-history"></i> Price History
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="duplicateService({{ service.id }})">
+                                <i class="fas fa-copy"></i> Duplicate
+                            </a></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="deleteService({{ service.id }})">
+                                <i class="fas fa-trash"></i> Delete
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <p class="text-muted small mb-2">{{ service.description or 'No description available' }}</p>
+                    
+                    <div class="row text-center mb-3">
+                        <div class="col-6">
+                            <small class="text-muted">Device</small>
+                            <div class="fw-bold">{{ service.device_type }}</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Issue</small>
+                            <div class="fw-bold">{{ service.issue_type }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing Section -->
+                    <div class="pricing-breakdown">
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <label class="form-label small mb-1">Total Price</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control price-input" 
+                                           value="{{ service.base_price }}" 
+                                           id="price_{{ service.id }}"
+                                           onchange="updateServicePrice({{ service.id }}, 'base_price', this.value)">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small mb-1">Deposit</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control price-input" 
+                                           value="{{ service.deposit_amount }}" 
+                                           id="deposit_{{ service.id }}"
+                                           onchange="updateServicePrice({{ service.id }}, 'deposit_amount', this.value)">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label small mb-1">Labor Cost</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control price-input" 
+                                           value="{{ service.labor_cost }}" 
+                                           id="labor_{{ service.id }}"
+                                           onchange="updateServicePrice({{ service.id }}, 'labor_cost', this.value)">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small mb-1">Parts Cost</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control price-input" 
+                                           value="{{ service.parts_cost }}" 
+                                           id="parts_{{ service.id }}"
+                                           onchange="updateServicePrice({{ service.id }}, 'parts_cost', this.value)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Service Details -->
+                    <div class="row mt-3 text-center">
+                        <div class="col-4">
+                            <small class="text-muted">Time</small>
+                            <div class="small">{{ service.estimated_time }}min</div>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted">Max Qty</small>
+                            <div class="small">{{ service.max_quantity or 1 }}</div>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted">Warranty</small>
+                            <div class="small">{{ service.warranty_days }}d</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            {% if service.last_price_update %}
+                            Updated {{ service.last_price_update.strftime('%m/%d') }}
+                            {% else %}
+                            No recent updates
+                            {% endif %}
+                        </small>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="active_{{ service.id }}" 
+                                   {{ 'checked' if service.is_active else '' }}
+                                   onchange="toggleServiceStatus({{ service.id }}, this.checked)">
+                            <label class="form-check-label small" for="active_{{ service.id }}">
+                                Active
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Add Service Modal -->
+<div class="modal fade" id="addServiceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addServiceForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Service Name</label>
+                                <input type="text" class="form-control" name="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Device Type</label>
+                                <select class="form-select" name="device_type" required>
+                                    <option value="">Select Device</option>
+                                    <option value="iPhone">iPhone</option>
+                                    <option value="Samsung">Samsung</option>
+                                    <option value="Google">Google Pixel</option>
+                                    <option value="OnePlus">OnePlus</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Issue Type</label>
+                                <select class="form-select" name="issue_type" required>
+                                    <option value="">Select Issue</option>
+                                    <option value="Screen">Screen Repair</option>
+                                    <option value="Battery">Battery Replacement</option>
+                                    <option value="Charging Port">Charging Port</option>
+                                    <option value="Water Damage">Water Damage</option>
+                                    <option value="Camera">Camera</option>
+                                    <option value="Speaker">Speaker</option>
+                                    <option value="Software">Software Issues</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" name="category_id" required>
+                                    <option value="">Select Category</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Base Price ($)</label>
+                                <input type="number" class="form-control" name="base_price" step="0.01" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Deposit Amount ($)</label>
+                                <input type="number" class="form-control" name="deposit_amount" step="0.01" value="15.00">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Labor Cost ($)</label>
+                                <input type="number" class="form-control" name="labor_cost" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Parts Cost ($)</label>
+                                <input type="number" class="form-control" name="parts_cost" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Estimated Time (minutes)</label>
+                                <input type="number" class="form-control" name="estimated_time" value="60">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Max Quantity</label>
+                                <input type="number" class="form-control" name="max_quantity" value="1">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Warranty (days)</label>
+                                <input type="number" class="form-control" name="warranty_days" value="30">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_emergency" id="is_emergency">
+                                <label class="form-check-label" for="is_emergency">
+                                    Emergency Service
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="allows_multiple" id="allows_multiple" checked>
+                                <label class="form-check-label" for="allows_multiple">
+                                    Allow Multiple in One Booking
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Add Service</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addCategoryForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Category Name</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Sort Order</label>
+                        <input type="number" class="form-control" name="sort_order" value="{{ (categories|length + 1) }}">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_emergency" id="cat_is_emergency">
+                                <label class="form-check-label" for="cat_is_emergency">
+                                    Emergency Category
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="requires_admin_approval" id="requires_admin_approval">
+                                <label class="form-check-label" for="requires_admin_approval">
+                                    Requires Admin Approval
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Add Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Service management functions
+function updateServicePrice(serviceId, field, value) {
+    fetch(`/admin/services/${serviceId}/update-price`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            field: field,
+            value: parseFloat(value),
+            reason: 'Admin price update'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Price updated successfully', 'success');
+            // Update other related fields if needed
+            if (field === 'base_price') {
+                updatePriceBreakdown(serviceId, value);
+            }
+        } else {
+            showToast('Failed to update price: ' + data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Error updating price', 'error');
+    });
+}
+
+function updatePriceBreakdown(serviceId, basePrice) {
+    // Auto-calculate labor and parts breakdown
+    const price = parseFloat(basePrice);
+    let laborCost, partsCost;
+    
+    if (price <= 50) {
+        laborCost = price * 0.3;
+        partsCost = price * 0.7;
+    } else if (price <= 100) {
+        laborCost = price * 0.4;
+        partsCost = price * 0.6;
+    } else {
+        laborCost = price * 0.5;
+        partsCost = price * 0.5;
+    }
+    
+    document.getElementById(`labor_${serviceId}`).value = laborCost.toFixed(2);
+    document.getElementById(`parts_${serviceId}`).value = partsCost.toFixed(2);
+    
+    // Update the backend
+    updateServicePrice(serviceId, 'labor_cost', laborCost);
+    updateServicePrice(serviceId, 'parts_cost', partsCost);
+}
+
+function toggleServiceStatus(serviceId, isActive) {
+    fetch(`/admin/services/${serviceId}/toggle-status`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            is_active: isActive
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(`Service ${isActive ? 'activated' : 'deactivated'}`, 'success');
+        } else {
+            showToast('Failed to update service status', 'error');
+        }
+    });
+}
+
+// Bulk actions
+function toggleBulkActions() {
+    const checkboxes = document.querySelectorAll('.service-checkbox:checked');
+    const bulkBtn = document.getElementById('bulk-update-btn');
+    bulkBtn.disabled = checkboxes.length === 0;
+}
+
+function selectAllServices() {
+    document.querySelectorAll('.service-checkbox').forEach(cb => cb.checked = true);
+    toggleBulkActions();
+}
+
+function clearSelection() {
+    document.querySelectorAll('.service-checkbox').forEach(cb => cb.checked = false);
+    toggleBulkActions();
+}
+
+// Filtering and search
+function filterByCategory() {
+    const categoryId = document.getElementById('categoryFilter').value;
+    const items = document.querySelectorAll('.service-item');
+    
+    items.forEach(item => {
+        if (!categoryId || item.dataset.category === categoryId) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function searchServices() {
+    const searchTerm = document.getElementById('searchServices').value.toLowerCase();
+    const items = document.querySelectorAll('.service-item');
+    
+    items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+    });
+}
+
+// Form submissions
+document.getElementById('addServiceForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    fetch('/admin/services/add', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Service added successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('addServiceModal')).hide();
+            location.reload();
+        } else {
+            showToast('Failed to add service: ' + data.error, 'error');
+        }
+    });
+});
+
+document.getElementById('addCategoryForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    
+    fetch('/admin/categories/add', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Category added successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('addCategoryModal')).hide();
+            location.reload();
+        } else {
+            showToast('Failed to add category: ' + data.error, 'error');
+        }
+    });
+});
+
+// Utility functions
+function showToast(message, type) {
+    // Create toast notification
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed top-0 end-0 m-3`;
+    toast.style.zIndex = '9999';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+// Auto-save price changes with debouncing
+let priceUpdateTimeout;
+function debouncedPriceUpdate(serviceId, field, value) {
+    clearTimeout(priceUpdateTimeout);
+    priceUpdateTimeout = setTimeout(() => {
+        updateServicePrice(serviceId, field, value);
+    }, 1000);
+}
+
+// Update all price inputs to use debounced updates
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.price-input').forEach(input => {
+        input.addEventListener('input', function() {
+            const serviceId = this.id.split('_')[1];
+            const field = this.id.split('_')[0] + '_' + this.id.split('_')[1].replace(/\d+/, '').replace('_', '');
+            debouncedPriceUpdate(serviceId, field, this.value);
+        });
+    });
+});
+</script>
+{% endblock %} 

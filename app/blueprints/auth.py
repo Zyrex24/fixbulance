@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
 from flask_login import login_user, logout_user, login_required, current_user
-from app import db
+from flask_mail import Message
+from app import db, mail
 from app.models.user import User
 import re
 
@@ -180,18 +181,29 @@ def profile():
         email_notifications = request.form.get('email_notifications') == 'on'
         marketing_emails = request.form.get('marketing_emails') == 'on'
         
-        # Validation
+        # Determine which section is being updated
+        section = 'personal'  # default
+        if any([address, city, state, zip_code]):
+            section = 'address'
+        elif any([request.form.get('sms_opted_in'), request.form.get('email_notifications'), request.form.get('marketing_emails')]):
+            section = 'notifications'
+        
+        # Validation - only validate relevant fields
         errors = []
         
-        if not first_name or len(first_name) < 2:
-            errors.append('First name must be at least 2 characters long.')
+        # Only validate name fields if they are being submitted (personal info section)
+        if section == 'personal' or (first_name or last_name):
+            if not first_name or len(first_name) < 2:
+                errors.append('First name must be at least 2 characters long.')
+            
+            if not last_name or len(last_name) < 2:
+                errors.append('Last name must be at least 2 characters long.')
         
-        if not last_name or len(last_name) < 2:
-            errors.append('Last name must be at least 2 characters long.')
-        
+        # Validate phone if provided
         if phone and not is_valid_phone(phone):
             errors.append('Please enter a valid phone number (10 digits).')
         
+        # Validate ZIP code if provided  
         if zip_code and len(zip_code) != 5:
             errors.append('ZIP code must be 5 digits.')
         
@@ -200,20 +212,30 @@ def profile():
                 flash(error, 'danger')
             return render_template('auth/profile.html')
         
-        # Update user profile
+        # Update user profile - only update fields that were submitted
         try:
-            current_user.first_name = first_name
-            current_user.last_name = last_name
-            current_user.phone = phone if phone else None
-            current_user.address = address if address else None
-            current_user.city = city if city else None
-            current_user.state = state if state else None
-            current_user.zip_code = zip_code if zip_code else None
+            if first_name:
+                current_user.first_name = first_name
+            if last_name:
+                current_user.last_name = last_name
+            if 'phone' in request.form:  # Check if field was submitted
+                current_user.phone = phone if phone else None
+            if 'address' in request.form:
+                current_user.address = address if address else None
+            if 'city' in request.form:
+                current_user.city = city if city else None
+            if 'state' in request.form:
+                current_user.state = state if state else None
+            if 'zip_code' in request.form:
+                current_user.zip_code = zip_code if zip_code else None
             
-            # Update communication preferences
-            current_user.sms_opted_in = sms_opted_in
-            current_user.email_notifications = email_notifications
-            current_user.marketing_emails = marketing_emails
+            # Update communication preferences if submitted
+            if 'sms_opted_in' in request.form or request.form.get('sms_opted_in') == 'on':
+                current_user.sms_opted_in = sms_opted_in
+            if 'email_notifications' in request.form or request.form.get('email_notifications') == 'on':
+                current_user.email_notifications = email_notifications
+            if 'marketing_emails' in request.form or request.form.get('marketing_emails') == 'on':
+                current_user.marketing_emails = marketing_emails
             
             db.session.commit()
             flash('Profile updated successfully!', 'success')
@@ -224,40 +246,38 @@ def profile():
     
     return render_template('auth/profile.html')
 
-@auth_bp.route('/change-password', methods=['GET', 'POST'])
+@auth_bp.route('/change-password', methods=['POST'])
 @login_required
 def change_password():
     """Change user password"""
-    if request.method == 'POST':
-        current_password = request.form.get('current_password', '')
-        new_password = request.form.get('new_password', '')
-        confirm_password = request.form.get('confirm_password', '')
-        
-        # Validation
-        if not current_user.check_password(current_password):
-            flash('Current password is incorrect.', 'danger')
-            return render_template('auth/change_password.html')
-        
-        if len(new_password) < 6:
-            flash('New password must be at least 6 characters long.', 'danger')
-            return render_template('auth/change_password.html')
-        
-        if new_password != confirm_password:
-            flash('New passwords do not match.', 'danger')
-            return render_template('auth/change_password.html')
-        
-        # Update password
-        try:
-            current_user.set_password(new_password)
-            db.session.commit()
-            flash('Password changed successfully!', 'success')
-            return redirect(url_for('auth.profile'))
-        
-        except Exception as e:
-            db.session.rollback()
-            flash('An error occurred while changing your password.', 'danger')
+    current_password = request.form.get('current_password', '')
+    new_password = request.form.get('new_password', '')
+    confirm_password = request.form.get('confirm_new_password', '')  # Fixed field name
     
-    return render_template('auth/change_password.html')
+    # Validation
+    if not current_user.check_password(current_password):
+        flash('Current password is incorrect.', 'danger')
+        return redirect(url_for('auth.profile') + '#security')
+    
+    if len(new_password) < 6:
+        flash('New password must be at least 6 characters long.', 'danger')
+        return redirect(url_for('auth.profile') + '#security')
+    
+    if new_password != confirm_password:
+        flash('New passwords do not match.', 'danger')
+        return redirect(url_for('auth.profile') + '#security')
+    
+    # Update password
+    try:
+        current_user.set_password(new_password)
+        db.session.commit()
+        flash('Password changed successfully!', 'success')
+        return redirect(url_for('auth.profile') + '#security')
+    
+    except Exception as e:
+        db.session.rollback()
+        flash('An error occurred while changing your password.', 'danger')
+        return redirect(url_for('auth.profile') + '#security')
 
 @auth_bp.route('/sms-opt-in/<int:booking_id>')
 def sms_opt_in(booking_id):
@@ -277,6 +297,108 @@ def sms_opt_in(booking_id):
     
     flash('SMS notifications enabled! You\'ll receive arrival updates and completion notifications.', 'success')
     return redirect(url_for('auth.dashboard'))
+
+@auth_bp.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    """Forgot password form"""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        
+        if not email or not is_valid_email(email):
+            flash('Please enter a valid email address.', 'danger')
+            return render_template('auth/forgot_password.html')
+        
+        user = User.query.filter_by(email=email).first()
+        
+        if user:
+            # Generate reset token
+            token = user.generate_password_reset_token()
+            
+            # Send reset email
+            try:
+                send_password_reset_email(user, token)
+                flash('Password reset instructions have been sent to your email.', 'success')
+            except Exception as e:
+                flash('Unable to send reset email. Please try again later.', 'danger')
+                current_app.logger.error(f'Failed to send password reset email: {str(e)}')
+        else:
+            # Don't reveal if email exists or not for security
+            flash('If an account with that email exists, password reset instructions have been sent.', 'info')
+        
+        return redirect(url_for('auth.login'))
+    
+    return render_template('auth/forgot_password.html')
+
+@auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    """Reset password with token"""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    
+    # Find user with this token
+    user = User.query.filter_by(password_reset_token=token).first()
+    
+    if not user or not user.verify_password_reset_token(token):
+        flash('Invalid or expired reset token.', 'danger')
+        return redirect(url_for('auth.forgot_password'))
+    
+    if request.method == 'POST':
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        
+        # Validation
+        if not password or len(password) < 6:
+            flash('Password must be at least 6 characters long.', 'danger')
+            return render_template('auth/reset_password.html', token=token)
+        
+        if password != confirm_password:
+            flash('Passwords do not match.', 'danger')
+            return render_template('auth/reset_password.html', token=token)
+        
+        # Reset password
+        user.reset_password(password)
+        flash('Your password has been reset successfully. You can now log in.', 'success')
+        return redirect(url_for('auth.login'))
+    
+    return render_template('auth/reset_password.html', token=token)
+
+def send_password_reset_email(user, token):
+    """Send password reset email"""
+    reset_url = url_for('auth.reset_password', token=token, _external=True)
+    
+    msg = Message(
+        subject='Reset Your Fixbulance Password',
+        sender=current_app.config['MAIL_DEFAULT_SENDER'],
+        recipients=[user.email]
+    )
+    
+    msg.html = render_template('auth/emails/password_reset.html', 
+                              user=user, 
+                              reset_url=reset_url)
+    
+    msg.body = f"""
+Hi {user.first_name},
+
+You requested a password reset for your Fixbulance account.
+
+Click the link below to reset your password:
+{reset_url}
+
+This link will expire in 1 hour.
+
+If you didn't request this reset, please ignore this email.
+
+Best regards,
+Ahmed Khalil
+Fixbulance Emergency Phone Repair
+(708) 971-4053
+info@fixbulance.com
+"""
+    
+    mail.send(msg)
 
 # Context processor for authentication templates
 @auth_bp.context_processor

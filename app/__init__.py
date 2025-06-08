@@ -29,8 +29,16 @@ def create_app(config_name='development'):
     login_manager.login_message = 'Please log in to access this page.'
     login_manager.login_message_category = 'info'
     
-    # User loader function
+    # Import models to register with SQLAlchemy
     from app.models.user import User
+    from app.models.service import Service
+    from app.models.service_category import ServiceCategory
+    from app.models.booking import Booking
+    from app.models.booking_service import BookingService
+    from app.models.price_history import PriceHistory
+    from app.models.service_area import ServiceZipCode, AddressValidationCache
+    from app.models.payment import Payment
+    from app.models.review import Review
     
     @login_manager.user_loader
     def load_user(user_id):
@@ -42,12 +50,16 @@ def create_app(config_name='development'):
     from app.blueprints.booking import booking_bp
     from app.blueprints.admin import admin_bp
     from app.blueprints.api import api_bp
+    from app.blueprints.payment import payment_bp
+    from app.blueprints.review import review_bp
     
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(booking_bp, url_prefix='/booking')
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(api_bp, url_prefix='/api')
+    app.register_blueprint(payment_bp, url_prefix='/payment')
+    app.register_blueprint(review_bp)
     
     # Error handlers
     @app.errorhandler(404)
@@ -66,7 +78,7 @@ def create_app(config_name='development'):
     def inject_config():
         return {
             'GOOGLE_MAPS_API_KEY': app.config.get('GOOGLE_MAPS_API_KEY'),
-            'STRIPE_PUBLIC_KEY': app.config.get('STRIPE_PUBLIC_KEY')
+            'STRIPE_PUBLISHABLE_KEY': app.config.get('STRIPE_PUBLISHABLE_KEY')
         }
     
     return app 

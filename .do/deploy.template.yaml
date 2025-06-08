@@ -1,0 +1,69 @@
+spec:
+  name: fixbulance-app
+  services:
+  - name: web
+    source_dir: /
+    github:
+      repo: YOUR_GITHUB_USERNAME/YOUR_REPO_NAME
+      branch: main
+      deploy_on_push: true
+    run_command: |
+      python production_init.py && gunicorn --worker-tmp-dir /dev/shm --config gunicorn_config.py run:app
+    build_command: |
+      pip install -r requirements.txt
+    environment_slug: python
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    http_port: 8080
+    health_check:
+      http_path: /
+      initial_delay_seconds: 60
+      period_seconds: 10
+      timeout_seconds: 5
+      success_threshold: 1
+      failure_threshold: 3
+    envs:
+    - key: FLASK_ENV
+      value: production
+    - key: SECRET_KEY
+      type: SECRET
+      # Set this in DO App Platform dashboard
+    - key: DATABASE_URL
+      type: SECRET
+      # Auto-populated by Digital Ocean database
+    - key: MAIL_SERVER
+      value: mail.privateemail.com
+    - key: MAIL_PORT
+      value: "587"
+    - key: MAIL_USE_TLS
+      value: "true"
+    - key: MAIL_USERNAME
+      value: booking@fixbulance.com
+    - key: MAIL_PASSWORD
+      type: SECRET
+      # Set to: #AsAs1234
+    - key: STRIPE_PUBLISHABLE_KEY
+      type: SECRET
+      # Your Stripe publishable key
+    - key: STRIPE_SECRET_KEY
+      type: SECRET
+      # Your Stripe secret key
+    - key: COMPANY_NAME
+      value: Fixbulance
+    - key: COMPANY_PHONE
+      value: "+1-555-123-4567"
+    - key: COMPANY_EMAIL
+      value: booking@fixbulance.com
+    - key: COMPANY_ADDRESS
+      value: "Your Business Address"
+
+  databases:
+  - name: fixbulance-db
+    engine: PG
+    production: false
+    version: "12"
+
+  domains:
+  - domain: fixbulance.com
+    type: PRIMARY
+    zone: fixbulance.com 

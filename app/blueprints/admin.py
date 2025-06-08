@@ -42,6 +42,18 @@ def dashboard():
     # Get recent bookings for overview
     recent_bookings = Booking.query.order_by(Booking.created_at.desc()).limit(8).all()
     
+    # Calculate today's revenue
+    today_revenue = 0
+    for booking in today_bookings:
+        if booking.status == 'completed':
+            if booking.final_amount:
+                today_revenue += booking.final_amount
+            elif booking.service:
+                today_revenue += booking.service.base_price
+    
+    # Get emergency bookings (pending or urgent)
+    emergency_bookings = Booking.query.filter_by(status='pending').count()
+    
     # Dashboard statistics
     stats = {
         'total_bookings': Booking.query.count(),
@@ -49,6 +61,8 @@ def dashboard():
         'today_bookings': len(today_bookings),
         'urgent_bookings': len(urgent_bookings),
         'completed_today': len([b for b in today_bookings if b.status == 'completed']),
+        'emergency_bookings': emergency_bookings,
+        'today_revenue': today_revenue,
     }
     
     return render_template('admin/dashboard.html',
@@ -65,8 +79,8 @@ def dashboard():
 def bookings():
     """All bookings management"""
     # Get filter parameters
-    status_filter = request.args.get('status', 'all')
-    date_filter = request.args.get('date', 'all')
+    status_filter = request.args.get('status_filter', 'all')
+    date_filter = request.args.get('date_filter', 'all')
     page = request.args.get('page', 1, type=int)
     
     # Build query
@@ -204,10 +218,22 @@ def customer_detail(customer_id):
 @login_required
 @admin_required
 def services():
-    """Service management"""
-    services = Service.query.order_by(Service.device_type, Service.sort_order).all()
+    """Enhanced services & pricing management"""
+    # Import after app startup to avoid circular imports
+    from app.models.service_category import ServiceCategory
     
-    return render_template('admin/services.html', services=services)
+    services = Service.query.order_by(Service.device_type, Service.name).all()
+    categories = ServiceCategory.query.order_by(ServiceCategory.sort_order).all()
+    
+    # Calculate stats
+    total_revenue = sum(service.base_price for service in services if service.is_active)
+    emergency_services_count = sum(1 for service in services if service.is_emergency)
+    
+    return render_template('admin/services.html', 
+                         services=services, 
+                         categories=categories,
+                         total_revenue=total_revenue,
+                         emergency_services_count=emergency_services_count)
 
 @admin_bp.route('/service/new', methods=['GET', 'POST'])
 @login_required
@@ -239,6 +265,146 @@ def new_service():
             flash('Failed to create service.', 'danger')
     
     return render_template('admin/service_form.html', service=None)
+
+# Enhanced Services Management API Routes
+@admin_bp.route('/services/<int:service_id>/update-price', methods=['POST'])
+@login_required
+@admin_required
+def update_service_price(service_id):
+    """Update service price with audit trail"""
+    from app.models.price_history import PriceHistory
+    
+    service = Service.query.get_or_404(service_id)
+    
+    try:
+        field = request.json.get('field')
+        new_value = float(request.json.get('value'))
+        reason = request.json.get('reason', 'Admin price update')
+        
+        # Get old value
+        old_value = getattr(service, field)
+        
+        # Update service
+        setattr(service, field, new_value)
+        service.last_price_update = datetime.utcnow()
+        service.last_updated_by = current_user.id
+        
+        # Create price history record
+        price_history = PriceHistory(
+            service_id=service_id,
+            changed_by_user_id=current_user.id,
+            field_changed=field,
+            old_value=old_value,
+            new_value=new_value,
+            change_reason=reason
+        )
+        
+        db.session.add(price_history)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'{field} updated successfully',
+            'old_value': old_value,
+            'new_value': new_value
+        })
+    
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/services/<int:service_id>/toggle-status', methods=['POST'])
+@login_required
+@admin_required
+def toggle_service_status(service_id):
+    """Toggle service active status"""
+    service = Service.query.get_or_404(service_id)
+    
+    try:
+        is_active = request.json.get('is_active')
+        service.is_active = is_active
+        service.last_updated_by = current_user.id
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Service {"activated" if is_active else "deactivated"}',
+            'is_active': is_active
+        })
+    
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/services/add', methods=['POST'])
+@login_required
+@admin_required
+def add_service():
+    """Add new service"""
+    try:
+        # Create new service
+        service = Service(
+            name=request.form['name'],
+            description=request.form.get('description', ''),
+            device_type=request.form['device_type'],
+            issue_type=request.form['issue_type'],
+            category_id=int(request.form['category_id']),
+            base_price=float(request.form['base_price']),
+            deposit_amount=float(request.form.get('deposit_amount', 15.00)),
+            labor_cost=float(request.form.get('labor_cost', 0)),
+            parts_cost=float(request.form.get('parts_cost', 0)),
+            estimated_time=int(request.form.get('estimated_time', 60)),
+            max_quantity=int(request.form.get('max_quantity', 1)),
+            warranty_days=int(request.form.get('warranty_days', 30)),
+            is_emergency=request.form.get('is_emergency') == 'on',
+            allows_multiple=request.form.get('allows_multiple') == 'on',
+            is_active=True,
+            last_updated_by=current_user.id
+        )
+        
+        db.session.add(service)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Service added successfully',
+            'service_id': service.id
+        })
+    
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/categories/add', methods=['POST'])
+@login_required
+@admin_required
+def add_category():
+    """Add new service category"""
+    from app.models.service_category import ServiceCategory
+    
+    try:
+        category = ServiceCategory(
+            name=request.form['name'],
+            description=request.form.get('description', ''),
+            sort_order=int(request.form.get('sort_order', 1)),
+            is_emergency=request.form.get('is_emergency') == 'on',
+            requires_admin_approval=request.form.get('requires_admin_approval') == 'on',
+            is_active=True
+        )
+        
+        db.session.add(category)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Category added successfully',
+            'category_id': category.id
+        })
+    
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @admin_bp.route('/service-area')
 @login_required

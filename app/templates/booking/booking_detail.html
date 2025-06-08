@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}Booking #{{ booking.id }} Details - Fixbulance{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary mb-1">📱 Booking #{{ booking.id }}</h2>
+                    <p class="text-muted mb-0">Complete booking details and status</p>
+                </div>
+                <div>
+                    <span class="badge bg-{% if booking.status == 'pending' %}warning{% elif booking.status == 'confirmed' %}info{% elif booking.status == 'in_progress' %}primary{% elif booking.status == 'completed' %}success{% elif booking.status == 'cancelled' %}danger{% else %}secondary{% endif %} fs-6">
+                        {{ booking.status.replace('_', ' ').title() }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Device & Service Information -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">📱 Device & Service Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6 class="text-primary">Device Details</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>Device Type:</strong></td>
+                                        <td>{{ booking.device_type }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Device Model:</strong></td>
+                                        <td>{{ booking.device_model or 'Not specified' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Issue Description:</strong></td>
+                                        <td>{{ booking.issue_description or 'General repair' }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            {% if booking.service %}
+                            <div class="mb-3">
+                                <h6 class="text-primary">Service Details</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>Service Name:</strong></td>
+                                        <td>{{ booking.service.display_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Service Price:</strong></td>
+                                        <td>${{ "%.2f"|format(booking.service.base_price) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Estimated Time:</strong></td>
+                                        <td>{{ booking.service.estimated_time_display }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Difficulty Level:</strong></td>
+                                        <td>{{ booking.service.difficulty_level.title() }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Warranty:</strong></td>
+                                        <td>{{ booking.service.warranty_days }} days</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            {% endif %}
+
+                            {% if booking.notes %}
+                            <div class="mb-0">
+                                <h6 class="text-primary">Additional Notes</h6>
+                                <div class="border p-3 rounded bg-light">
+                                    {{ booking.notes }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scheduling & Location -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">📅 Scheduling & Location</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6 class="text-info">Schedule Information</h6>
+                                <table class="table table-sm">
+                                    {% if booking.scheduled_datetime %}
+                                    <tr>
+                                        <td><strong>Scheduled Date:</strong></td>
+                                        <td>{{ booking.scheduled_datetime.strftime('%A, %B %d, %Y') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Scheduled Time:</strong></td>
+                                        <td>{{ booking.scheduled_datetime.strftime('%I:%M %p') }}</td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="2" class="text-muted">Scheduling to be confirmed</td>
+                                    </tr>
+                                    {% endif %}
+                                    <tr>
+                                        <td><strong>Status:</strong></td>
+                                        <td>
+                                            <span class="badge bg-{% if booking.status == 'pending' %}warning{% elif booking.status == 'confirmed' %}info{% elif booking.status == 'in_progress' %}primary{% elif booking.status == 'completed' %}success{% elif booking.status == 'cancelled' %}danger{% else %}secondary{% endif %}">
+                                                {{ booking.status.replace('_', ' ').title() }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div class="mb-0">
+                                <h6 class="text-info">Service Location</h6>
+                                {% if booking.address %}
+                                <div class="border p-3 rounded bg-light">
+                                    <strong>{{ booking.address }}</strong><br>
+                                    {% if booking.city and booking.state %}
+                                    {{ booking.city }}, {{ booking.state }}
+                                    {% endif %}
+                                    {% if booking.zip_code %}
+                                    {{ booking.zip_code }}
+                                    {% endif %}
+                                </div>
+                                {% else %}
+                                <p class="text-muted">Service address not specified</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Payment Information -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">💳 Payment Information</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if booking.service %}
+                            <div class="mb-3">
+                                <h6 class="text-success">💰 Pricing Breakdown</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>Service Fee:</strong></td>
+                                        <td class="text-end">${{ "%.2f"|format(booking.service.base_price) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Deposit Required:</strong></td>
+                                        <td class="text-end">${{ "%.2f"|format(booking.service.deposit_amount) }}</td>
+                                    </tr>
+                                    <tr class="table-light">
+                                        <td><strong>Balance Due:</strong></td>
+                                        <td class="text-end">${{ "%.2f"|format(booking.service.base_price - booking.service.deposit_amount) }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            {% endif %}
+
+                            <div class="mb-0">
+                                <h6 class="text-success">Payment Status</h6>
+                                <p class="mb-2">
+                                    <span class="badge bg-{% if booking.payment_status == 'paid' %}success{% elif booking.payment_status == 'partial' %}warning{% else %}secondary{% endif %} fs-6">
+                                        {{ booking.payment_status.replace('_', ' ').title() }}
+                                    </span>
+                                </p>
+                                
+                                {% if booking.payment_status == 'pending' %}
+                                <a href="{{ url_for('booking.payment', booking_id=booking.id) }}" class="btn btn-success">
+                                    💳 Pay Deposit (${{ "%.2f"|format(booking.service.deposit_amount if booking.service else 15.00) }})
+                                </a>
+                                {% elif booking.payment_status == 'partial' %}
+                                <div class="alert alert-info">
+                                    <small>Deposit paid. Balance due upon completion.</small>
+                                </div>
+                                {% elif booking.payment_status == 'paid' %}
+                                <div class="alert alert-success">
+                                    <small>✅ Payment complete</small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booking History -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">📋 Booking History</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6 class="text-secondary">Timeline</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>Booking Created:</strong></td>
+                                        <td>{{ booking.created_at.strftime('%B %d, %Y at %I:%M %p') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Last Updated:</strong></td>
+                                        <td>{{ booking.updated_at.strftime('%B %d, %Y at %I:%M %p') }}</td>
+                                    </tr>
+                                    {% if booking.completed_at %}
+                                    <tr>
+                                        <td><strong>Completed:</strong></td>
+                                        <td>{{ booking.completed_at.strftime('%B %d, %Y at %I:%M %p') }}</td>
+                                    </tr>
+                                    {% endif %}
+                                </table>
+                            </div>
+
+                            <div class="mb-0">
+                                <h6 class="text-secondary">Contact Information</h6>
+                                <div class="d-grid gap-2">
+                                    <a href="tel:(708) 971-4053" class="btn btn-outline-primary btn-sm">
+                                        📞 Call Fixbulance: (708) 971-4053
+                                    </a>
+                                    <a href="mailto:support@fixbulance.com?subject=Booking #{{ booking.id }} Support" class="btn btn-outline-info btn-sm">
+                                        📧 Email Support
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <a href="{{ url_for('booking.my_bookings') }}" class="btn btn-outline-secondary">
+                                ← Back to My Bookings
+                            </a>
+                        </div>
+                        <div>
+                            {% if booking.status in ['pending', 'confirmed'] %}
+                            <a href="tel:(708) 971-4053" class="btn btn-primary">
+                                📞 Contact About Changes
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any booking detail specific JavaScript here
+    console.log('Booking detail page loaded for booking #{{ booking.id }}');
+});
+</script>
+{% endblock %} 

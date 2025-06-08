@@ -417,10 +417,10 @@
                             </label>
                             <select class="form-select" id="customerSelect" required>
                                 <option value="">Choose a customer...</option>
-                                <option value="john-smith">John Smith - (555) 123-4567 - FXB-001</option>
-                                <option value="sarah-johnson">Sarah Johnson - (555) 987-6543 - FXB-002</option>
-                                <option value="mike-davis">Mike Davis - (555) 456-7890 - FXB-003</option>
-                                <option value="lisa-chen">Lisa Chen - (555) 321-0987 - FXB-004</option>
+                                                        <option value="john-smith">John Smith - (708) 555-0101 - FXB-001</option>
+                        <option value="sarah-johnson">Sarah Johnson - (708) 555-0102 - FXB-002</option>
+                        <option value="mike-davis">Mike Davis - (708) 555-0103 - FXB-003</option>
+                        <option value="lisa-chen">Lisa Chen - (708) 555-0104 - FXB-004</option>
                             </select>
                         </div>
 
@@ -652,35 +652,35 @@ document.addEventListener('DOMContentLoaded', function() {
             sms: 'Hi {customer_name}! Your Fixbulance emergency repair is confirmed for {appointment_time} at {location}. Our van will arrive 15 min early. Reply STOP to opt out.',
             email: {
                 subject: 'Emergency Repair Confirmed - Fixbulance Appointment #{booking_id}',
-                body: 'Dear {customer_name},\n\nYour emergency phone repair appointment has been confirmed:\n\nDevice: {device_model}\nService: {service_type}\nDate & Time: {appointment_date} at {appointment_time}\nLocation: {customer_address}\n\nOur emergency repair van will arrive 15 minutes before your scheduled time. You will receive an SMS notification when our technician is en route.\n\nAppointment Details:\n- Service Cost: {service_price}\n- Estimated Repair Time: {estimated_time} minutes\n- Emergency Technician: {technician_name}\n\nFor any changes or questions, please call our emergency hotline at (555) 123-4567.\n\nThank you for choosing Fixbulance!\n\nThe Fixbulance Emergency Repair Team'
+                body: 'Dear {customer_name},\n\nYour emergency phone repair appointment has been confirmed:\n\nDevice: {device_model}\nService: {service_type}\nDate & Time: {appointment_date} at {appointment_time}\nLocation: {customer_address}\n\nOur emergency repair van will arrive 15 minutes before your scheduled time. You will receive an SMS notification when our technician is en route.\n\nAppointment Details:\n- Service Cost: {service_price}\n- Estimated Repair Time: {estimated_time} minutes\n- Emergency Technician: {technician_name}\n\nFor any changes or questions, please call our emergency hotline at (708) 971-4053.\n\nThank you for choosing Fixbulance!\n\nThe Fixbulance Emergency Repair Team'
             }
         },
         'en-route': {
-            sms: 'Your Fixbulance technician {technician_name} is en route! ETA: {eta_minutes} min. Van #{van_number}. Call (555) 123-4567 for updates.',
+            sms: 'Your Fixbulance technician {technician_name} is en route! ETA: {eta_minutes} min. Van #{van_number}. Call (708) 971-4053 for updates.',
             email: {
                 subject: 'Technician En Route - Fixbulance Emergency Service',
-                body: 'Dear {customer_name},\n\nGreat news! Your emergency repair technician is on the way to your location.\n\nTechnician: {technician_name}\nEstimated Arrival: {eta_minutes} minutes\nVan Number: {van_number}\nService: {service_type} for {device_model}\n\nYour technician will call you upon arrival. Please have your device ready and ensure the repair location is accessible.\n\nFor real-time updates or questions, call our emergency hotline at (555) 123-4567.\n\nThank you for your patience!\n\nThe Fixbulance Team'
+                body: 'Dear {customer_name},\n\nGreat news! Your emergency repair technician is on the way to your location.\n\nTechnician: {technician_name}\nEstimated Arrival: {eta_minutes} minutes\nVan Number: {van_number}\nService: {service_type} for {device_model}\n\nYour technician will call you upon arrival. Please have your device ready and ensure the repair location is accessible.\n\nFor real-time updates or questions, call our emergency hotline at (708) 971-4053.\n\nThank you for your patience!\n\nThe Fixbulance Team'
             }
         },
         'arrival': {
-            sms: 'Your Fixbulance technician has arrived! Look for van #{van_number}. Technician: {technician_name}. Call (555) 123-4567 if needed.',
+            sms: 'Your Fixbulance technician has arrived! Look for van #{van_number}. Technician: {technician_name}. Call (708) 971-4053 if needed.',
             email: {
                 subject: 'Technician Arrived - Fixbulance Emergency Service',
-                body: 'Dear {customer_name},\n\nYour Fixbulance emergency repair technician has arrived at your location.\n\nTechnician: {technician_name}\nVan Number: {van_number}\nLocation: {customer_address}\n\nPlease look for our branded emergency repair van. Your technician will contact you directly to coordinate the repair.\n\nService Details:\n- Device: {device_model}\n- Repair: {service_type}\n- Estimated Time: {estimated_time} minutes\n\nFor any questions during the repair, call (555) 123-4567.\n\nThank you for choosing Fixbulance!\n\nThe Fixbulance Team'
+                body: 'Dear {customer_name},\n\nYour Fixbulance emergency repair technician has arrived at your location.\n\nTechnician: {technician_name}\nVan Number: {van_number}\nLocation: {customer_address}\n\nPlease look for our branded emergency repair van. Your technician will contact you directly to coordinate the repair.\n\nService Details:\n- Device: {device_model}\n- Repair: {service_type}\n- Estimated Time: {estimated_time} minutes\n\nFor any questions during the repair, call (708) 971-4053.\n\nThank you for choosing Fixbulance!\n\nThe Fixbulance Team'
             }
         },
         'completion': {
             sms: 'Repair complete! Your {device_model} {service_type} is finished. Total: {total_amount}. Rate your experience: {survey_link}',
             email: {
                 subject: 'Repair Completed - Fixbulance Service Summary',
-                body: 'Dear {customer_name},\n\nExcellent news! Your emergency phone repair has been completed successfully.\n\nService Summary:\n- Device: {device_model}\n- Repair: {service_type}\n- Completion Time: {completion_time}\n- Technician: {technician_name}\n- Total Cost: {total_amount}\n\nYour device has been tested and is working properly. We\'ve included a 30-day warranty on the repair work.\n\nPayment Summary:\n- Deposit Paid: $15.00\n- Service Cost: {service_cost}\n- Total Paid: {total_amount}\n\nPlease take a moment to rate your experience: {survey_link}\n\nIf you experience any issues with your repair, please contact us immediately at (555) 123-4567.\n\nThank you for choosing Fixbulance for your emergency repair needs!\n\nThe Fixbulance Team'
+                body: 'Dear {customer_name},\n\nExcellent news! Your emergency phone repair has been completed successfully.\n\nService Summary:\n- Device: {device_model}\n- Repair: {service_type}\n- Completion Time: {completion_time}\n- Technician: {technician_name}\n- Total Cost: {total_amount}\n\nYour device has been tested and is working properly. We\'ve included a 30-day warranty on the repair work.\n\nPayment Summary:\n- Deposit Paid: $15.00\n- Service Cost: {service_cost}\n- Total Paid: {total_amount}\n\nPlease take a moment to rate your experience: {survey_link}\n\nIf you experience any issues with your repair, please contact us immediately at (708) 971-4053.\n\nThank you for choosing Fixbulance for your emergency repair needs!\n\nThe Fixbulance Team'
             }
         },
         'follow-up': {
-            sms: 'Hi {customer_name}! How was your Fixbulance repair experience? Rate us: {survey_link}. Need help? Call (555) 123-4567.',
+            sms: 'Hi {customer_name}! How was your Fixbulance repair experience? Rate us: {survey_link}. Need help? Call (708) 971-4053.',
             email: {
                 subject: 'How Was Your Fixbulance Experience?',
-                body: 'Dear {customer_name},\n\nWe hope your {device_model} is working perfectly after our emergency repair service!\n\nYour recent service:\n- Date: {service_date}\n- Repair: {service_type}\n- Technician: {technician_name}\n\nWe\'d love to hear about your experience with Fixbulance. Your feedback helps us improve our emergency repair services.\n\nPlease take 2 minutes to rate your experience: {survey_link}\n\nReminder: Your repair comes with a 30-day warranty. If you experience any issues, please contact us immediately at (555) 123-4567.\n\nNeed another emergency repair? Book online at fixbulance.com or call (555) 123-4567.\n\nThank you for choosing Fixbulance!\n\nThe Fixbulance Team'
+                body: 'Dear {customer_name},\n\nWe hope your {device_model} is working perfectly after our emergency repair service!\n\nYour recent service:\n- Date: {service_date}\n- Repair: {service_type}\n- Technician: {technician_name}\n\nWe\'d love to hear about your experience with Fixbulance. Your feedback helps us improve our emergency repair services.\n\nPlease take 2 minutes to rate your experience: {survey_link}\n\nReminder: Your repair comes with a 30-day warranty. If you experience any issues, please contact us immediately at (708) 971-4053.\n\nNeed another emergency repair? Book online at fixbulance.com or call (708) 971-4053.\n\nThank you for choosing Fixbulance!\n\nThe Fixbulance Team'
             }
         }
     };

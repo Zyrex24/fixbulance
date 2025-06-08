@@ -6,6 +6,7 @@ from app.models.service_area import ServiceZipCode, AddressValidationCache
 from app.models.user import User
 from app.services.payment import payment_service
 from app.services.communication import communication_service
+from app.services.email_service import EmailService
 from werkzeug.utils import secure_filename
 import os
 import uuid
@@ -565,6 +566,20 @@ def create_booking():
         db.session.add(booking)
         db.session.commit()
         
+        # Send booking confirmation email
+        try:
+            EmailService.send_booking_confirmation(booking)
+            current_app.logger.info(f"Booking confirmation email sent for booking {booking.id}")
+        except Exception as e:
+            current_app.logger.error(f"Failed to send booking confirmation email: {str(e)}")
+        
+        # Send admin notification
+        try:
+            EmailService.send_admin_notification(booking, 'new_booking')
+            current_app.logger.info(f"Admin notification email sent for booking {booking.id}")
+        except Exception as e:
+            current_app.logger.error(f"Failed to send admin notification email: {str(e)}")
+        
         # Clear booking session
         session.pop('booking_session', None)
         session.modified = True
@@ -806,6 +821,19 @@ def update_booking_status(booking_id):
             booking.completed_at = datetime.utcnow()
         
         db.session.commit()
+        
+        # Send email notifications based on status change
+        try:
+            if new_status == 'confirmed' and old_status != 'confirmed':
+                # Send admin confirmation email to customer
+                EmailService.send_admin_confirmation(booking)
+                current_app.logger.info(f"Admin confirmation email sent for booking {booking.id}")
+            elif new_status == 'completed' and old_status != 'completed':
+                # Send service completed email with review request
+                EmailService.send_service_completed(booking)
+                current_app.logger.info(f"Service completed email sent for booking {booking.id}")
+        except Exception as e:
+            current_app.logger.error(f"Failed to send status change email: {str(e)}")
         
         return jsonify({
             'success': True,
