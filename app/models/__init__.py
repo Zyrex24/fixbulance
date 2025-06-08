@@ -6,5 +6,6 @@ from .service import Service
 from .booking_service import BookingService
 from .price_history import PriceHistory
 from .review import Review
+from .payment import Payment
 
-__all__ = ['Booking', 'User', 'ServiceCategory', 'Service', 'BookingService', 'PriceHistory', 'Review'] 
+__all__ = ['Booking', 'User', 'ServiceCategory', 'Service', 'BookingService', 'PriceHistory', 'Review', 'Payment'] 
