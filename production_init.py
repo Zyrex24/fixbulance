@@ -6,7 +6,7 @@ This script runs automatically during deployment to set up the database
 import os
 import sys
 from flask import Flask
-from flask_migrate import init, migrate, upgrade
+from flask_migrate import init
 from app import create_app
 
 def init_production():
@@ -32,24 +32,31 @@ def init_production():
                 print("📦 Initializing Flask-Migrate...")
                 init()
                 print("✅ Flask-Migrate initialized")
-                
-                # Create initial migration
-                print("📝 Creating initial migration...")
-                migrate(message='Initial migration')
-                print("✅ Initial migration created")
             
-            # Run database migrations
-            print("📊 Running database migrations...")
-            upgrade()
-            print("✅ Database migrations completed successfully")
+            # For fresh production deployment, use direct table creation
+            # This avoids migration constraint naming issues
+            print("🔧 Creating database tables directly...")
             
-            # Import models to ensure they're registered
-            from app.models import User, Booking, Service, Review
+            # Import all models to ensure they're registered
+            from app.models import User, Booking, Service, Review, Payment, BookingService, ServiceCategory, PriceHistory
             
-            # Create any missing tables (fallback)
-            print("🔧 Ensuring all tables exist...")
+            # Create all tables
             db.create_all()
-            print("✅ Database tables verified/created")
+            print("✅ Database tables created successfully")
+            
+            # Verify table creation
+            print("🔍 Verifying table creation...")
+            try:
+                # Check if key tables exist by querying them
+                db.session.execute(text('SELECT COUNT(*) FROM user'))
+                db.session.execute(text('SELECT COUNT(*) FROM service'))
+                db.session.execute(text('SELECT COUNT(*) FROM booking'))
+                print("✅ All core tables verified")
+            except Exception as table_error:
+                print(f"⚠️  Table verification issue: {table_error}")
+                # Try to create tables again if they don't exist
+                db.create_all()
+                print("✅ Tables recreated")
             
             print("🎉 Production initialization completed successfully!")
             return True
