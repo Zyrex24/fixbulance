@@ -23,8 +23,8 @@ NC='\033[0m' # No Color
 DOMAIN="fixbulance.com"  # Change to your domain
 APP_USER="fixbulance"
 APP_DIR="/var/www/fixbulance"
-REPO_URL="https://github.com/YOUR_USERNAME/fixbulance-flask-app.git"  # Change to your repo
-PYTHON_VERSION="3.9"
+REPO_URL="https://github.com/Zyrex24/fixbulance.git"  # Change to your repo
+PYTHON_VERSION="3.10"
 
 # Logging function
 log() {
@@ -78,11 +78,10 @@ sudo apt install -y \
 
 log "Setting up Python ${PYTHON_VERSION}..."
 
-# Install Python and pip
-sudo apt install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-dev python${PYTHON_VERSION}-venv python3-pip
+# Install Python and pip (Ubuntu 22.04 comes with Python 3.10)
+sudo apt install -y python3 python3-dev python3-venv python3-pip
 
-# Create symlinks for python and pip
-sudo ln -sf /usr/bin/python${PYTHON_VERSION} /usr/bin/python3
+# Create symlinks for python (if needed)
 sudo ln -sf /usr/bin/python3 /usr/bin/python
 
 # Upgrade pip
@@ -284,12 +283,12 @@ MAIL_SERVER=mail.privateemail.com
 MAIL_PORT=587
 MAIL_USE_TLS=True
 MAIL_USERNAME=info@fixbulance.com
-MAIL_PASSWORD=YOUR_EMAIL_PASSWORD_HERE
+MAIL_PASSWORD=#AsAs1234
 
 # Stripe Configuration
-STRIPE_PUBLISHABLE_KEY=pk_live_YOUR_STRIPE_KEY
-STRIPE_SECRET_KEY=sk_live_YOUR_STRIPE_KEY
-STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET
+STRIPE_PUBLISHABLE_KEY=pk_test_51RXgtWFNClnHtozaK3j3BCieVpz8OB6k1pyHkNmTFm5Zall4KbjOjbGbw26zGyLsMU8EgjXrrbSvQlKB2wqYrdIk00VneLF68X
+STRIPE_SECRET_KEY=sk_test_51RXgtWFNClnHtozab6ekguZs9w7TsM7EJhME3aDlZ3111iTjikOKp4kFawEpSM36GdthdMXlVu9JpP4GVkOJHMyF00c03zXqt6
+STRIPE_WEBHOOK_SECRET=whsec_7VIKHcVof2ETHvFob48fZfCJMkeTH5IR
 
 # Security
 WTF_CSRF_ENABLED=True
