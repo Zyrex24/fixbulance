@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify, current_app
 from app.models.service import Service, DEVICE_TYPES, ISSUE_TYPES
 from app.models.service_area import ServiceZipCode
+from app.models.system_settings import SystemSettings
 
 main_bp = Blueprint('main', __name__)
 
@@ -21,11 +22,15 @@ def index():
     total_services = Service.query.filter_by(is_active=True).count()
     covered_zip_codes = ServiceZipCode.query.filter_by(is_active=True).count()
     
+    # Get current base deposit
+    base_deposit = SystemSettings.get_base_deposit()
+    
     return render_template('index.html',
                          device_types=DEVICE_TYPES,
                          featured_services=featured_services,
                          total_services=total_services,
-                         covered_zip_codes=covered_zip_codes)
+                         covered_zip_codes=covered_zip_codes,
+                         base_deposit=base_deposit)
 
 @main_bp.route('/about')
 def about():
@@ -68,6 +73,11 @@ def privacy():
 def terms():
     """Terms of service page"""
     return render_template('terms.html')
+
+@main_bp.route('/refund')
+def refund():
+    """Refund policy page"""
+    return render_template('refund.html')
 
 # API routes for device selection
 @main_bp.route('/api/services/<device_type>')

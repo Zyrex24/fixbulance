@@ -231,12 +231,16 @@
                     </div>
                 </div>
                 
-                {% if booking.address %}
+                {% if booking.service_address %}
                 <p class="mb-1">
-                    <strong>📍 Location:</strong> {{ booking.address }}
-                    {% if booking.city and booking.state %}
-                    , {{ booking.city }}, {{ booking.state }}
-                    {% endif %}
+                    <strong>📍 Location:</strong> 
+                    <a href="https://www.google.com/maps/search/?api=1&query={{ [booking.service_address, booking.service_city, booking.service_state, booking.service_zip_code] | select | join(', ') | urlencode }}" target="_blank" class="text-decoration-none text-primary">
+                        {{ booking.service_address }}
+                        {% if booking.service_city and booking.service_state %}
+                        , {{ booking.service_city }}, {{ booking.service_state }}
+                        {% endif %}
+                        <i class="fas fa-external-link-alt ms-1 small"></i>
+                    </a>
                 </p>
                 {% endif %}
             </div>
@@ -368,6 +372,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() }}'
                     },
                     body: JSON.stringify({
                         booking_id: parseInt(bookingId),

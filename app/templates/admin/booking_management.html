@@ -175,6 +175,30 @@
         margin-bottom: 0.25rem;
     }
     
+    .address-link {
+        color: var(--navy);
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        border: 1px solid transparent;
+    }
+    
+    .address-link:hover {
+        color: var(--white);
+        background-color: var(--navy);
+        text-decoration: none;
+        border-color: var(--navy);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .address-link:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    
     .location-distance {
         font-size: 0.75rem;
         color: var(--medium-gray);
@@ -483,10 +507,14 @@
                         </td>
                         <td class="appointment-cell">
                             <div class="appointment-date">Today</div>
-                            <div class="appointment-time">ASAP (Requested 15 min ago)</div>
+                                                            <div class="appointment-time">URGENT (Requested 15 min ago)</div>
                         </td>
                         <td class="location-cell">
-                            <div class="location-address">123 Main St, Orland Park, IL</div>
+                            <div class="location-address">
+                                <a href="https://www.google.com/maps/search/?api=1&query=123+Main+St%2C+Orland+Park%2C+IL+60462" target="_blank" class="address-link">
+                                    📍 123 Main St, Orland Park, IL
+                                </a>
+                            </div>
                             <div class="location-distance">📍 2.1 miles from base</div>
                         </td>
                         <td class="actions-cell">
@@ -520,7 +548,11 @@
                             <div class="appointment-time">2:00 PM</div>
                         </td>
                         <td class="location-cell">
-                            <div class="location-address">456 Oak Ave, Tinley Park, IL</div>
+                            <div class="location-address">
+                                <a href="https://www.google.com/maps/search/?api=1&query=456+Oak+Ave%2C+Tinley+Park%2C+IL+60477" target="_blank" class="address-link">
+                                    📍 456 Oak Ave, Tinley Park, IL
+                                </a>
+                            </div>
                             <div class="location-distance">📍 4.8 miles from base</div>
                         </td>
                         <td class="actions-cell">
@@ -554,7 +586,11 @@
                             <div class="appointment-time">4:00 PM</div>
                         </td>
                         <td class="location-cell">
-                            <div class="location-address">789 Pine St, Oak Forest, IL</div>
+                            <div class="location-address">
+                                <a href="https://www.google.com/maps/search/?api=1&query=789+Pine+St%2C+Oak+Forest%2C+IL+60452" target="_blank" class="address-link">
+                                    📍 789 Pine St, Oak Forest, IL
+                                </a>
+                            </div>
                             <div class="location-distance">📍 6.2 miles from base</div>
                         </td>
                         <td class="actions-cell">
@@ -588,7 +624,11 @@
                             <div class="appointment-time">1:30 PM (Started)</div>
                         </td>
                         <td class="location-cell">
-                            <div class="location-address">321 Elm St, Palos Heights, IL</div>
+                            <div class="location-address">
+                                <a href="https://www.google.com/maps/search/?api=1&query=321+Elm+St%2C+Palos+Heights%2C+IL+60463" target="_blank" class="address-link">
+                                    📍 321 Elm St, Palos Heights, IL
+                                </a>
+                            </div>
                             <div class="location-distance">📍 7.1 miles from base</div>
                         </td>
                         <td class="actions-cell">
@@ -621,7 +661,11 @@
                             <div class="appointment-time">11:00 AM (Completed)</div>
                         </td>
                         <td class="location-cell">
-                            <div class="location-address">654 Maple Dr, Homer Glen, IL</div>
+                            <div class="location-address">
+                                <a href="https://www.google.com/maps/search/?api=1&query=654+Maple+Dr%2C+Homer+Glen%2C+IL+60491" target="_blank" class="address-link">
+                                    📍 654 Maple Dr, Homer Glen, IL
+                                </a>
+                            </div>
                             <div class="location-distance">📍 8.9 miles from base</div>
                         </td>
                         <td class="actions-cell">
@@ -758,11 +802,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
         refreshBtn.disabled = true;
+        refreshBtn.classList.add('clicked');
         
         // Simulate API call
         setTimeout(() => {
             refreshBtn.innerHTML = originalHTML;
             refreshBtn.disabled = false;
+            refreshBtn.classList.remove('clicked');
             showNotification('Bookings refreshed successfully', 'success');
         }, 1500);
     };

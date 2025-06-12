@@ -32,7 +32,7 @@
                                 <table class="table table-sm">
                                     <tr>
                                         <td><strong>Device Type:</strong></td>
-                                        <td>{{ booking.device_type }}</td>
+                                        <td>{{ booking.device_type or booking.service.device_type if booking.service else 'Not specified' }}</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Device Model:</strong></td>
@@ -60,10 +60,6 @@
                                     <tr>
                                         <td><strong>Estimated Time:</strong></td>
                                         <td>{{ booking.service.estimated_time_display }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Difficulty Level:</strong></td>
-                                        <td>{{ booking.service.difficulty_level.title() }}</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Warranty:</strong></td>
@@ -95,14 +91,14 @@
                             <div class="mb-3">
                                 <h6 class="text-info">Schedule Information</h6>
                                 <table class="table table-sm">
-                                    {% if booking.scheduled_datetime %}
+                                    {% if booking.appointment_datetime %}
                                     <tr>
                                         <td><strong>Scheduled Date:</strong></td>
-                                        <td>{{ booking.scheduled_datetime.strftime('%A, %B %d, %Y') }}</td>
+                                        <td>{{ booking.appointment_datetime.strftime('%A, %B %d, %Y') }}</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Scheduled Time:</strong></td>
-                                        <td>{{ booking.scheduled_datetime.strftime('%I:%M %p') }}</td>
+                                        <td>{{ booking.appointment_datetime.strftime('%I:%M %p') }}</td>
                                     </tr>
                                     {% else %}
                                     <tr>
@@ -122,14 +118,14 @@
 
                             <div class="mb-0">
                                 <h6 class="text-info">Service Location</h6>
-                                {% if booking.address %}
+                                {% if booking.service_address %}
                                 <div class="border p-3 rounded bg-light">
-                                    <strong>{{ booking.address }}</strong><br>
-                                    {% if booking.city and booking.state %}
-                                    {{ booking.city }}, {{ booking.state }}
+                                    <strong>{{ booking.service_address }}</strong><br>
+                                    {% if booking.service_city and booking.service_state %}
+                                    {{ booking.service_city }}, {{ booking.service_state }}
                                     {% endif %}
-                                    {% if booking.zip_code %}
-                                    {{ booking.zip_code }}
+                                    {% if booking.service_zip_code %}
+                                    {{ booking.service_zip_code }}
                                     {% endif %}
                                 </div>
                                 {% else %}
@@ -233,6 +229,56 @@
                                     </a>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Waiver Section -->
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">
+                                <i class="fas fa-file-signature me-2"></i>
+                                Service Waiver Agreement
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if booking.waiver %}
+                            <div class="alert alert-success">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-check-circle fa-2x me-3"></i>
+                                    <div>
+                                        <h6 class="mb-1">Service Waiver Signed</h6>
+                                        <p class="mb-2">
+                                            Digitally signed by <strong>{{ booking.waiver.customer_name }}</strong> 
+                                            on {{ booking.waiver.signature_date_display }}
+                                        </p>
+                                        <a href="{{ url_for('booking.view_waiver', booking_id=booking.id) }}" 
+                                           class="btn btn-sm btn-success">
+                                            <i class="fas fa-eye me-1"></i>View Signed Waiver
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-info-circle fa-2x me-3"></i>
+                                    <div>
+                                        <h6 class="mb-1">Waiver Required</h6>
+                                        <p class="mb-2">
+                                            A service waiver agreement must be signed before repair service can begin.
+                                        </p>
+                                        <a href="{{ url_for('booking.service_waiver', booking_id=booking.id) }}" 
+                                           class="btn btn-sm btn-warning">
+                                            <i class="fas fa-file-signature me-1"></i>Sign Service Waiver
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

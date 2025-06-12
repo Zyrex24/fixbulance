@@ -200,8 +200,9 @@
                     <div class="stat-item">
                         {% set total_spent = 0 %}
                         {% for booking in bookings %}
-                        {% if booking.status == 'completed' and booking.final_amount %}
-                        {% set total_spent = total_spent + booking.final_amount %}
+                        {% if booking.status == 'completed' and booking.service %}
+                        {% set booking_amount = booking.final_amount or booking.service.base_price %}
+                        {% set total_spent = total_spent + booking_amount %}
                         {% endif %}
                         {% endfor %}
                         <div class="stat-value">${{ "%.0f"|format(total_spent) }}</div>
@@ -241,13 +242,24 @@
                 <div class="info-group">
                     <span class="info-label">Address</span>
                     <div class="info-value">
-                        {{ customer.address }}
+                        {% set full_address = customer.address %}
                         {% if customer.city and customer.state %}
-                        <br>{{ customer.city }}, {{ customer.state }}
+                        {% set full_address = full_address + ', ' + customer.city + ', ' + customer.state %}
                         {% if customer.zip_code %}
-                        {{ customer.zip_code }}
+                        {% set full_address = full_address + ' ' + customer.zip_code %}
                         {% endif %}
                         {% endif %}
+                        
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ full_address | urlencode }}" target="_blank" class="text-primary text-decoration-none">
+                            <i class="fas fa-map-marker-alt me-1"></i>
+                            {{ customer.address }}
+                            {% if customer.city and customer.state %}
+                            <br>{{ customer.city }}, {{ customer.state }}
+                            {% if customer.zip_code %}
+                            {{ customer.zip_code }}
+                            {% endif %}
+                            {% endif %}
+                        </a>
                     </div>
                 </div>
                 {% endif %}

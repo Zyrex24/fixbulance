@@ -1,0 +1,475 @@
+{% extends "base.html" %}
+
+{% block title %}Account Verification - Step 4.5: Sign In or Register - Fixbulance{% endblock %}
+
+{% block styles %}
+<style>
+    .booking-container {
+        min-height: 70vh;
+        background: linear-gradient(135deg, rgba(227, 232, 216, 0.1) 0%, rgba(30, 58, 95, 0.05) 100%);
+        padding: 3rem 0;
+    }
+    
+    .booking-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+    }
+    
+    .booking-header {
+        background: linear-gradient(135deg, var(--navy) 0%, var(--light-navy) 100%);
+        color: var(--white);
+        padding: 2rem;
+        text-align: center;
+        border: none;
+    }
+    
+    .booking-header h4 {
+        color: var(--white);
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .emergency-badge {
+        background-color: var(--red);
+        color: var(--white);
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 1rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+    
+    .progress-bar-container {
+        margin: 2rem 0;
+    }
+    
+    .custom-progress {
+        height: 8px;
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .custom-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--red), #ff4757);
+        width: 75%; /* 4.5/6 steps */
+        transition: width 0.3s ease;
+    }
+    
+    .selections-summary {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: var(--white);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .form-section {
+        padding: 2.5rem;
+    }
+    
+    .auth-tabs {
+        display: flex;
+        margin-bottom: 2rem;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .auth-tab {
+        flex: 1;
+        background: var(--white);
+        border: none;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        color: var(--navy);
+    }
+    
+    .auth-tab.active {
+        background: var(--navy);
+        color: var(--white);
+    }
+    
+    .auth-tab:hover:not(.active) {
+        background: var(--light-gray);
+    }
+    
+    .auth-form {
+        display: none;
+    }
+    
+    .auth-form.active {
+        display: block;
+    }
+    
+    .security-info {
+        background: rgba(16, 185, 129, 0.1);
+        border-left: 4px solid #10b981;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .verification-notice {
+        background: rgba(245, 158, 11, 0.1);
+        border-left: 4px solid #f59e0b;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .guest-option {
+        text-align: center;
+        padding: 2rem;
+        background: var(--light-gray);
+        border-radius: 12px;
+        margin-top: 2rem;
+    }
+    
+    .step-navigation {
+        padding: 1.5rem 2.5rem;
+        background: var(--light-gray);
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    @media (max-width: 768px) {
+        .booking-container {
+            padding: 1rem 0;
+        }
+        
+        .form-section {
+            padding: 1.5rem;
+        }
+        
+        .step-navigation {
+            padding: 1rem 1.5rem;
+        }
+        
+        .auth-tabs {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="booking-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card booking-card">
+                    <div class="card-header booking-header">
+                        <div class="emergency-badge">
+                            <i class="fas fa-user-shield me-1"></i>
+                            Account Verification Required
+                        </div>
+                        <h4>Sign In or Create Account</h4>
+                        <p class="mb-0 opacity-90">Step 4.5 of 6: Secure your emergency booking with account verification</p>
+                        
+                        <div class="progress-bar-container">
+                            <div class="custom-progress">
+                                <div class="custom-progress-bar"></div>
+                            </div>
+                            <small class="text-white-50">Step 4.5: Account Verification</small>
+                        </div>
+                    </div>
+
+                    <!-- Previous Selections Summary -->
+                    <div class="selections-summary">
+                        <h6 class="mb-3">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>Emergency Service Summary</strong>
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-mobile-alt me-2"></i>
+                                    <strong>Device:</strong>&nbsp;{{ booking_data.device_type }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-tools me-2"></i>
+                                    <strong>Service:</strong>&nbsp;{{ booking_data.service_data.name }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-map-marker-alt me-2"></i>
+                                    <strong>Location:</strong>&nbsp;{{ booking_data.service_city }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-dollar-sign me-2"></i>
+                                    <strong>Price:</strong>&nbsp;${{ "%.2f"|format(booking_data.service_data.base_price) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <!-- Security Information -->
+                        <div class="security-info">
+                            <h6 class="mb-2">
+                                <i class="fas fa-shield-check me-2"></i>
+                                <strong>Why Account Verification?</strong>
+                            </h6>
+                            <ul class="mb-0">
+                                <li>Secure your booking and payment information</li>
+                                <li>Receive SMS and email updates about your repair</li>
+                                <li>Access booking history and manage appointments</li>
+                                <li>Faster future bookings with saved information</li>
+                            </ul>
+                        </div>
+
+                        <!-- Authentication Tabs -->
+                        <div class="auth-tabs">
+                            <button class="auth-tab active" data-tab="signin">
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                            </button>
+                            <button class="auth-tab" data-tab="register">
+                                <i class="fas fa-user-plus me-2"></i>Create Account
+                            </button>
+                        </div>
+
+                        <!-- Sign In Form -->
+                        <div class="auth-form active" id="signin-form">
+                            <form method="POST" action="{{ url_for('booking.step4_5_auth') }}" id="signinForm">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="action" value="signin">
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="signin_email" class="form-label">
+                                                <i class="fas fa-envelope me-1"></i>Email Address
+                                            </label>
+                                            <input type="email" class="form-control" id="signin_email" name="email" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="signin_password" class="form-label">
+                                                <i class="fas fa-lock me-1"></i>Password
+                                            </label>
+                                            <input type="password" class="form-control" id="signin_password" name="password" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="remember_me" name="remember_me">
+                                        <label class="form-check-label" for="remember_me">
+                                            Remember me
+                                        </label>
+                                    </div>
+                                    <a href="{{ url_for('auth.forgot_password') }}" class="text-primary">Forgot password?</a>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Sign In & Continue
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Register Form -->
+                        <div class="auth-form" id="register-form">
+                            <form method="POST" action="{{ url_for('booking.step4_5_auth') }}" id="registerForm">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="action" value="register">
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="first_name" class="form-label">
+                                                <i class="fas fa-user me-1"></i>First Name
+                                            </label>
+                                            <input type="text" class="form-control" id="first_name" name="first_name" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="last_name" class="form-label">
+                                                <i class="fas fa-user me-1"></i>Last Name
+                                            </label>
+                                            <input type="text" class="form-control" id="last_name" name="last_name" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="register_email" class="form-label">
+                                                <i class="fas fa-envelope me-1"></i>Email Address
+                                            </label>
+                                            <input type="email" class="form-control" id="register_email" name="email" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="phone" class="form-label">
+                                                <i class="fas fa-phone me-1"></i>Phone Number
+                                            </label>
+                                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                                   placeholder="(555) 123-4567" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="register_password" class="form-label">
+                                                <i class="fas fa-lock me-1"></i>Password
+                                            </label>
+                                            <input type="password" class="form-control" id="register_password" 
+                                                   name="password" required minlength="6">
+                                            <div class="form-text">Minimum 6 characters</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="confirm_password" class="form-label">
+                                                <i class="fas fa-lock me-1"></i>Confirm Password
+                                            </label>
+                                            <input type="password" class="form-control" id="confirm_password" 
+                                                   name="confirm_password" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="verification-notice">
+                                    <h6 class="mb-2">
+                                        <i class="fas fa-envelope-check me-2"></i>
+                                        <strong>Email Verification Required</strong>
+                                    </h6>
+                                    <p class="mb-0">After registration, you'll receive a verification email. 
+                                    You must verify your email before completing your booking.</p>
+                                </div>
+                                
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="agree_terms" name="agree_terms" required>
+                                    <label class="form-check-label" for="agree_terms">
+                                        I agree to the <a href="{{ url_for('main.terms') }}" target="_blank">Terms of Service</a> 
+                                        and <a href="{{ url_for('main.privacy') }}" target="_blank">Privacy Policy</a>
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="sms_opt_in" name="sms_opt_in">
+                                    <label class="form-check-label" for="sms_opt_in">
+                                        Send me SMS updates about my repair (recommended)
+                                    </label>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-user-plus me-2"></i>Create Account & Continue
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Guest Booking Option -->
+                        <div class="guest-option">
+                            <h6 class="mb-2">
+                                <i class="fas fa-user-clock me-2"></i>
+                                Continue as Guest?
+                            </h6>
+                            <p class="text-muted mb-3">
+                                You can proceed without an account, but you'll miss out on booking management 
+                                and update notifications.
+                            </p>
+                            <a href="{{ url_for('booking.step5_schedule') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-right me-2"></i>Continue as Guest
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="step-navigation">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('booking.step4_location') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Location
+                            </a>
+                            
+                            <div class="text-center">
+                                <small class="text-muted">Account verification for secure booking</small>
+                            </div>
+                            
+                            <button type="button" class="btn btn-secondary" disabled>
+                                Sign In to Continue <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching functionality
+    const tabs = document.querySelectorAll('.auth-tab');
+    const forms = document.querySelectorAll('.auth-form');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const targetTab = this.dataset.tab;
+            
+            // Remove active class from all tabs and forms
+            tabs.forEach(t => t.classList.remove('active'));
+            forms.forEach(f => f.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding form
+            this.classList.add('active');
+            document.getElementById(targetTab + '-form').classList.add('active');
+        });
+    });
+    
+    // Password confirmation validation
+    const registerPassword = document.getElementById('register_password');
+    const confirmPassword = document.getElementById('confirm_password');
+    
+    function validatePasswords() {
+        if (registerPassword.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('Passwords do not match');
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+    }
+    
+    registerPassword.addEventListener('input', validatePasswords);
+    confirmPassword.addEventListener('input', validatePasswords);
+    
+    // Phone number formatting
+    const phoneInput = document.getElementById('phone');
+    phoneInput.addEventListener('input', function() {
+        let value = this.value.replace(/\D/g, '');
+        if (value.length >= 6) {
+            value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6,10)}`;
+        } else if (value.length >= 3) {
+            value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+        }
+        this.value = value;
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,859 @@
+{% extends "base.html" %}
+
+{% block title %}Device Pricing Management{% endblock %}
+
+{% block extra_css %}
+<style>
+.pricing-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+.pricing-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.pricing-card.iphone {
+    border-left-color: #007aff;
+}
+.pricing-card.samsung {
+    border-left-color: #1f7fce;
+}
+.pricing-card.refurb {
+    border-left-color: #ff9500;
+}
+.price-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+}
+.price-badge.original {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+.price-badge.afm {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+.price-badge.unavailable {
+    background: #fafafa;
+    color: #9e9e9e;
+}
+.stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 1rem;
+}
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+.service-pricing {
+    background: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+}
+.pricing-table {
+    font-size: 0.85rem;
+}
+.tab-content {
+    padding-top: 1rem;
+}
+.water-damage-config {
+    background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+    color: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+.laptop-services {
+    background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
+    color: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-0">📱 Device Pricing Management</h1>
+                    <p class="text-muted mb-0">Manage comprehensive pricing for iPhone and Samsung devices</p>
+                </div>
+                <div>
+                    <button class="btn btn-outline-secondary me-2" onclick="exportPricingData()">
+                        <i class="fas fa-download"></i> Export Data
+                    </button>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDeviceModal">
+                        <i class="fas fa-plus"></i> Add Device
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ total_iphone_models }}</h3>
+                    <small>iPhone Models</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ total_samsung_models }}</h3>
+                    <small>Samsung Models</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ refurb_only_count }}</h3>
+                    <small>Refurb Only Models</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">${{ min_screen_price|int }} - ${{ max_screen_price|int }}</h3>
+                    <small>Screen Price Range</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Water Damage Service Configuration -->
+    <div class="water-damage-config">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h5 class="mb-2">💧 Water Damage Diagnostic & Repair</h5>
+                <p class="mb-2">
+                    {% if water_damage_service %}
+                        Diagnostic Fee: <strong>${{ water_damage_service.diagnostic_fee }}</strong> 
+                        ({{ 'Refundable' if water_damage_service.is_diagnostic_refundable else 'Non-refundable' }})
+                    {% else %}
+                        Not configured
+                    {% endif %}
+                </p>
+                <small>{{ water_damage_service.description if water_damage_service else 'No service configured' }}</small>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-light" onclick="editWaterDamageService()">
+                    <i class="fas fa-edit"></i> Configure
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Laptop/Tablet Services -->
+    <div class="laptop-services">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h5 class="mb-2">💻 Laptop & Tablet Services</h5>
+                <p class="mb-2">
+                    We work on laptops and iPads with drop-off service. Usually same-day turnaround.
+                </p>
+                <small>
+                    Services: {{ laptop_services|length + ipad_services|length + tablet_services|length }} available
+                    | Contact: info@fixbulance.com
+                </small>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-light" onclick="manageLaptopServices()">
+                    <i class="fas fa-cog"></i> Manage Services
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Pricing Tabs -->
+    <div class="row">
+        <div class="col-12">
+            <ul class="nav nav-tabs" id="deviceTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="iphone-tab" data-bs-toggle="tab" data-bs-target="#iphone" type="button" role="tab">
+                        <i class="fab fa-apple"></i> iPhone Models ({{ total_iphone_models }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="samsung-tab" data-bs-toggle="tab" data-bs-target="#samsung" type="button" role="tab">
+                        <i class="fab fa-android"></i> Samsung Models ({{ total_samsung_models }})
+                    </button>
+                </li>
+            </ul>
+            
+            <div class="tab-content" id="deviceTabContent">
+                <!-- iPhone Tab -->
+                <div class="tab-pane fade show active" id="iphone" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5>iPhone Pricing Models</h5>
+                        <input type="text" class="form-control" style="max-width: 300px;" placeholder="Search iPhone models..." 
+                               id="iphoneSearch" onkeyup="searchDevices('iPhone')">
+                    </div>
+                    
+                    <div class="pricing-grid" id="iphoneGrid">
+                        {% for device in iphone_models %}
+                        <div class="card pricing-card iphone {% if device.is_refurbished_only %}refurb{% endif %}" data-device-id="{{ device.id }}">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">{{ device.display_name }}</h6>
+                                <div>
+                                    {% if device.is_refurbished_only %}
+                                    <span class="badge bg-warning">REFURB ONLY</span>
+                                    {% endif %}
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editDevice({{ device.id }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <div class="price-badge {% if device.original_screen %}original{% else %}unavailable{% endif %}">
+                                            Original Screen: {% if device.original_screen %}<strong>${{ device.original_screen|int }}</strong>{% else %}N/A{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="price-badge {% if device.afm_screen %}afm{% else %}unavailable{% endif %}">
+                                            AFM Screen: {% if device.afm_screen %}<strong>${{ device.afm_screen|int }}</strong>{% else %}N/A{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="price-badge {% if device.original_battery %}original{% else %}unavailable{% endif %}">
+                                            Original Battery: {% if device.original_battery %}<strong>${{ device.original_battery|int }}</strong>{% else %}N/A{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="price-badge {% if device.afm_battery %}afm{% else %}unavailable{% endif %}">
+                                            AFM Battery: {% if device.afm_battery %}<strong>${{ device.afm_battery|int }}</strong>{% else %}N/A{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="service-pricing mt-2">
+                                    <small class="text-muted">Other Services:</small>
+                                    <div class="row g-1 mt-1">
+                                        <div class="col-4"><small>Charger Port: {% if device.charger_port %}<strong>${{ device.charger_port|int }}</strong>{% else %}N/A{% endif %}</small></div>
+                                        <div class="col-4"><small>Speaker: {% if device.speaker %}<strong>${{ device.speaker|int }}</strong>{% else %}N/A{% endif %}</small></div>
+                                        <div class="col-4"><small>Camera: {% if device.camera_lens %}<strong>${{ device.camera_lens|int }}</strong>{% else %}N/A{% endif %}</small></div>
+                                        {% if device.charger_port_original %}
+                                        <div class="col-12 mt-1"><small class="text-info">Original Charger Port: <strong>${{ device.charger_port_original|int }}</strong></small></div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Samsung Tab -->
+                <div class="tab-pane fade" id="samsung" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5>Samsung Galaxy Pricing Models</h5>
+                        <input type="text" class="form-control" style="max-width: 300px;" placeholder="Search Samsung models..." 
+                               id="samsungSearch" onkeyup="searchDevices('Samsung')">
+                    </div>
+                    
+                    <div class="pricing-grid" id="samsungGrid">
+                        {% for device in samsung_models %}
+                        <div class="card pricing-card samsung {% if device.is_refurbished_only %}refurb{% endif %}" data-device-id="{{ device.id }}">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">{{ device.display_name }}</h6>
+                                <div>
+                                    {% if device.is_refurbished_only %}
+                                    <span class="badge bg-warning">REFURB ONLY</span>
+                                    {% endif %}
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editDevice({{ device.id }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <div class="price-badge {% if device.original_screen %}original{% else %}unavailable{% endif %}">
+                                            Original Screen: {% if device.original_screen %}<strong>${{ device.original_screen|int }}</strong>{% else %}N/A{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="price-badge {% if device.afm_screen %}afm{% else %}unavailable{% endif %}">
+                                            AFM Screen: {% if device.afm_screen %}<strong>${{ device.afm_screen|int }}</strong>{% else %}N/A{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="price-badge {% if device.original_battery %}original{% else %}unavailable{% endif %}">
+                                            Original Battery: {% if device.original_battery %}<strong>${{ device.original_battery|int }}</strong>{% else %}N/A{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="price-badge {% if device.afm_battery %}afm{% else %}unavailable{% endif %}">
+                                            AFM Battery: {% if device.afm_battery %}<strong>${{ device.afm_battery|int }}</strong>{% else %}N/A{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="service-pricing mt-2">
+                                    <small class="text-muted">Other Services:</small>
+                                    <div class="row g-1 mt-1">
+                                        <div class="col-4"><small>Charger Port: {% if device.charger_port %}<strong>${{ device.charger_port|int }}</strong>{% else %}N/A{% endif %}</small></div>
+                                        <div class="col-4"><small>Speaker: {% if device.speaker %}<strong>${{ device.speaker|int }}</strong>{% else %}N/A{% endif %}</small></div>
+                                        <div class="col-4"><small>Camera: {% if device.camera_lens %}<strong>${{ device.camera_lens|int }}</strong>{% else %}N/A{% endif %}</small></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Device Modal -->
+<div class="modal fade" id="addDeviceModal" tabindex="-1" aria-labelledby="addDeviceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addDeviceModalLabel">Add New Device</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addDeviceForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Device Information</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Device Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="device_name" required>
+                                <small class="form-text text-muted">e.g., iPhone 15 Pro, Samsung Galaxy S24</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Brand <span class="text-danger">*</span></label>
+                                <select class="form-control" name="brand" required>
+                                    <option value="">Select Brand</option>
+                                    <option value="iPhone">iPhone</option>
+                                    <option value="Samsung">Samsung</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Screen Pricing</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Original Screen ($)</label>
+                                <input type="number" class="form-control" name="original_screen" step="0.01">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">After Market Screen ($)</label>
+                                <input type="number" class="form-control" name="afm_screen" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Battery Pricing</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Original Battery ($)</label>
+                                <input type="number" class="form-control" name="original_battery" step="0.01">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">After Market Battery ($)</label>
+                                <input type="number" class="form-control" name="afm_battery" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Other Parts</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Charging Port ($)</label>
+                                <input type="number" class="form-control" name="charger_port" step="0.01">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Speaker ($)</label>
+                                <input type="number" class="form-control" name="speaker" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Additional Components</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Camera Lens (each) ($)</label>
+                                <input type="number" class="form-control" name="camera_lens" step="0.01">
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="is_active" id="newDeviceActive" checked>
+                                    <label class="form-check-label" for="newDeviceActive">Active</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Options</h6>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="is_refurbished_only" id="newDeviceRefurb">
+                                    <label class="form-check-label" for="newDeviceRefurb">Refurbished Only</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Notes</label>
+                                <textarea class="form-control" name="notes" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="addNewDevice()">Add Device</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Device Edit Modal -->
+<div class="modal fade" id="editDeviceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Device Pricing</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editDeviceForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Screen Pricing</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Original Screen ($)</label>
+                                <input type="number" class="form-control" name="original_screen" step="0.01">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">After Market Screen ($)</label>
+                                <input type="number" class="form-control" name="afm_screen" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Battery Pricing</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Original Battery ($)</label>
+                                <input type="number" class="form-control" name="original_battery" step="0.01">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">After Market Battery ($)</label>
+                                <input type="number" class="form-control" name="afm_battery" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Other Parts</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Charging Port ($)</label>
+                                <input type="number" class="form-control" name="charger_port" step="0.01">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Original Charging Port ($)</label>
+                                <input type="number" class="form-control" name="charger_port_original" step="0.01">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Speaker ($)</label>
+                                <input type="number" class="form-control" name="speaker" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Additional Components</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Camera Lens (each) ($)</label>
+                                <input type="number" class="form-control" name="camera_lens" step="0.01">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Vibrator ($)</label>
+                                <input type="number" class="form-control" name="vibrator" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Back Glass</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Original Back Glass ($)</label>
+                                <input type="number" class="form-control" name="original_back_glass" step="0.01">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">After Market Back Glass ($)</label>
+                                <input type="number" class="form-control" name="afm_back_glass" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Options</h6>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="is_active" id="deviceActive">
+                                    <label class="form-check-label" for="deviceActive">Active</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="is_refurbished_only" id="deviceRefurb">
+                                    <label class="form-check-label" for="deviceRefurb">Refurbished Only</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Notes</label>
+                                <textarea class="form-control" name="notes" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveDeviceChanges()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Device Pricing JavaScript Functions - Updated June 10, 2025
+let currentDeviceId = null;
+
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize any existing modals
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(function(modal) {
+        // Ensure modal is properly initialized
+        if (modal && !bootstrap.Modal.getInstance(modal)) {
+            new bootstrap.Modal(modal);
+        }
+    });
+});
+
+function editDevice(deviceId) {
+    currentDeviceId = deviceId;
+    
+    // Check if modal exists
+    const modalElement = document.getElementById('editDeviceModal');
+    if (!modalElement) {
+        console.error('Edit device modal not found');
+        alert('Error: Edit modal not found');
+        return;
+    }
+    
+    // Get device data from the card
+    const deviceCard = document.querySelector(`[data-device-id="${deviceId}"]`);
+    if (!deviceCard) {
+        console.error('Device card not found');
+        alert('Error: Device not found');
+        return;
+    }
+    
+    // Extract device information from the card
+    const deviceName = deviceCard.querySelector('.card-header h6')?.textContent || '';
+    const isRefurbOnly = deviceCard.classList.contains('refurb');
+    
+    // Populate edit form (you would fetch actual data from API in real implementation)
+    const form = document.getElementById('editDeviceForm');
+    if (form) {
+        // For now, just populate with placeholder values
+        // In a real implementation, you'd fetch device data from the server
+        form.device_name.value = deviceName;
+        form.is_refurbished_only.checked = isRefurbOnly;
+        
+        // Show modal
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    } else {
+        alert('Edit form not found');
+    }
+}
+
+function addNewDevice() {
+    const form = document.getElementById('addDeviceForm');
+    if (!form) {
+        alert('Add device form not found');
+        return;
+    }
+    
+    // Validate required fields
+    const deviceName = form.device_name.value.trim();
+    const brand = form.brand.value;
+    
+    if (!deviceName) {
+        alert('Please enter a device name');
+        return;
+    }
+    
+    if (!brand) {
+        alert('Please select a brand');
+        return;
+    }
+    
+    const formData = new FormData(form);
+    
+    // Convert to JSON
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+        if (key === 'is_active' || key === 'is_refurbished_only') {
+            data[key] = true; // checkbox checked
+        } else {
+            data[key] = value || null; // empty string becomes null
+        }
+    }
+    
+    // Handle unchecked checkboxes
+    if (!formData.has('is_active')) data.is_active = false;
+    if (!formData.has('is_refurbished_only')) data.is_refurbished_only = false;
+    
+    // Send create request
+    fetch('/admin/device-pricing/device/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(result => {
+        if (result.success) {
+            // Hide modal
+            const modalElement = document.getElementById('addDeviceModal');
+            if (modalElement) {
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+            }
+            
+            // Show success message
+            showAlert('success', result.message || 'Device added successfully');
+            
+            // Reset form
+            form.reset();
+            
+            // Refresh page
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showAlert('danger', result.message || 'Error adding device');
+        }
+    })
+    .catch(error => {
+        console.error('Error adding device:', error);
+        showAlert('danger', 'Error adding device: ' + error.message);
+    });
+}
+
+function saveDeviceChanges() {
+    if (!currentDeviceId) {
+        alert('No device selected for editing');
+        return;
+    }
+    
+    const form = document.getElementById('editDeviceForm');
+    if (!form) {
+        alert('Form not found');
+        return;
+    }
+    
+    const formData = new FormData(form);
+    
+    // Convert to JSON
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+        if (key === 'is_active' || key === 'is_refurbished_only') {
+            data[key] = true; // checkbox checked
+        } else {
+            data[key] = value || null; // empty string becomes null
+        }
+    }
+    
+    // Handle unchecked checkboxes
+    if (!formData.has('is_active')) data.is_active = false;
+    if (!formData.has('is_refurbished_only')) data.is_refurbished_only = false;
+    
+    // Send update request
+    fetch(`/admin/device-pricing/device/${currentDeviceId}/update`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(result => {
+        if (result.success) {
+            // Hide modal
+            const modalElement = document.getElementById('editDeviceModal');
+            if (modalElement) {
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+            }
+            
+            // Show success message
+            showAlert('success', result.message);
+            
+            // Refresh page
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showAlert('danger', result.message || 'Error updating device');
+        }
+    })
+    .catch(error => {
+        console.error('Error updating device:', error);
+        showAlert('danger', 'Error updating device pricing: ' + error.message);
+    });
+}
+
+function searchDevices(brand) {
+    const searchInput = brand === 'iPhone' ? 'iphoneSearch' : 'samsungSearch';
+    const gridId = brand === 'iPhone' ? 'iphoneGrid' : 'samsungGrid';
+    
+    const searchElement = document.getElementById(searchInput);
+    const gridElement = document.getElementById(gridId);
+    
+    if (!searchElement || !gridElement) {
+        console.error('Search elements not found');
+        return;
+    }
+    
+    const query = searchElement.value.toLowerCase();
+    const cards = gridElement.querySelectorAll('.pricing-card');
+    
+    cards.forEach(card => {
+        const deviceNameElement = card.querySelector('.card-header h6');
+        if (deviceNameElement) {
+            const deviceName = deviceNameElement.textContent.toLowerCase();
+            if (deviceName.includes(query)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        }
+    });
+}
+
+function exportPricingData() {
+    try {
+        window.open('/admin/device-pricing/export', '_blank');
+    } catch (error) {
+        console.error('Error exporting data:', error);
+        alert('Error exporting pricing data');
+    }
+}
+
+function editWaterDamageService() {
+    showAlert('info', 'Water damage service configuration coming soon!');
+}
+
+function manageLaptopServices() {
+    showAlert('info', 'Laptop/tablet service management coming soon!');
+}
+
+function showAlert(type, message) {
+    // Remove any existing alerts
+    const existingAlerts = document.querySelectorAll('.custom-alert');
+    existingAlerts.forEach(alert => alert.remove());
+    
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} alert-dismissible fade show position-fixed custom-alert`;
+    alert.style.top = '20px';
+    alert.style.right = '20px';
+    alert.style.zIndex = '9999';
+    alert.style.minWidth = '300px';
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    document.body.appendChild(alert);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.remove();
+        }
+    }, 5000);
+}
+
+function getCsrfToken() {
+    // Try to get CSRF token from meta tag first
+    const metaToken = document.querySelector('meta[name="csrf-token"]');
+    if (metaToken) {
+        return metaToken.getAttribute('content');
+    }
+    
+    // Fallback to cookie or form token
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrf_token') {
+            return decodeURIComponent(value);
+        }
+    }
+    
+    // Last resort - try to find it in a form
+    const csrfInput = document.querySelector('input[name="csrf_token"]');
+    if (csrfInput) {
+        return csrfInput.value;
+    }
+    
+    return '';
+}
+
+// Add event listeners for search functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Add search event listeners
+    const iphoneSearch = document.getElementById('iphoneSearch');
+    const samsungSearch = document.getElementById('samsungSearch');
+    
+    if (iphoneSearch) {
+        iphoneSearch.addEventListener('keyup', function() {
+            searchDevices('iPhone');
+        });
+    }
+    
+    if (samsungSearch) {
+        samsungSearch.addEventListener('keyup', function() {
+            searchDevices('Samsung');
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,202 +1,419 @@
 {% extends "base.html" %}
 
-{% block title %}Payment Successful - Fixbulance{% endblock %}
+{% block title %}Payment Successful - Booking Confirmed - Fixbulance{% endblock %}
+
+{% block styles %}
+<style>
+    .success-container {
+        min-height: 70vh;
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        padding: 3rem 0;
+        color: white;
+    }
+    
+    .success-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+    }
+    
+    .success-header {
+        background: linear-gradient(135deg, #15803d, #16a34a);
+        color: white;
+        padding: 3rem 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .success-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: shimmer 3s ease-in-out infinite;
+    }
+    
+    @keyframes shimmer {
+        0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+    
+    .success-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        animation: bounce 1s ease-in-out;
+    }
+    
+    @keyframes bounce {
+        0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+        40%, 43% { transform: translateY(-30px); }
+        70% { transform: translateY(-15px); }
+    }
+    
+    .success-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .booking-details {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border-left: 5px solid #22c55e;
+    }
+    
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: #374151;
+    }
+    
+    .detail-value {
+        color: #111827;
+        font-weight: 500;
+    }
+    
+    .status-badge {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+    }
+    
+    .action-buttons {
+        padding: 2rem;
+        background: #fff;
+    }
+    
+    .btn-success-custom {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 12px 24px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success-custom:hover {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        color: white;
+    }
+    
+    .next-steps {
+        background: #e0f2fe;
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border-left: 5px solid #0ea5e9;
+    }
+    
+    .step-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+    
+    .step-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .step-number {
+        background: #0ea5e9;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .emergency-notice {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: #92400e;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        font-weight: 600;
+        text-align: center;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <!-- Success Header -->
-            <div class="text-center mb-4">
-                <div class="alert alert-success border-0 shadow-sm">
-                    <div class="mb-3">
-                        <i class="fas fa-check-circle fa-4x text-success"></i>
-                    </div>
-                    <h2 class="text-success mb-2">🎉 Payment Successful!</h2>
-                    <p class="mb-0 lead">Your booking has been confirmed with Fixbulance</p>
-                </div>
-            </div>
-
-            {% if payment and booking %}
-            <!-- Payment Details -->
-            <div class="row mb-4">
-                <div class="col-md-6 mb-3">
-                    <div class="card">
-                        <div class="card-header bg-success text-white">
-                            <h5 class="mb-0">💳 Payment Details</h5>
+<div class="success-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card success-card">
+                    <!-- Success Header -->
+                    <div class="success-header">
+                        <div class="success-icon">
+                            <i class="fas fa-check-circle"></i>
                         </div>
-                        <div class="card-body">
-                            <div class="row mb-2">
-                                <div class="col-6"><strong>Amount Paid:</strong></div>
-                                <div class="col-6 text-end">${{ "%.2f"|format(payment.amount) }}</div>
+                        <h1 class="success-title">Payment Successful!</h1>
+                        <p class="mb-0 opacity-90 fs-5">Your booking has been confirmed and is ready for service</p>
+                    </div>
+                    
+                    <div class="p-4">
+                        <!-- Booking Confirmation -->
+                        <div class="text-center mb-4">
+                            <h3 class="text-success mb-2">
+                                <i class="fas fa-calendar-check me-2"></i>
+                                Booking Confirmed
+                            </h3>
+                            <p class="text-muted">Booking ID: <strong>#{{ booking.id }}</strong></p>
+                        </div>
+
+                        <!-- Booking Details -->
+                        <div class="booking-details">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Service Details
+                            </h5>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-mobile-alt me-2 text-primary"></i>
+                                    Device
+                                </span>
+                                <span class="detail-value">{{ booking.device_model }}</span>
                             </div>
-                            <div class="row mb-2">
-                                <div class="col-6"><strong>Payment Type:</strong></div>
-                                <div class="col-6 text-end">{{ payment.payment_type.title() }}</div>
+                            
+                            {% if booking.service %}
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-tools me-2 text-primary"></i>
+                                    Service
+                                </span>
+                                <span class="detail-value">{{ booking.service.display_name }}</span>
                             </div>
-                            <div class="row mb-2">
-                                <div class="col-6"><strong>Payment Method:</strong></div>
-                                <div class="col-6 text-end">{{ payment.display_card_info }}</div>
+                            {% endif %}
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-calendar me-2 text-primary"></i>
+                                    Date
+                                </span>
+                                <span class="detail-value">{{ booking.scheduled_date.strftime('%B %d, %Y') }}</span>
                             </div>
-                            <div class="row mb-2">
-                                <div class="col-6"><strong>Transaction ID:</strong></div>
-                                <div class="col-6 text-end">
-                                    <small class="text-muted">{{ payment.stripe_payment_intent_id[:12] }}...</small>
-                                </div>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-clock me-2 text-primary"></i>
+                                    Time
+                                </span>
+                                <span class="detail-value">{{ booking.scheduled_time.strftime('%I:%M %p') }}</span>
                             </div>
-                            <div class="row">
-                                <div class="col-6"><strong>Status:</strong></div>
-                                <div class="col-6 text-end">
-                                    <span class="badge bg-{{ payment.status_color }}">
-                                        <i class="fas fa-{{ payment.status_icon }}"></i> {{ payment.status.title() }}
-                                    </span>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                    Location
+                                </span>
+                                <span class="detail-value">{{ booking.service_address[:50] }}{% if booking.service_address|length > 50 %}...{% endif %}</span>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-tag me-2 text-primary"></i>
+                                    Status
+                                </span>
+                                <span class="status-badge">{{ booking.status_display }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Payment Information -->
+                        <div class="booking-details">
+                            <h5 class="text-success mb-3">
+                                <i class="fas fa-credit-card me-2"></i>
+                                Payment Confirmation
+                            </h5>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-dollar-sign me-2 text-success"></i>
+                                    Deposit Paid
+                                </span>
+                                <span class="detail-value text-success fw-bold">$15.00</span>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-calculator me-2 text-warning"></i>
+                                    Balance Due at Service
+                                </span>
+                                <span class="detail-value">${{ "%.2f"|format((booking.total_estimated_cost or 0) - 15.00) }}</span>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <i class="fas fa-shield-alt me-2 text-info"></i>
+                                    Payment Status
+                                </span>
+                                <span class="detail-value text-success fw-bold">✅ Confirmed</span>
+                            </div>
+                        </div>
+
+                        <!-- Emergency Notice -->
+                        <div class="emergency-notice">
+                            <i class="fas fa-ambulance me-2"></i>
+                            <strong>Emergency Service Confirmed!</strong> Our technician will arrive at your scheduled time.
+                        </div>
+
+                        <!-- Next Steps -->
+                        <div class="next-steps">
+                            <h5 class="text-info mb-3">
+                                <i class="fas fa-list-ol me-2"></i>
+                                What Happens Next
+                            </h5>
+                            
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div>
+                                    <strong>Confirmation Email</strong><br>
+                                    <small class="text-muted">You'll receive a detailed confirmation email with all booking information</small>
                                 </div>
                             </div>
                             
-                            {% if payment.receipt_url %}
-                            <hr>
-                            <div class="text-center">
-                                <a href="{{ payment.receipt_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                                    📧 View Receipt
-                                </a>
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div>
+                                    <strong>Technician Assignment</strong><br>
+                                    <small class="text-muted">Our team will assign a certified technician to your service</small>
+                                </div>
                             </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <div class="card">
-                        <div class="card-header bg-info text-white">
-                            <h5 class="mb-0">📱 Booking Details</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row mb-2">
-                                <div class="col-6"><strong>Booking #:</strong></div>
-                                <div class="col-6 text-end">{{ booking.id }}</div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div>
+                                    <strong>Service Day</strong><br>
+                                    <small class="text-muted">Your technician will arrive at the scheduled time with all necessary tools</small>
+                                </div>
                             </div>
-                            <div class="row mb-2">
-                                <div class="col-6"><strong>Device:</strong></div>
-                                <div class="col-6 text-end">{{ booking.device_model or 'Mobile Device' }}</div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col-6"><strong>Service:</strong></div>
-                                <div class="col-6 text-end">{{ booking.service.display_name if booking.service else 'Repair Service' }}</div>
-                            </div>
-                            {% if booking.appointment_datetime %}
-                            <div class="row mb-2">
-                                <div class="col-6"><strong>Scheduled:</strong></div>
-                                <div class="col-6 text-end">{{ booking.appointment_datetime.strftime('%m/%d/%Y %I:%M %p') }}</div>
-                            </div>
-                            {% endif %}
-                            <div class="row">
-                                <div class="col-6"><strong>Status:</strong></div>
-                                <div class="col-6 text-end">
-                                    <span class="badge bg-{{ booking.status_color }}">
-                                        <i class="fas fa-{{ booking.status_icon }}"></i> {{ booking.status.title() }}
-                                    </span>
+                            
+                            <div class="step-item">
+                                <div class="step-number">4</div>
+                                <div>
+                                    <strong>Payment & Completion</strong><br>
+                                    <small class="text-muted">Pay the remaining balance after successful repair completion</small>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Next Steps -->
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">📋 What Happens Next?</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 text-center mb-3">
-                            <div class="border rounded p-3 h-100">
-                                <i class="fas fa-envelope fa-2x text-primary mb-2"></i>
-                                <h6>Confirmation Email</h6>
-                                <p class="mb-0 small text-muted">You'll receive a booking confirmation email with all details within 5 minutes.</p>
+                    
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <a href="{{ url_for('booking.view_booking', booking_id=booking.id) }}" class="btn btn-success-custom w-100">
+                                    <i class="fas fa-eye me-2"></i>
+                                    View Full Booking Details
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-home me-2"></i>
+                                    Return to Home
+                                </a>
                             </div>
                         </div>
-                        <div class="col-md-4 text-center mb-3">
-                            <div class="border rounded p-3 h-100">
-                                <i class="fas fa-phone fa-2x text-success mb-2"></i>
-                                <h6>Contact Before Arrival</h6>
-                                <p class="mb-0 small text-muted">Ahmed will call you 30 minutes before arriving at your location.</p>
+                        
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-6">
+                                <a href="tel:(708) 971-4053" class="btn btn-outline-success w-100">
+                                    <i class="fas fa-phone me-2"></i>
+                                    Call Fixbulance: (708) 971-4053
+                                </a>
                             </div>
-                        </div>
-                        <div class="col-md-4 text-center mb-3">
-                            <div class="border rounded p-3 h-100">
-                                <i class="fas fa-tools fa-2x text-warning mb-2"></i>
-                                <h6>Professional Repair</h6>
-                                <p class="mb-0 small text-muted">Expert repair service at your location. Balance due upon completion.</p>
+                            <div class="col-md-6">
+                                <a href="mailto:support@fixbulance.com?subject=Booking #{{ booking.id }} Support" class="btn btn-outline-info w-100">
+                                    <i class="fas fa-envelope me-2"></i>
+                                    Email Support
+                                </a>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Contact Information -->
-            <div class="card mb-4">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0">📞 Contact Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-4 mb-3">
-                            <h6 class="text-primary">Emergency Support</h6>
-                            <a href="tel:{{ config.BUSINESS_PHONE }}" class="btn btn-primary">
-                                📞 {{ config.BUSINESS_PHONE_DISPLAY }}
-                            </a>
-                            <p class="small text-muted mt-1">Available 24/7 for emergencies</p>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <h6 class="text-info">Email Support</h6>
-                            <a href="mailto:{{ config.MAIL_SUPPORT }}?subject=Booking #{{ booking.id if booking else 'Support' }}" class="btn btn-info">
-                                📧 {{ config.MAIL_SUPPORT }}
-                            </a>
-                            <p class="small text-muted mt-1">For questions or changes</p>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <h6 class="text-success">Billing Questions</h6>
-                            <a href="mailto:{{ config.MAIL_BILLING }}?subject=Payment Question - Booking #{{ booking.id if booking else 'Payment' }}" class="btn btn-success">
-                                💰 {{ config.MAIL_BILLING }}
-                            </a>
-                            <p class="small text-muted mt-1">Payment and receipt questions</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    {% if booking %}
-                    <a href="{{ url_for('booking.view_booking', booking_id=booking.id) }}" class="btn btn-primary w-100">
-                        📱 View Booking Details
-                    </a>
-                    {% endif %}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <a href="{{ url_for('auth.dashboard') if current_user.is_authenticated else url_for('main.index') }}" class="btn btn-outline-secondary w-100">
-                        🏠 Back to {{ 'Dashboard' if current_user.is_authenticated else 'Home' }}
-                    </a>
-                </div>
-            </div>
-
-            <!-- Business Information -->
-            <div class="text-center mt-4">
-                <div class="alert alert-light border">
-                    <h6 class="text-primary mb-2">Thank you for choosing Fixbulance!</h6>
-                    <p class="mb-0">
-                        <small class="text-muted">
-                            Ahmed Khalil • Mobile Phone Repair Expert<br>
-                            Serving Orland Park, IL and surrounding areas<br>
-                            Professional • Reliable • Convenient
-                        </small>
-                    </p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Confetti animation
+    function createConfetti() {
+        const colors = ['#22c55e', '#16a34a', '#fbbf24', '#3b82f6', '#8b5cf6'];
+        
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.style.position = 'fixed';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.animationDelay = Math.random() * 3 + 's';
+            confetti.style.fontSize = Math.random() * 10 + 10 + 'px';
+            confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.zIndex = '9999';
+            confetti.style.pointerEvents = 'none';
+            confetti.innerHTML = '🎉';
+            confetti.style.animation = 'fall 3s linear forwards';
+            
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => {
+                confetti.remove();
+            }, 3000);
+        }
+    }
+    
+    // Add fall animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Trigger confetti
+    setTimeout(createConfetti, 500);
+    
+    console.log('Payment successful for booking #{{ booking.id }}');
+});
+</script>
 {% endblock %} 

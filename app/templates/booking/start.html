@@ -246,6 +246,7 @@
 
 <!-- Device Selection Form (Hidden) -->
 <form id="deviceSelectionForm" method="POST" action="{{ url_for('booking.step2_service') }}" style="display: none;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="device_type" id="selectedDevice">
 </form>
 {% endblock %}

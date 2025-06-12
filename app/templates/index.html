@@ -187,7 +187,7 @@
                     </div>
                     <div class="col-6">
                         <div class="stats-card">
-                            <span class="stats-number">$15</span>
+                            <span class="stats-number">${{ "%.0f"|format(base_deposit) }}</span>
                             <span class="stats-label">Standard Deposit</span>
                         </div>
                     </div>
@@ -322,6 +322,106 @@
                 <div class="process-number">5</div>
                 <h6>Pay & Go</h6>
                 <p class="small text-muted">Simple payment, warranty included</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Business Location -->
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <h2>Find Our Location</h2>
+            <p class="lead text-muted">Visit us in Orland Park, IL or we'll come to you!</p>
+        </div>
+    </div>
+    
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                        Fixbulance Headquarters
+                    </h5>
+                    <div class="mb-3">
+                        <h6 class="mb-2">Address:</h6>
+                        <p class="mb-1">
+                            <i class="fas fa-building me-2 text-muted"></i>
+                            Orland Park, IL 60462
+                        </p>
+                        <p class="mb-1">
+                            <i class="fas fa-phone me-2 text-muted"></i>
+                            <a href="tel:+17089714053" class="text-decoration-none">(708) 971-4053</a>
+                        </p>
+                        <p class="mb-3">
+                            <i class="fas fa-envelope me-2 text-muted"></i>
+                            <a href="mailto:info@fixbulance.com" class="text-decoration-none">info@fixbulance.com</a>
+                        </p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6 class="mb-2">Service Hours:</h6>
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted">Monday - Friday:</small><br>
+                                <strong>8:00 AM - 7:00 PM</strong>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Weekend:</small><br>
+                                <strong>8:00 AM - 7:00 PM</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-van-shuttle me-2"></i>
+                        <strong>Mobile Service Available!</strong><br>
+                        <small>We come to your location within our 10-mile service radius</small>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a href="{{ url_for('booking.start') }}" class="btn btn-primary">
+                            <i class="fas fa-ambulance me-2"></i>Book Mobile Repair
+                        </a>
+                        <a href="{{ url_for('main.service_area') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-map me-2"></i>Service Area
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-body p-0">
+                    <div class="position-relative">
+                        <img src="{{ url_for('static', filename='images/Business Location Map.png') }}" 
+                             alt="Fixbulance Business Location Map - Orland Park, IL" 
+                             class="img-fluid w-100" 
+                             style="border-radius: 0.375rem; min-height: 300px; object-fit: cover;"
+                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/map-placeholder.jpg') }}'; this.alt='Business location map coming soon';">
+                        
+                        <!-- Map overlay with business info -->
+                        <div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-75 text-white p-3" 
+                             style="border-radius: 0 0 0.375rem 0.375rem;">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h6 class="mb-1">
+                                        <i class="fas fa-map-marker-alt me-2"></i>
+                                        Fixbulance Location
+                                    </h6>
+                                    <small class="opacity-75">Orland Park, IL • 10-mile radius</small>
+                                </div>
+                                <div class="text-end">
+                                    <div class="badge bg-success">
+                                        <i class="fas fa-circle me-1"></i>Open Now
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

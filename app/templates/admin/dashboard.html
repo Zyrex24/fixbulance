@@ -450,10 +450,26 @@
                             </div>
                             <div>
                                 <small>
-                                    {% if booking.city %}
-                                    {{ booking.city }}
+                                    {% if booking.service_address %}
+                                    {% set full_address = booking.service_address %}
+                                    {% if booking.service_city and booking.service_state %}
+                                    {% set full_address = full_address + ', ' + booking.service_city + ', ' + booking.service_state %}
+                                    {% if booking.service_zip_code %}
+                                    {% set full_address = full_address + ' ' + booking.service_zip_code %}
+                                    {% endif %}
+                                    {% endif %}
+                                    
+                                    <a href="https://www.google.com/maps/search/?api=1&query={{ full_address | urlencode }}" target="_blank" class="text-primary text-decoration-none">
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ booking.service_city or booking.service_address.split(',')[0] }}
+                                    </a>
+                                    {% elif booking.city %}
+                                    <a href="https://www.google.com/maps/search/?api=1&query={{ booking.city | urlencode }}" target="_blank" class="text-primary text-decoration-none">
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ booking.city }}
+                                    </a>
                                     {% else %}
-                                    Location TBD
+                                    <span class="text-muted">
+                                        <i class="fas fa-map-marker-alt me-1"></i>Location TBD
+                                    </span>
                                     {% endif %}
                                 </small>
                             </div>
@@ -503,6 +519,18 @@
                             <i class="fas fa-chart-bar"></i>
                             Service Reports
                         </a>
+                        <a href="{{ url_for('admin.waivers') }}" class="quick-action-btn">
+                            <i class="fas fa-file-signature"></i>
+                            Service Waivers
+                        </a>
+                        <a href="{{ url_for('admin.services') }}" class="quick-action-btn">
+                            <i class="fas fa-wrench"></i>
+                            Service Management
+                        </a>
+                        <a href="{{ url_for('device_pricing.index') }}" class="quick-action-btn">
+                            <i class="fas fa-mobile-alt"></i>
+                            Device Pricing
+                        </a>
                     </div>
                 </div>
 
@@ -542,28 +570,66 @@
                     <div class="section-content p-3">
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <div class="d-flex align-items-center">
-                                <i class="fas fa-circle text-success me-2"></i>
-                                <strong>Van #1 - Active</strong>
+                                {% if van_status.van_state == 'Active' %}
+                                    <i class="fas fa-circle text-success me-2"></i>
+                                    <strong>Van #1 - {{ van_status.van_state }}</strong>
+                                {% else %}
+                                    <i class="fas fa-circle text-muted me-2"></i>
+                                    <strong>Van #1 - {{ van_status.van_state }}</strong>
+                                {% endif %}
                             </div>
-                            <span class="status-badge status-scheduled">
-                                <i class="fas fa-tools me-1"></i>Ready
+                            <span class="status-badge status-{{ van_status.status_color }}">
+                                {% if van_status.status == 'Ready' %}
+                                    <i class="fas fa-tools me-1"></i>
+                                {% elif van_status.status == 'En Route' %}
+                                    <i class="fas fa-route me-1"></i>
+                                {% elif van_status.status == 'In Service' %}
+                                    <i class="fas fa-wrench me-1"></i>
+                                {% endif %}
+                                {{ van_status.status }}
                             </span>
                         </div>
                         
                         <div class="mb-3">
                             <small class="text-muted d-block">Current Location:</small>
-                            <strong>Orland Park Base</strong>
+                            <a href="https://www.google.com/maps/search/?api=1&query={{ van_status.current_location | urlencode }}" target="_blank" class="text-primary text-decoration-none">
+                                <i class="fas fa-map-marker-alt me-1"></i>
+                                <strong>{{ van_status.current_location }}</strong>
+                            </a>
                         </div>
                         
+                        {% if van_status.next_appointment %}
                         <div class="mb-3">
                             <small class="text-muted d-block">Next Appointment:</small>
-                            <strong>2:00 PM - Sarah Johnson</strong>
-                            <br><small class="text-muted">Tinley Park (4.8 miles)</small>
+                            <strong>{{ van_status.next_appointment.scheduled_time.strftime('%I:%M %p') }} - {{ van_status.next_appointment.first_name }} {{ van_status.next_appointment.last_name }}</strong>
+                            <br><a href="https://www.google.com/maps/search/?api=1&query={{ [van_status.next_appointment.service_address, van_status.next_appointment.service_city, van_status.next_appointment.service_state, van_status.next_appointment.service_zip_code] | select | join(', ') | urlencode }}" target="_blank" class="text-primary text-decoration-none">
+                                <i class="fas fa-map-marker-alt me-1"></i>{{ van_status.next_appointment.service_address.split(',')[0] if van_status.next_appointment.service_address else 'Address not specified' }}
+                            </a>
                         </div>
                         
+                        {% if van_status.estimated_arrival %}
                         <div class="mb-3">
                             <small class="text-muted d-block">Estimated Arrival:</small>
-                            <strong class="text-success">1:45 PM</strong>
+                            <strong class="text-success">{{ van_status.estimated_arrival.strftime('%I:%M %p') }}</strong>
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="mb-3">
+                            <small class="text-muted d-block">Next Appointment:</small>
+                            <strong>No confirmed appointments today</strong>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <small class="text-muted d-block">Today's Progress:</small>
+                            <div class="progress mb-1" style="height: 8px;">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: {% if van_status.total_today > 0 %}{{ (van_status.completed_today / van_status.total_today * 100)|round }}{% else %}0{% endif %}%" 
+                                     aria-valuenow="{{ van_status.completed_today }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="{{ van_status.total_today }}"></div>
+                            </div>
+                            <small class="text-muted">{{ van_status.completed_today }} of {{ van_status.total_today }} appointments completed</small>
                         </div>
                         
                         <a href="{{ url_for('admin.bookings') }}" class="btn btn-primary btn-sm w-100">
@@ -612,13 +678,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
         refreshBtn.disabled = true;
+        refreshBtn.classList.add('clicked');
         
-        // Simulate API call
+        // Simulate refresh (replace with actual AJAX call)
         setTimeout(() => {
             refreshBtn.innerHTML = originalHTML;
             refreshBtn.disabled = false;
+            refreshBtn.classList.remove('clicked');
             
-            // Show success notification
             showNotification('Bookings refreshed successfully', 'success');
         }, 1500);
     };

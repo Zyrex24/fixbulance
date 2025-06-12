@@ -1,0 +1,380 @@
+{% extends "base.html" %}
+
+{% block title %}Service Waiver Agreement - Fixbulance{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h2 class="text-primary">
+                    <i class="fas fa-file-signature me-2"></i>
+                    Service Waiver Agreement
+                </h2>
+                <p class="text-muted">Digital signature required before repair service</p>
+            </div>
+
+            <!-- Booking Information -->
+            {% if booking %}
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Service Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Booking ID:</strong> #{{ booking.id }}</p>
+                            <p><strong>Device:</strong> {{ booking.device_model }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Service Date:</strong> {{ booking.scheduled_date.strftime('%B %d, %Y') }}</p>
+                            <p><strong>Service Time:</strong> {{ booking.scheduled_time.strftime('%I:%M %p') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Waiver Agreement Form -->
+            <form method="POST" id="waiverForm">
+                {{ form.hidden_tag() }}
+                
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Fixbulance LLC – Service Waiver Agreement
+                        </h5>
+                        <small>Effective Date: {{ effective_date }}</small>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Agreement Text -->
+                        <div class="waiver-content mb-4">
+                            <div class="text-center mb-3">
+                                <h5><strong>Limited Liability Disclaimer</strong></h5>
+                                <p><strong>Business Name:</strong> Fixbulance LLC<br>
+                                <strong>Owner:</strong> Ahmed Khalil</p>
+                            </div>
+                            
+                            <h6><strong>Disclaimer of Liability</strong></h6>
+                            <p>By using the services of Fixbulance LLC ("Fixbulance," "we," "our"), the customer ("you") acknowledges and agrees to the following terms:</p>
+                            
+                            <h6 class="text-primary mb-3"><strong>1. Assumption of Risk</strong></h6>
+                            <p class="mb-3">Fixbulance provides mobile device repairs based on the information provided by the customer. You acknowledge that:</p>
+                            <ul class="mb-4">
+                                <li>Electronic devices are sensitive and complex.</li>
+                                <li>Repairs may expose or worsen pre-existing internal issues.</li>
+                                <li>There is a possibility of data loss, power failure, or complete device failure during or after service.</li>
+                                <li>You assume full responsibility for these risks.</li>
+                            </ul>
+                            
+                            <h6 class="text-primary mb-3"><strong>2. Limitation of Responsibility</strong></h6>
+                            <p class="mb-3">Fixbulance shall not be held liable for:</p>
+                            <ul class="mb-4">
+                                <li>Loss of data, contacts, files, or apps</li>
+                                <li>Further damage to devices caused by hidden pre-existing conditions (e.g., liquid damage, prior unauthorized repairs)</li>
+                                <li>Any financial losses, downtime, or inconvenience resulting from a device being out of service</li>
+                                <li>Customer dissatisfaction due to subjective expectations of device performance after repair</li>
+                            </ul>
+                            
+                            <h6 class="text-primary mb-3"><strong>3. After-Service Responsibility</strong></h6>
+                            <p class="mb-3">Once service is completed:</p>
+                            <ul class="mb-4">
+                                <li>Any future device issues, unless covered by warranty, are the customer's responsibility.</li>
+                                <li>You agree to inspect the device before final payment and report any immediate concerns on-site.</li>
+                            </ul>
+                            
+                            <h6 class="text-primary mb-3"><strong>4. Liability Cap</strong></h6>
+                            <p class="mb-4">In any case where liability is established, Fixbulance's maximum liability shall not exceed the amount paid for the repair service in question.</p>
+                            
+                            <h6 class="text-primary mb-3"><strong>5. Acceptance of Terms</strong></h6>
+                            <p class="mb-3">By requesting or accepting service from Fixbulance, you confirm:</p>
+                            <ul class="mb-4">
+                                <li>You have read and understood this disclaimer.</li>
+                                <li>You voluntarily release Fixbulance from all liability not covered under its stated warranty.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Customer Information -->
+                        <div class="customer-info-section">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-user me-2"></i>
+                                Customer Information
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.customer_name.label(class="form-label required") }}
+                                    {{ form.customer_name(class="form-control") }}
+                                    {% if form.customer_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.customer_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Device Model</label>
+                                    <input type="text" class="form-control" value="{{ booking.device_model if booking else form.device_model.data }}" readonly>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Service Date</label>
+                                    <input type="text" class="form-control" value="{{ booking.scheduled_date.strftime('%B %d, %Y') if booking else form.service_date.data }}" readonly>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    {{ form.repair_location.label(class="form-label") }}
+                                    {{ form.repair_location(class="form-control") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Digital Signature Section -->
+                        <div class="signature-section mt-4">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-signature me-2"></i>
+                                Digital Signature
+                            </h5>
+                            
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Digital Signature Instructions:</strong> Type your full legal name exactly as entered above to create your digital signature.
+                            </div>
+                            
+                            <div class="mb-4">
+                                {{ form.digital_signature.label(class="form-label required") }}
+                                {{ form.digital_signature(class="form-control signature-input") }}
+                                {% if form.digital_signature.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.digital_signature.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">This serves as your legal digital signature</div>
+                            </div>
+                        </div>
+
+                        <!-- Agreement Acknowledgments -->
+                        <div class="acknowledgments-section mt-4">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-check-square me-2"></i>
+                                Required Acknowledgments
+                            </h5>
+                            
+                            <div class="form-check mb-3">
+                                {{ form.acknowledged_risk(class="form-check-input") }}
+                                {{ form.acknowledged_risk.label(class="form-check-label") }}
+                                {% if form.acknowledged_risk.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.acknowledged_risk.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                {{ form.acknowledged_data_responsibility(class="form-check-input") }}
+                                {{ form.acknowledged_data_responsibility.label(class="form-check-label") }}
+                                {% if form.acknowledged_data_responsibility.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.acknowledged_data_responsibility.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                {{ form.acknowledged_warranty_limitations(class="form-check-input") }}
+                                {{ form.acknowledged_warranty_limitations.label(class="form-check-label") }}
+                                {% if form.acknowledged_warranty_limitations.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.acknowledged_warranty_limitations.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                {{ form.acknowledged_non_repairable(class="form-check-input") }}
+                                {{ form.acknowledged_non_repairable.label(class="form-check-label") }}
+                                {% if form.acknowledged_non_repairable.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.acknowledged_non_repairable.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                {{ form.acknowledged_third_party_parts(class="form-check-input") }}
+                                {{ form.acknowledged_third_party_parts.label(class="form-check-label") }}
+                                {% if form.acknowledged_third_party_parts.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.acknowledged_third_party_parts.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-check mb-4">
+                                {{ form.authorized_repair(class="form-check-input") }}
+                                {{ form.authorized_repair.label(class="form-check-label") }}
+                                {% if form.authorized_repair.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.authorized_repair.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-success btn-lg" id="submitWaiverBtn" disabled>
+                                <i class="fas fa-file-signature me-2"></i>
+                                Sign Service Waiver Agreement
+                            </button>
+                            <p class="text-muted mt-2">
+                                <small>
+                                    <i class="fas fa-shield-alt me-1"></i>
+                                    This digital signature is legally binding and equivalent to a handwritten signature
+                                </small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.required::after {
+    content: " *";
+    color: red;
+}
+
+.signature-input {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    border: 2px solid #007bff;
+    padding: 10px;
+}
+
+.signature-input:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.waiver-content {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.acknowledgments-section .form-check {
+    background-color: #f8f9fa;
+    padding: 12px;
+    border-radius: 6px;
+    border-left: 3px solid #28a745;
+}
+
+.form-check-input:checked {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('waiverForm');
+    const submitBtn = document.getElementById('submitWaiverBtn');
+    const customerNameInput = document.querySelector('input[name="customer_name"]');
+    const signatureInput = document.querySelector('input[name="digital_signature"]');
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    
+    function validateForm() {
+        const customerName = customerNameInput.value.trim();
+        const signature = signatureInput.value.trim();
+        const allCheckboxesChecked = Array.from(checkboxes).every(cb => cb.checked);
+        
+        // Check if names match (case insensitive, ignoring extra spaces)
+        const namesMatch = customerName.toLowerCase().replace(/\s+/g, ' ') === 
+                          signature.toLowerCase().replace(/\s+/g, ' ');
+        
+        const isValid = customerName.length > 0 && 
+                       signature.length > 0 && 
+                       namesMatch && 
+                       allCheckboxesChecked;
+        
+        submitBtn.disabled = !isValid;
+        
+        // Visual feedback for signature matching
+        if (signature.length > 0) {
+            if (namesMatch) {
+                signatureInput.classList.remove('is-invalid');
+                signatureInput.classList.add('is-valid');
+            } else {
+                signatureInput.classList.remove('is-valid');
+                signatureInput.classList.add('is-invalid');
+            }
+        } else {
+            signatureInput.classList.remove('is-valid', 'is-invalid');
+        }
+    }
+    
+    // Add event listeners
+    customerNameInput.addEventListener('input', validateForm);
+    signatureInput.addEventListener('input', validateForm);
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', validateForm);
+    });
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Final validation
+        validateForm();
+        if (submitBtn.disabled) {
+            alert('Please complete all required fields and acknowledgments before signing.');
+            return;
+        }
+        
+        // Show confirmation dialog
+        const customerName = customerNameInput.value.trim();
+        const deviceModel = document.querySelector('input[readonly]').value;
+        const confirmMessage = `Are you sure you want to digitally sign this Service Waiver Agreement?\n\nCustomer: ${customerName}\nDevice: ${deviceModel}\n\nThis signature is legally binding.`;
+        
+        if (confirm(confirmMessage)) {
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing Signature...';
+            submitBtn.disabled = true;
+            
+            // Submit the form
+            form.submit();
+        }
+    });
+    
+    // Initial validation
+    validateForm();
+});
+</script>
+{% endblock %} 

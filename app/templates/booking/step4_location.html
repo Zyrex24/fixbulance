@@ -167,9 +167,8 @@
     }
     
     .service-area-map {
-        background: var(--light-gray);
         border-radius: 12px;
-        padding: 2rem;
+        padding: 1rem;
         text-align: center;
         margin: 1rem 0;
     }
@@ -240,7 +239,8 @@
                         </div>
                     </div>
                     
-                    <form method="POST" action="{{ url_for('booking.step5_schedule') }}" id="locationForm">
+                    <form method="POST" action="{{ url_for('booking.step4_5_auth') }}" id="locationForm">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="device_type" value="{{ device_type }}">
                         <input type="hidden" name="service_id" value="{{ service.id }}">
                         <input type="hidden" name="device_model" value="{{ device_model }}">
@@ -346,12 +346,6 @@
                                                 Our van can reach you for emergency repair.
                                             </p>
                                         </div>
-                                    </div>
-                                    <div class="mt-3">
-                                        <small class="opacity-90">
-                                            <i class="fas fa-route me-1"></i>
-                                            <strong>Distance from base:</strong> <span id="distanceText">Calculating...</span>
-                                        </small>
                                     </div>
                                 </div>
 
@@ -465,13 +459,31 @@
                             </div>
                             <div class="card-body">
                                 <div class="service-area-map">
-                                    <i class="fas fa-map" style="font-size: 3rem; color: var(--navy); margin-bottom: 1rem;"></i>
-                                    <h6>10-Mile Emergency Service Radius</h6>
-                                    <p class="text-muted mb-3">Centered in Orland Park, Illinois</p>
-                                    <small class="text-muted">
-                                        <strong>Coverage includes:</strong> Orland Park, Tinley Park, Oak Forest, 
-                                        Palos Heights, Homer Glen, and surrounding areas
-                                    </small>
+                                    <div class="position-relative">
+                                        <img src="{{ url_for('static', filename='images/Business Location Map.png') }}" 
+                                             alt="Fixbulance Emergency Service Area Map - 10-Mile Radius from Orland Park, IL" 
+                                             class="img-fluid w-100" 
+                                             style="border-radius: 8px; max-height: 300px; object-fit: cover;"
+                                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/map-placeholder.jpg') }}'; this.alt='Service area map coming soon';">
+                                        
+                                        <!-- Map overlay with service info -->
+                                        <div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-75 text-white p-2" 
+                                             style="border-radius: 0 0 8px 8px;">
+                                            <div class="text-center">
+                                                <h6 class="mb-1">
+                                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                                    10-Mile Emergency Service Radius
+                                                </h6>
+                                                <small class="opacity-75">Centered in Orland Park, Illinois</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 text-center">
+                                        <small class="text-muted">
+                                            <strong>Coverage includes:</strong> Orland Park, Tinley Park, Oak Forest, 
+                                            Palos Heights, Homer Glen, and surrounding areas
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -570,7 +582,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isValidAddress && isInServiceArea) {
             // Valid location within service area
             locationValid.style.display = 'block';
-            document.getElementById('distanceText').textContent = `${distance.toFixed(1)} miles`;
             additionalDetails.style.display = 'block';
             continueBtn.disabled = false;
             locationVerified.value = 'true';

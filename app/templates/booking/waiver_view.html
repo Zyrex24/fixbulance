@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Signed Service Waiver - Fixbulance{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h2 class="text-success">
+                    <i class="fas fa-file-signature me-2"></i>
+                    Signed Service Waiver Agreement
+                </h2>
+                <p class="text-muted">Digitally signed on {{ waiver.signature_date_display }}</p>
+            </div>
+
+            <!-- Status Card -->
+            <div class="alert alert-success" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle fa-2x me-3"></i>
+                    <div>
+                        <h5 class="mb-1">Waiver Successfully Signed</h5>
+                        <p class="mb-0">This service waiver agreement has been digitally signed and is legally binding.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Waiver Details -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Waiver Agreement Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Service Information</h6>
+                            <p><strong>Booking ID:</strong> #{{ booking.id }}</p>
+                            <p><strong>Device Model:</strong> {{ waiver.device_model }}</p>
+                            <p><strong>Service Date:</strong> {{ waiver.service_date.strftime('%B %d, %Y') }}</p>
+                            <p><strong>Repair Location:</strong> {{ waiver.repair_location }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Customer Information</h6>
+                            <p><strong>Customer Name:</strong> {{ waiver.customer_name }}</p>
+                            <p><strong>Digital Signature:</strong> <em>"{{ waiver.digital_signature }}"</em></p>
+                            <p><strong>Signed On:</strong> {{ waiver.signature_date_display }}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="badge bg-{{ waiver.status_color }}">
+                                    <i class="fas fa-{{ waiver.status_icon }} me-1"></i>
+                                    {{ waiver.status.title() }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if waiver.technician_name and waiver.technician_name != 'TBD' %}
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <h6 class="text-primary">Technician Information</h6>
+                            <p><strong>Technician:</strong> {{ waiver.technician_name }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Agreement Acknowledgments -->
+                    <div class="acknowledgments-summary">
+                        <h6 class="text-primary mb-3">Customer Acknowledgments</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        Repair Risks Acknowledged
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        Data Backup Responsibility
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        Warranty Limitations Understood
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        Non-Repairable Device Policy
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        Third-Party Parts Agreement
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        Repair Authorization Granted
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legal Notice -->
+            <div class="card mt-4">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                        <i class="fas fa-balance-scale me-2"></i>
+                        Legal Notice
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">
+                        <strong>Digital Signature Verification:</strong> This waiver was digitally signed using secure methods and is legally equivalent to a handwritten signature.
+                    </p>
+                    <div class="row text-sm">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Waiver Version:</strong> {{ waiver.waiver_version }}</p>
+                            <p class="mb-1"><strong>Effective Date:</strong> {{ waiver.effective_date.strftime('%B %d, %Y') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>IP Address:</strong> {{ waiver.ip_address or 'N/A' }}</p>
+                            <p class="mb-1"><strong>Signature Timestamp:</strong> {{ waiver.signature_timestamp.strftime('%Y-%m-%d %H:%M:%S UTC') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full Agreement Text (Collapsible) -->
+            <div class="card mt-4">
+                <div class="card-header" id="agreementHeader">
+                    <h6 class="mb-0">
+                        <button class="btn btn-link text-decoration-none p-0 collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#agreementText" aria-expanded="false" aria-controls="agreementText">
+                            <i class="fas fa-file-alt me-2"></i>
+                            View Full Agreement Text
+                            <i class="fas fa-chevron-down ms-2"></i>
+                        </button>
+                    </h6>
+                </div>
+                <div id="agreementText" class="collapse" aria-labelledby="agreementHeader">
+                    <div class="card-body">
+                        <div class="agreement-content">
+                            <h6 class="text-primary">Fixbulance LLC – Service Waiver Agreement</h6>
+                            <p><strong>Effective Date:</strong> {{ waiver.effective_date.strftime('%B %d, %Y') }}</p>
+                            
+                            <h6 class="text-primary mt-4">1. Acknowledgment of Risk</h6>
+                            <p>I, the undersigned customer, acknowledge that:</p>
+                            <ul>
+                                <li>My device has been brought to Fixbulance LLC for repair, including but not limited to screen, battery, charging port, or water damage issues.</li>
+                                <li>There is an inherent risk in disassembling or repairing any electronic device, and Fixbulance is not responsible for any pre-existing damage that may worsen during or after the repair process.</li>
+                                <li>Some issues (e.g., motherboard failure, liquid damage, or unknown prior repair attempts) may lead to repair failure or data loss.</li>
+                            </ul>
+
+                            <h6 class="text-primary mt-4">2. Data and Software Responsibility</h6>
+                            <p>I understand and agree that:</p>
+                            <ul>
+                                <li>It is my responsibility to back up any personal data, files, or media before repair.</li>
+                                <li>Fixbulance is not liable for any data loss that occurs during or after the repair process.</li>
+                                <li>Fixbulance does not guarantee software stability after hardware repairs.</li>
+                            </ul>
+
+                            <h6 class="text-primary mt-4">3. Warranty Limitations</h6>
+                            <p>Fixbulance offers a limited 90-day warranty on eligible replacement parts and labor. This warranty does not cover:</p>
+                            <ul>
+                                <li>Physical or water damage after repair</li>
+                                <li>Software-related issues</li>
+                                <li>Damage caused by misuse, third-party repairs, or tampering</li>
+                            </ul>
+
+                            <h6 class="text-primary mt-4">4. Non-Repairable Devices</h6>
+                            <p>If the device cannot be repaired due to internal damage or complexity:</p>
+                            <ul>
+                                <li>Diagnostic and service fees may still apply.</li>
+                                <li>The customer will be informed and offered alternative solutions or a return of the device.</li>
+                            </ul>
+
+                            <h6 class="text-primary mt-4">5. Third-Party Parts</h6>
+                            <p>Unless otherwise specified, replacement parts used may be original or high-quality aftermarket, and are clearly communicated before the repair.</p>
+
+                            <h6 class="text-primary mt-4">6. Customer Authorization</h6>
+                            <p>By signing this agreement:</p>
+                            <ul>
+                                <li>I authorize Fixbulance LLC to perform diagnostics and repairs on my device.</li>
+                                <li>I release Fixbulance from liability for unforeseen damages or complications that may arise as a result of standard repair procedures.</li>
+                                <li>I acknowledge that all the information I've provided is accurate and truthful.</li>
+                            </ul>
+
+                            <div class="signature-block mt-4 p-3 bg-light rounded">
+                                <p><strong>Customer Signature:</strong> {{ waiver.digital_signature }}</p>
+                                <p><strong>Date:</strong> {{ waiver.signature_timestamp.strftime('%B %d, %Y') }}</p>
+                                {% if waiver.technician_name and waiver.technician_name != 'TBD' %}
+                                <p><strong>Technician Name:</strong> {{ waiver.technician_name }}</p>
+                                {% endif %}
+                                <p><strong>Repair Location:</strong> {{ waiver.repair_location }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('booking.view_booking', booking_id=booking.id) }}" class="btn btn-primary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Booking
+                </a>
+                
+                <button onclick="window.print()" class="btn btn-outline-secondary">
+                    <i class="fas fa-print me-2"></i>Print Waiver
+                </button>
+                
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('booking.my_bookings') }}" class="btn btn-outline-primary ms-2">
+                    <i class="fas fa-calendar me-2"></i>My Bookings
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .btn, .card-header button, nav, footer {
+        display: none !important;
+    }
+    
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .container {
+        width: 100% !important;
+        max-width: none !important;
+    }
+}
+
+.agreement-content {
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.signature-block {
+    border-left: 4px solid #007bff;
+}
+</style>
+{% endblock %} 

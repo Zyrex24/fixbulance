@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block title %}Email Verification Required - Fixbulance{% endblock %}
+
+{% block styles %}
+<style>
+    .verification-container {
+        min-height: 70vh;
+        background: linear-gradient(135deg, rgba(227, 232, 216, 0.1) 0%, rgba(30, 58, 95, 0.05) 100%);
+        padding: 3rem 0;
+    }
+    
+    .verification-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+    }
+    
+    .verification-header {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: var(--white);
+        padding: 2rem;
+        text-align: center;
+        border: none;
+    }
+    
+    .verification-header h4 {
+        color: var(--white);
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .email-badge {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: var(--white);
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+    
+    .verification-content {
+        padding: 3rem;
+        text-align: center;
+    }
+    
+    .email-icon {
+        font-size: 4rem;
+        color: #f59e0b;
+        margin-bottom: 2rem;
+    }
+    
+    .email-info {
+        background: rgba(245, 158, 11, 0.1);
+        border-left: 4px solid #f59e0b;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        text-align: left;
+    }
+    
+    .booking-summary {
+        background: var(--light-gray);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+        .verification-container {
+            padding: 1rem 0;
+        }
+        
+        .verification-content {
+            padding: 2rem 1.5rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="verification-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card verification-card">
+                    <div class="card-header verification-header">
+                        <div class="email-badge">
+                            <i class="fas fa-envelope-open me-1"></i>
+                            Email Verification Required
+                        </div>
+                        <h4>Check Your Email</h4>
+                        <p class="mb-0 opacity-90">We've sent a verification link to secure your booking</p>
+                    </div>
+                    
+                    <div class="verification-content">
+                        <i class="fas fa-envelope-open email-icon"></i>
+                        
+                        <h5 class="mb-3">Verification Email Sent!</h5>
+                        <p class="text-muted mb-4">
+                            We've sent a verification email to <strong>{{ user.email }}</strong>. 
+                            Please check your inbox and click the verification link to complete your account setup.
+                        </p>
+                        
+                        <div class="email-info">
+                            <h6 class="mb-2">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Next Steps:</strong>
+                            </h6>
+                            <ol class="mb-0">
+                                <li class="mb-2">Check your email inbox (and spam folder if needed)</li>
+                                <li class="mb-2">Click the verification link in the email we sent</li>
+                                <li class="mb-2">Return here to complete your emergency booking</li>
+                                <li class="mb-0">Your booking information will be saved during verification</li>
+                            </ol>
+                        </div>
+                        
+                        {% if booking_data %}
+                        <!-- Booking Summary -->
+                        <div class="booking-summary">
+                            <h6 class="mb-3">
+                                <i class="fas fa-bookmark me-2"></i>
+                                <strong>Your Booking (Saved)</strong>
+                            </h6>
+                            <div class="row text-start">
+                                <div class="col-md-6">
+                                    <div class="mb-2">
+                                        <i class="fas fa-mobile-alt me-2 text-primary"></i>
+                                        <strong>Device:</strong> {{ booking_data.device_type }}
+                                    </div>
+                                    <div class="mb-2">
+                                        <i class="fas fa-tools me-2 text-primary"></i>
+                                        <strong>Service:</strong> {{ booking_data.service_data.name }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    {% if booking_data.service_city %}
+                                    <div class="mb-2">
+                                        <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                        <strong>Location:</strong> {{ booking_data.service_city }}
+                                    </div>
+                                    {% endif %}
+                                    <div class="mb-2">
+                                        <i class="fas fa-dollar-sign me-2 text-primary"></i>
+                                        <strong>Price:</strong> ${{ "%.2f"|format(booking_data.service_data.base_price) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="action-buttons">
+                            <button type="button" class="btn btn-primary" onclick="checkVerificationStatus()">
+                                <i class="fas fa-check-circle me-2"></i>I've Verified My Email
+                            </button>
+                            
+                            <button type="button" class="btn btn-outline-secondary" onclick="resendVerification()">
+                                <i class="fas fa-paper-plane me-2"></i>Resend Email
+                            </button>
+                            
+                            <a href="{{ url_for('booking.start') }}" class="btn btn-outline-danger">
+                                <i class="fas fa-times me-2"></i>Cancel Booking
+                            </a>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                Didn't receive the email? Check your spam folder or try resending. 
+                                If you continue to have issues, call us at <strong>(708) 971-4053</strong>.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function checkVerificationStatus() {
+    // Show loading state
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Checking...';
+    btn.disabled = true;
+    
+    // Check verification status with server
+    fetch('/auth/check-verification-status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            email: '{{ user.email }}'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.verified) {
+            // Email is verified, redirect to continue booking
+            window.location.href = '{{ url_for("booking.step5_schedule") }}';
+        } else {
+            // Not yet verified
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            alert('Email not yet verified. Please check your email and click the verification link.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        alert('Error checking verification status. Please try again.');
+    });
+}
+
+function resendVerification() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+    btn.disabled = true;
+    
+    // Resend verification email
+    fetch('/auth/resend-verification', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            email: '{{ user.email }}'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        if (data.success) {
+            alert('Verification email sent! Please check your inbox.');
+        } else {
+            alert('Error sending email. Please try again or contact support.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        alert('Error sending email. Please try again.');
+    });
+}
+
+// Auto-check verification status every 30 seconds
+setInterval(function() {
+    fetch('/auth/check-verification-status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            email: '{{ user.email }}'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.verified) {
+            // Auto-redirect when verified
+            window.location.href = '{{ url_for("booking.step5_schedule") }}';
+        }
+    })
+    .catch(error => {
+        console.error('Background verification check error:', error);
+    });
+}, 30000); // Check every 30 seconds
+</script>
+{% endblock %} 

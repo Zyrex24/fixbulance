@@ -5,6 +5,11 @@ Development Server Entry Point
 """
 
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 from app import create_app, db
 from app.models.user import User
 from app.models.service import Service

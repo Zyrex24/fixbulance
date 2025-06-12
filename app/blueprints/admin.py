@@ -7,8 +7,73 @@ from app.models.user import User
 from app.models.service import Service
 from app.models.booking import Booking, BOOKING_STATUSES
 from app.models.service_area import ServiceZipCode
+from app.models.waiver import ServiceWaiver
+from app.models import Payment, SystemSettings
+from app.services.email_service import EmailService
 
 admin_bp = Blueprint('admin', __name__)
+
+def calculate_van_status(today_bookings):
+    """Calculate dynamic van status based on real booking data"""
+    now = datetime.now()
+    current_time = now.time()
+    
+    # Find next confirmed appointment
+    next_appointment = None
+    current_location = "Orland Park Base"  # Default base location
+    
+    # Filter confirmed bookings for today
+    confirmed_bookings = [b for b in today_bookings if b.status in ['confirmed', 'in_progress']]
+    
+    # Sort by scheduled time
+    confirmed_bookings.sort(key=lambda x: x.scheduled_time)
+    
+    # Find the next upcoming booking
+    for booking in confirmed_bookings:
+        if booking.scheduled_time > current_time:
+            next_appointment = booking
+            break
+    
+    # Determine van status
+    if not confirmed_bookings:
+        status = "Ready"
+        status_color = "scheduled"  # Green
+        van_state = "Available"
+    elif any(b.status == 'in_progress' for b in confirmed_bookings):
+        status = "In Service"
+        status_color = "emergency"  # Red 
+        van_state = "Active"
+        # If van is in service, current location is that customer's location
+        in_progress_booking = next(b for b in confirmed_bookings if b.status == 'in_progress')
+        customer_address = in_progress_booking.service_address or "Customer location"
+        current_location = f"{customer_address[:20]}..." if len(customer_address) > 20 else customer_address
+    elif next_appointment:
+        status = "En Route"
+        status_color = "priority"  # Blue
+        van_state = "Active"
+    else:
+        status = "Ready"
+        status_color = "scheduled"  # Green
+        van_state = "Available"
+    
+    # Calculate estimated arrival for next appointment
+    estimated_arrival = None
+    if next_appointment:
+        # Estimate travel time (roughly 15 minutes + 5 minutes per mile from base)
+        # This is a simplified calculation - in real app would use mapping API
+        estimated_arrival = (datetime.combine(date.today(), next_appointment.scheduled_time) - timedelta(minutes=15)).time()
+    
+    return {
+        'status': status,
+        'status_color': status_color,
+        'van_state': van_state,
+        'current_location': current_location,
+        'next_appointment': next_appointment,
+        'estimated_arrival': estimated_arrival,
+        'total_today': len(confirmed_bookings),
+        'completed_today': len([b for b in confirmed_bookings if b.status == 'completed']),
+        'remaining_today': len([b for b in confirmed_bookings if b.status in ['confirmed', 'in_progress']])
+    }
 
 def admin_required(f):
     """Decorator to require admin access"""
@@ -54,6 +119,9 @@ def dashboard():
     # Get emergency bookings (pending or urgent)
     emergency_bookings = Booking.query.filter_by(status='pending').count()
     
+    # Calculate van status based on real booking data
+    van_status = calculate_van_status(today_bookings)
+    
     # Dashboard statistics
     stats = {
         'total_bookings': Booking.query.count(),
@@ -71,6 +139,7 @@ def dashboard():
                          pending_bookings=pending_bookings,
                          recent_bookings=recent_bookings,
                          stats=stats,
+                         van_status=van_status,
                          today=today)
 
 @admin_bp.route('/bookings')
@@ -229,11 +298,15 @@ def services():
     total_revenue = sum(service.base_price for service in services if service.is_active)
     emergency_services_count = sum(1 for service in services if service.is_emergency)
     
+    # Get current base deposit
+    base_deposit = SystemSettings.get_base_deposit()
+    
     return render_template('admin/services.html', 
                          services=services, 
                          categories=categories,
                          total_revenue=total_revenue,
-                         emergency_services_count=emergency_services_count)
+                         emergency_services_count=emergency_services_count,
+                         base_deposit=base_deposit)
 
 @admin_bp.route('/service/new', methods=['GET', 'POST'])
 @login_required
@@ -521,4 +594,218 @@ def quick_action():
     
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': 'Action failed'}), 500 
+        return jsonify({'error': 'Action failed'}), 500
+
+@admin_bp.route('/waivers')
+@login_required
+@admin_required
+def waivers():
+    """Waiver management - view all signed waivers"""
+    page = request.args.get('page', 1, type=int)
+    status_filter = request.args.get('status_filter', 'all')
+    search = request.args.get('search', '')
+    
+    query = ServiceWaiver.query.join(Booking)
+    
+    if status_filter != 'all':
+        query = query.filter(ServiceWaiver.status == status_filter)
+    
+    if search:
+        query = query.filter(
+            db.or_(
+                ServiceWaiver.customer_name.contains(search),
+                ServiceWaiver.device_model.contains(search),
+                Booking.id == search if search.isdigit() else False
+            )
+        )
+    
+    waivers = query.order_by(ServiceWaiver.signature_timestamp.desc()).paginate(
+        page=page, per_page=20, error_out=False
+    )
+    
+    waiver_stats = {
+        'total_waivers': ServiceWaiver.query.count(),
+        'signed_today': ServiceWaiver.query.filter(
+            ServiceWaiver.signature_timestamp >= datetime.combine(date.today(), datetime.min.time())
+        ).count(),
+        'pending_waivers': Booking.query.outerjoin(ServiceWaiver).filter(
+            ServiceWaiver.id.is_(None),
+            Booking.status.in_(['confirmed', 'in_progress'])
+        ).count()
+    }
+    
+    return render_template('admin/waivers.html',
+                         waivers=waivers,
+                         status_filter=status_filter,
+                         search=search,
+                         waiver_stats=waiver_stats)
+
+@admin_bp.route('/waiver/<int:waiver_id>')
+@login_required
+@admin_required
+def waiver_detail(waiver_id):
+    """View detailed waiver information"""
+    waiver = ServiceWaiver.query.get_or_404(waiver_id)
+    
+    return render_template('admin/waiver_detail.html', waiver=waiver)
+
+@admin_bp.route('/waiver/<int:waiver_id>/void', methods=['POST'])
+@login_required
+@admin_required
+def void_waiver(waiver_id):
+    """Void a waiver (admin action)"""
+    waiver = ServiceWaiver.query.get_or_404(waiver_id)
+    
+    if waiver.status == 'voided':
+        if request.is_json:
+            return jsonify({'success': False, 'error': 'Waiver is already voided.'})
+        flash('Waiver is already voided.', 'warning')
+        return redirect(url_for('admin.waiver_detail', waiver_id=waiver_id))
+    
+    try:
+        waiver.status = 'voided'
+        waiver.updated_at = datetime.utcnow()
+        db.session.commit()
+        
+        if request.is_json:
+            return jsonify({'success': True, 'message': f'Waiver #{waiver.id} has been voided successfully.'})
+        
+        flash(f'Waiver #{waiver.id} has been voided successfully.', 'success')
+    
+    except Exception as e:
+        db.session.rollback()
+        if request.is_json:
+            return jsonify({'success': False, 'error': 'Failed to void waiver. Please try again.'})
+        flash('Failed to void waiver. Please try again.', 'danger')
+    
+    return redirect(url_for('admin.waiver_detail', waiver_id=waiver_id))
+
+@admin_bp.route('/customer/<int:customer_id>/waivers')
+@login_required
+@admin_required
+def customer_waivers(customer_id):
+    """View all waivers for a specific customer"""
+    customer = User.query.get_or_404(customer_id)
+    
+    waivers = ServiceWaiver.query.filter_by(user_id=customer_id).order_by(
+        ServiceWaiver.signature_timestamp.desc()
+    ).all()
+    
+    return render_template('admin/customer_waivers.html',
+                         customer=customer,
+                         waivers=waivers)
+
+@admin_bp.route('/services/update-base-deposit', methods=['POST'])
+@login_required
+@admin_required
+def update_base_deposit():
+    """Update the global base deposit amount"""
+    try:
+        amount = float(request.json.get('amount'))
+        
+        # Validate amount
+        if amount < 0 or amount > 100:
+            return jsonify({'success': False, 'error': 'Deposit amount must be between $0 and $100'}), 400
+        
+        # Update system setting
+        SystemSettings.set_base_deposit(amount, current_user.id)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Base deposit updated to ${amount:.2f}',
+            'amount': amount
+        })
+    
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/services/<int:service_id>/edit')
+@login_required
+@admin_required
+def edit_service(service_id):
+    """Edit service form"""
+    service = Service.query.get_or_404(service_id)
+    from app.models.service_category import ServiceCategory
+    categories = ServiceCategory.query.order_by(ServiceCategory.sort_order).all()
+    
+    return render_template('admin/edit_service.html', 
+                         service=service, 
+                         categories=categories)
+
+@admin_bp.route('/services/<int:service_id>/price-history')
+@login_required
+@admin_required
+def service_price_history(service_id):
+    """View service price history"""
+    service = Service.query.get_or_404(service_id)
+    # Placeholder for price history - would need PriceHistory model
+    return render_template('admin/service_price_history.html', service=service)
+
+@admin_bp.route('/services/<int:service_id>/duplicate', methods=['POST'])
+@login_required
+@admin_required
+def duplicate_service(service_id):
+    """Duplicate a service"""
+    try:
+        original_service = Service.query.get_or_404(service_id)
+        
+        # Create new service with copied data
+        new_service = Service(
+            name=f"{original_service.name} (Copy)",
+            device_type=original_service.device_type,
+            issue_type=original_service.issue_type,
+            category_id=original_service.category_id,
+            base_price=original_service.base_price,
+            deposit_amount=original_service.deposit_amount,
+            labor_cost=original_service.labor_cost,
+            parts_cost=original_service.parts_cost,
+            description=original_service.description,
+            estimated_time=original_service.estimated_time,
+            warranty_days=original_service.warranty_days,
+            max_quantity=original_service.max_quantity,
+            allows_multiple=original_service.allows_multiple,
+            is_active=False,  # Start as inactive
+            is_emergency=original_service.is_emergency
+        )
+        
+        db.session.add(new_service)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Service duplicated successfully',
+            'new_service_id': new_service.id
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@admin_bp.route('/services/<int:service_id>/delete', methods=['DELETE'])
+@login_required
+@admin_required
+def delete_service(service_id):
+    """Delete a service"""
+    try:
+        service = Service.query.get_or_404(service_id)
+        
+        # Check if service is used in any bookings
+        if service.bookings:
+            return jsonify({
+                'success': False, 
+                'error': 'Cannot delete service that has existing bookings'
+            }), 400
+        
+        db.session.delete(service)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Service deleted successfully'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+ 

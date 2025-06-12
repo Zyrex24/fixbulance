@@ -273,7 +273,13 @@ certbot renew --dry-run
 # =============================================================================
 print_status "Setting up GUI management tools..."
 
-# Install GUI database tools
+# Install pgAdmin4 repository and tools
+print_status "Adding pgAdmin4 repository..."
+curl -fsS https://www.pgadmin.org/static/packages_pgadmin_org.pub | gpg --dearmor -o /usr/share/keyrings/packages-pgadmin-org.gpg
+echo "deb [signed-by=/usr/share/keyrings/packages-pgadmin-org.gpg] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/jammy pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list
+
+print_status "Updating package list and installing pgAdmin4..."
+apt update
 apt install -y pgadmin4-desktop
 
 # Create desktop shortcut for Fixbulance management

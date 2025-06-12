@@ -89,6 +89,14 @@
             box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
         }
 
+        .btn-primary:active, .btn-primary:focus, .btn-primary.active, .btn-primary.clicked {
+            background-color: #4b5563 !important; /* Darker gray for clicked state */
+            border-color: #4b5563 !important;
+            color: var(--white) !important;
+            box-shadow: 0 0 0 0.25rem rgba(75, 85, 99, 0.25) !important;
+            cursor: wait !important; /* Show waiting cursor */
+        }
+
         .btn-secondary {
             background-color: var(--navy);
             border-color: var(--navy);
@@ -117,6 +125,82 @@
             background-color: var(--navy);
             border-color: var(--navy);
             color: var(--white);
+        }
+
+        .btn-outline-primary:active, .btn-outline-primary:focus, .btn-outline-primary.active, .btn-outline-primary.clicked {
+            background-color: #4b5563 !important; /* Darker gray for clicked state */
+            border-color: #4b5563 !important;
+            color: var(--white) !important;
+            box-shadow: 0 0 0 0.25rem rgba(75, 85, 99, 0.25) !important;
+            cursor: wait !important; /* Show waiting cursor */
+        }
+
+        /* Override Bootstrap's default focus/active states for all buttons */
+        .btn:focus, .btn:active, .btn.active, .btn.clicked {
+            box-shadow: 0 0 0 0.25rem rgba(75, 85, 99, 0.25) !important;
+            cursor: wait !important;
+        }
+        
+        .btn:focus-visible, .btn:focus:not(:focus-visible) {
+            box-shadow: 0 0 0 0.25rem rgba(107, 114, 128, 0.25) !important;
+        }
+        
+        /* Specifically target Bootstrap button focus states */
+        .btn.btn-primary:focus, .btn.btn-primary:active, .btn.btn-primary.active, .btn.btn-primary.clicked,
+        .btn.btn-danger:focus, .btn.btn-danger:active, .btn.btn-danger.active, .btn.btn-danger.clicked,
+        .btn.btn-outline-primary:focus, .btn.btn-outline-primary:active, .btn.btn-outline-primary.active, .btn.btn-outline-primary.clicked {
+            background-color: #4b5563 !important; /* Darker gray for clicked state */
+            border-color: #4b5563 !important;
+            color: var(--white) !important;
+            box-shadow: 0 0 0 0.25rem rgba(75, 85, 99, 0.25) !important;
+            cursor: wait !important; /* Show waiting cursor */
+        }
+
+        /* Custom styling for booking Continue button */
+        #nextButton:disabled {
+            background-color: #6b7280 !important;
+            border-color: #6b7280 !important;
+            color: var(--white) !important;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        #nextButton:enabled {
+            background-color: var(--red) !important;
+            border-color: var(--red) !important;
+            color: var(--white) !important;
+            cursor: pointer;
+        }
+
+        #nextButton:enabled:hover {
+            background-color: #b91c1c !important;
+            border-color: #b91c1c !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-danger {
+            background-color: var(--red);
+            border-color: var(--red);
+            color: var(--white);
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-danger:hover {
+            background-color: #b91c1c;
+            border-color: #b91c1c;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-danger:active, .btn-danger:focus, .btn-danger.active {
+            background-color: #6b7280 !important;
+            border-color: #6b7280 !important;
+            color: var(--white) !important;
+            box-shadow: 0 0 0 0.25rem rgba(107, 114, 128, 0.25) !important;
         }
 
         .alert-success {
@@ -163,20 +247,50 @@
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2821, 42, 66, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
         }
 
+        /* Logo styling */
+        .navbar-brand img {
+            height: 50px; /* Increased from default */
+            width: auto;
+            transition: transform 0.2s ease;
+        }
+        
+        .navbar-brand:hover img {
+            transform: scale(1.05);
+        }
+
         /* Mobile-first responsive utilities */
         @media (max-width: 768px) {
-            .navbar-brand {
-                font-size: 1.25rem;
-            }
-            
             .navbar-brand img {
-                height: 35px;
+                height: 40px; /* Slightly smaller on mobile but still bigger than before */
             }
             
             .container {
                 padding-left: 1rem;
                 padding-right: 1rem;
             }
+        }
+
+        /* Enhanced button click states - applies immediately on click */
+        .btn:active, .btn.active, .btn.clicked,
+        .btn-primary:active, .btn-primary.active, .btn-primary.clicked,
+        .btn-danger:active, .btn-danger.active, .btn-danger.clicked,
+        .btn-outline-primary:active, .btn-outline-primary.active, .btn-outline-primary.clicked {
+            background-color: #4b5563 !important; /* Darker gray for clicked state */
+            border-color: #4b5563 !important;
+            color: var(--white) !important;
+            box-shadow: 0 0 0 0.25rem rgba(75, 85, 99, 0.25) !important;
+            cursor: wait !important; /* Show waiting cursor */
+            transform: scale(0.98) !important; /* Slight scale down for click feedback */
+        }
+
+        /* Disabled buttons should override clicked state */
+        .btn:disabled, .btn.disabled {
+            background-color: #6b7280 !important;
+            border-color: #6b7280 !important;
+            color: var(--white) !important;
+            cursor: not-allowed !important;
+            transform: none !important;
+            opacity: 0.65 !important;
         }
     </style>
     {% block styles %}{% endblock %}
@@ -186,7 +300,6 @@
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('main.index') }}">
                 <img src="{{ url_for('static', filename='img/logofinal.png') }}" alt="Fixbulance Logo">
-                Fixbulance
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -236,21 +349,43 @@
     <footer class="bg-light mt-5 py-4">
         <div class="container">
             <div class="row">
-                <div class="col-md-6">
-                    <h5 class="text-dark">Fixbulance</h5>
+                <div class="col-md-4">
+                    <h5 class="text-dark">Fixbulance™</h5>
                     <p class="text-muted">Mobile phone repair service in Orland Park, Illinois. We come to you!</p>
                     <p class="text-muted mb-1">
                         <i class="fas fa-envelope me-2"></i>
                         <a href="mailto:info@fixbulance.com" class="text-decoration-none">info@fixbulance.com</a>
                     </p>
                 </div>
-                <div class="col-md-6 text-md-end">
+                <div class="col-md-4 text-center">
+                    <h6 class="text-dark mb-3">Follow Us</h6>
+                    <div class="social-media mb-3">
+                        <a href="https://www.instagram.com/fixbulance/" target="_blank" class="text-decoration-none me-3">
+                            <i class="fab fa-instagram me-1" style="font-size: 1.5rem; color: #E4405F;"></i>
+                            <span class="text-muted">@fixbulance</span>
+                        </a>
+                    </div>
+                    <div class="legal-links">
+                        <a href="{{ url_for('main.terms') }}" class="text-muted text-decoration-none me-3">Terms of Service</a>
+                        <a href="{{ url_for('main.privacy') }}" class="text-muted text-decoration-none me-3">Privacy Policy</a>
+                        <a href="{{ url_for('main.refund') }}" class="text-muted text-decoration-none">Refund Policy</a>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
                     <p class="text-muted mb-1">Emergency phone repairs</p>
                     <p class="text-muted">
                         📞 <a href="tel:+17089714053" class="text-decoration-none">(708) 971-4053</a>
                     </p>
                     <p class="text-muted small">
                         Support: <a href="mailto:support@fixbulance.com" class="text-decoration-none">support@fixbulance.com</a>
+                    </p>
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="text-muted small mb-0">
+                        © 2025 Fixbulance™ - All rights reserved. | Fixbulance is a registered trademark.
                     </p>
                 </div>
             </div>

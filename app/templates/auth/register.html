@@ -142,6 +142,7 @@
                         </p>
                         
                         <form method="POST" id="registrationForm">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <div class="row">
                                 <!-- Personal Information -->
                                 <div class="col-md-6">

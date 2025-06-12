@@ -240,15 +240,17 @@
                     </div>
                     
                     <div class="col-md-6">
-                        {% if booking.address %}
+                        {% if booking.service_address %}
                         <div class="info-group">
                             <span class="info-label">Service Location</span>
                             <div class="info-value">
-                                {{ booking.address }}
-                                {% if booking.city and booking.state %}
-                                <br>{{ booking.city }}, {{ booking.state }}
-                                {% if booking.zip_code %}
-                                {{ booking.zip_code }}
+                                <a href="https://www.google.com/maps/search/?api=1&query={{ [booking.service_address, booking.service_city, booking.service_state, booking.service_zip_code] | select | join(', ') | urlencode }}" target="_blank" class="text-decoration-none">
+                                    <i class="fas fa-map-marker-alt me-2 text-primary"></i>{{ booking.service_address }}
+                                </a>
+                                {% if booking.service_city and booking.service_state %}
+                                <br>{{ booking.service_city }}, {{ booking.service_state }}
+                                {% if booking.service_zip_code %}
+                                {{ booking.service_zip_code }}
                                 {% endif %}
                                 {% endif %}
                             </div>
@@ -274,6 +276,7 @@
                 
                 <!-- Add Notes Form -->
                 <form method="POST" action="{{ url_for('admin.add_booking_notes', booking_id=booking.id) }}" class="mt-3">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <div class="mb-3">
                         <label for="notes" class="form-label">
                             {% if booking.technician_notes %}Update Notes{% else %}Add Notes{% endif %}
@@ -417,6 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() }}'
                     },
                     body: JSON.stringify({
                         status: newStatus

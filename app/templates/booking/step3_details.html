@@ -142,6 +142,82 @@
         background: rgba(220, 38, 38, 0.05);
     }
     
+    /* Dynamic Pricing Styles */
+    .pricing-card {
+        background: var(--white);
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .pricing-summary {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 8px;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .price-breakdown {
+        font-size: 0.95rem;
+    }
+    
+    .service-options {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .service-option {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .service-option:hover {
+        border-color: var(--navy);
+        background: rgba(30, 58, 95, 0.05);
+    }
+    
+    .service-option.selected {
+        border-color: var(--navy);
+        background: rgba(30, 58, 95, 0.1);
+    }
+    
+    .parts-option {
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 0.75rem;
+        margin: 0.5rem 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .parts-option:hover {
+        border-color: var(--medium-gray);
+        background: var(--light-gray);
+    }
+    
+    .parts-option.selected {
+        border-color: var(--navy);
+        background: rgba(30, 58, 95, 0.1);
+    }
+    
+    .parts-badge {
+        background: var(--navy);
+        color: var(--white);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .parts-badge.afm {
+        background: #f59e0b;
+    }
+    
     @media (max-width: 768px) {
         .booking-container {
             padding: 1rem 0;
@@ -153,6 +229,10 @@
         
         .step-navigation {
             padding: 1rem 1.5rem;
+        }
+        
+        .pricing-card {
+            padding: 1rem;
         }
     }
 </style>
@@ -217,6 +297,7 @@
                     </div>
                     
                     <form method="POST" action="{{ url_for('booking.step4_location') }}" enctype="multipart/form-data" id="detailsForm">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="device_type" value="{{ device_type }}">
                         <input type="hidden" name="service_id" value="{{ service.id }}">
                         
@@ -342,6 +423,65 @@
                                         </label>
                                         <input type="month" class="form-control" id="purchase_date" name="purchase_date">
                                         <div class="form-text">Helps assess warranty status and part availability</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Dynamic Pricing Section -->
+                            <div id="dynamicPricingSection" style="display: none;" class="mb-4">
+                                <h5 class="section-header">
+                                    <i class="fas fa-calculator me-2"></i>Service Pricing for Your Device
+                                </h5>
+                                
+                                <div class="pricing-card">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <h6 class="mb-3">
+                                                <i class="fas fa-tag me-2"></i>
+                                                Available Service Options
+                                            </h6>
+                                            
+                                            <!-- Service Selection with Parts Options -->
+                                            <div id="serviceOptions" class="service-options">
+                                                <!-- Dynamic content will be loaded here -->
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-4">
+                                            <div class="pricing-summary">
+                                                <h6 class="mb-3">
+                                                    <i class="fas fa-receipt me-2"></i>
+                                                    Price Summary
+                                                </h6>
+                                                
+                                                <div class="price-breakdown">
+                                                    <div class="d-flex justify-content-between mb-2">
+                                                        <span>Service Price:</span>
+                                                        <strong id="servicePrice">$0.00</strong>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between mb-2">
+                                                        <span>Emergency Deposit:</span>
+                                                        <strong class="text-success" id="depositAmount">$15.00</strong>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between mb-2">
+                                                        <span>Tax (estimated):</span>
+                                                        <strong id="taxAmount">$0.00</strong>
+                                                    </div>
+                                                    <hr>
+                                                    <div class="d-flex justify-content-between">
+                                                        <span><strong>Total Estimate:</strong></span>
+                                                        <strong class="text-primary" id="totalPrice">$15.00</strong>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="mt-3">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-info-circle me-1"></i>
+                                                        Final price confirmed after device inspection
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -475,4 +615,293 @@
         </div>
     </div>
 </div>
+{% endblock %} 
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deviceModelSelect = document.getElementById('device_model');
+    const deviceType = '{{ service.device_type if service else "iPhone" }}';
+    const serviceId = '{{ service.id }}';
+    const selectedServiceType = '{{ service.name }}'; // e.g., "Screen Replacement"
+    
+    let currentDevicePricing = null;
+    let selectedServiceOption = null;
+    let taxRate = 0.1025; // Default IL tax rate (10.25%)
+    
+    // Listen for device model changes
+    deviceModelSelect.addEventListener('change', function() {
+        const selectedModel = this.value;
+        if (selectedModel) {
+            loadDevicePricing(deviceType, selectedModel);
+        } else {
+            hidePricingSection();
+        }
+    });
+    
+    // Load device pricing from API
+    async function loadDevicePricing(brand, model) {
+        try {
+            // Ensure we have a valid brand and model
+            if (!brand || !model) {
+                console.error('Missing brand or model for pricing lookup');
+                hidePricingSection();
+                return;
+            }
+            
+            // URL encode the parameters to handle special characters
+            const encodedBrand = encodeURIComponent(brand);
+            const encodedModel = encodeURIComponent(model);
+            const apiUrl = `/booking/api/device-pricing/${encodedBrand}/${encodedModel}`;
+            
+            console.log('Loading pricing from:', apiUrl);
+            
+            const response = await fetch(apiUrl);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success && data.pricing) {
+                currentDevicePricing = data.pricing;
+                displayPricingOptions();
+            } else {
+                console.log('No specific pricing found for this device, using default service pricing');
+                hidePricingSection();
+            }
+        } catch (error) {
+            console.error('Error loading device pricing:', error);
+            hidePricingSection();
+        }
+    }
+    
+    // Display pricing options for the device
+    function displayPricingOptions() {
+        const pricingSection = document.getElementById('dynamicPricingSection');
+        const serviceOptionsContainer = document.getElementById('serviceOptions');
+        
+        if (!currentDevicePricing || !currentDevicePricing.available_services) {
+            hidePricingSection();
+            return;
+        }
+        
+        // Filter services based on selected service type
+        const relevantServices = currentDevicePricing.available_services.filter(service => {
+            if (selectedServiceType.includes('Screen')) {
+                return service.category === 'Screen';
+            } else if (selectedServiceType.includes('Battery')) {
+                return service.category === 'Battery';
+            } else if (selectedServiceType.includes('Diagnostic')) {
+                return service.category === 'Diagnostic';
+            }
+            return true; // Show all for generic services
+        });
+        
+        if (relevantServices.length === 0) {
+            hidePricingSection();
+            return;
+        }
+        
+        // Group services by type (Original vs AFM)
+        const groupedServices = {};
+        relevantServices.forEach(service => {
+            const baseType = service.type.replace('_original', '').replace('_afm', '');
+            if (!groupedServices[baseType]) {
+                groupedServices[baseType] = {
+                    name: service.name.replace(' Original', '').replace(' After Market', ''),
+                    category: service.category,
+                    options: []
+                };
+            }
+            groupedServices[baseType].options.push(service);
+        });
+        
+        // Generate HTML for service options
+        let optionsHTML = '';
+        Object.keys(groupedServices).forEach(serviceType => {
+            const serviceGroup = groupedServices[serviceType];
+            
+            optionsHTML += `
+                <div class="service-option" data-service-type="${serviceType}">
+                    <h6 class="mb-3">${serviceGroup.name}</h6>
+                    <div class="parts-options">
+                        ${serviceGroup.options.map(option => `
+                            <div class="parts-option" 
+                                 data-service-id="${option.type}" 
+                                 data-price="${option.price}"
+                                 onclick="selectServiceOption('${option.type}', ${option.price}, '${option.name}')">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="d-flex align-items-center mb-1">
+                                            <span class="parts-badge ${option.type.includes('afm') ? 'afm' : ''}">
+                                                ${option.type.includes('afm') ? 'AFM' : 'OG'}
+                                            </span>
+                                            <span class="ms-2">${option.name}</span>
+                                        </div>
+                                        ${option.type.includes('afm') ? 
+                                            '<small class="text-muted">After Market - Quality alternative</small>' : 
+                                            '<small class="text-muted">Original - Manufacturer quality</small>'
+                                        }
+                                    </div>
+                                    <div class="text-end">
+                                        <strong class="text-primary">$${option.price.toFixed(2)}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        });
+        
+        serviceOptionsContainer.innerHTML = optionsHTML;
+        pricingSection.style.display = 'block';
+        
+        // Pre-select first available option
+        const firstOption = relevantServices[0];
+        if (firstOption) {
+            selectServiceOption(firstOption.type, firstOption.price, firstOption.name);
+        }
+    }
+    
+    // Select a service option
+    window.selectServiceOption = function(serviceId, price, name) {
+        // Remove previous selections
+        document.querySelectorAll('.parts-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        
+        // Add selection to clicked option
+        document.querySelector(`[data-service-id="${serviceId}"]`).classList.add('selected');
+        
+        selectedServiceOption = {
+            id: serviceId,
+            price: price,
+            name: name
+        };
+        
+        updatePricingSummary();
+        
+        // Show AFM disclaimer if after market selected
+        if (serviceId.includes('afm')) {
+            showAfmDisclaimer();
+        }
+    };
+    
+    // Update pricing summary
+    function updatePricingSummary() {
+        if (!selectedServiceOption) return;
+        
+        const servicePrice = selectedServiceOption.price;
+        const depositAmount = 15.00; // Fixed deposit
+        const taxAmount = servicePrice * taxRate;
+        const totalPrice = servicePrice + depositAmount + taxAmount;
+        
+        // Update display
+        document.getElementById('servicePrice').textContent = `$${servicePrice.toFixed(2)}`;
+        document.getElementById('depositAmount').textContent = `$${depositAmount.toFixed(2)}`;
+        document.getElementById('taxAmount').textContent = `$${taxAmount.toFixed(2)}`;
+        document.getElementById('totalPrice').textContent = `$${totalPrice.toFixed(2)}`;
+    }
+    
+    // Hide pricing section
+    function hidePricingSection() {
+        document.getElementById('dynamicPricingSection').style.display = 'none';
+        selectedServiceOption = null;
+    }
+    
+    // Show AFM disclaimer modal
+    function showAfmDisclaimer() {
+        if (document.getElementById('afmDisclaimerModal')) return; // Already exists
+        
+        const modalHTML = `
+            <div class="modal fade" id="afmDisclaimerModal" tabindex="-1" aria-labelledby="afmDisclaimerModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background: #f59e0b; color: white;">
+                            <h5 class="modal-title" id="afmDisclaimerModalLabel">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                After Market Parts Notice
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <h6 class="fw-bold mb-3">Important Information About After Market (AFM) Parts</h6>
+                                <div class="alert alert-warning">
+                                    <ul class="mb-0">
+                                        <li><strong>No Brand Logo:</strong> AFM parts do not include manufacturer logos or branding</li>
+                                        <li><strong>Different Materials:</strong> May use alternative materials that differ from original specifications</li>
+                                        <li><strong>Quality Variance:</strong> While functional, quality may not match original manufacturer standards</li>
+                                        <li><strong>Warranty Limitations:</strong> Shorter warranty period compared to original parts</li>
+                                    </ul>
+                                </div>
+                                <p class="mb-0">
+                                    <strong>Cost Savings:</strong> AFM parts offer significant cost savings while maintaining basic functionality. 
+                                    Choose original parts if you prioritize exact manufacturer specifications.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">I Understand</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        const modal = new bootstrap.Modal(document.getElementById('afmDisclaimerModal'));
+        modal.show();
+    }
+    
+    // Photo upload handling
+    window.handlePhotoUpload = function(input) {
+        const files = input.files;
+        const previewContainer = document.getElementById('photoPreview');
+        
+        // Clear previous previews
+        previewContainer.innerHTML = '';
+        
+        Array.from(files).forEach((file, index) => {
+            if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                alert(`File ${file.name} is too large. Maximum size is 10MB.`);
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewHTML = `
+                    <div class="photo-preview-item d-inline-block me-2 mb-2">
+                        <img src="${e.target.result}" alt="Preview" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <div class="small text-muted mt-1">${file.name}</div>
+                    </div>
+                `;
+                previewContainer.insertAdjacentHTML('beforeend', previewHTML);
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+    
+    // Form submission - include selected pricing in form data
+    document.getElementById('detailsForm').addEventListener('submit', function(e) {
+        if (selectedServiceOption) {
+            // Add hidden fields for selected pricing
+            const serviceIdField = document.createElement('input');
+            serviceIdField.type = 'hidden';
+            serviceIdField.name = 'selected_service_option';
+            serviceIdField.value = selectedServiceOption.id;
+            this.appendChild(serviceIdField);
+            
+            const servicePriceField = document.createElement('input');
+            servicePriceField.type = 'hidden';
+            servicePriceField.name = 'selected_service_price';
+            servicePriceField.value = selectedServiceOption.price;
+            this.appendChild(servicePriceField);
+        }
+    });
+});
+</script>
 {% endblock %} 

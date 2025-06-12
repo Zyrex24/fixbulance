@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+{% block title %}Warranty Agreement - Fixbulance{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            Limited Warranty Agreement
+                        </h3>
+                        <span class="badge bg-light text-primary fs-6">Step 5.6 of 6</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Effective Date:</strong> June 9, 2025<br>
+                        <strong>Business Name:</strong> Fixbulance LLC<br>
+                        <strong>Owner:</strong> Ahmed Khalil
+                    </div>
+
+                    <form method="POST" action="{{ url_for('booking.step5_6_warranty') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        
+                        <!-- Warranty Coverage Section -->
+                        <div class="card mb-4" style="border-left: 5px solid #007bff;">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0 text-primary">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    1. Warranty Coverage
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Fixbulance LLC offers a limited 90-day warranty on parts and labor for eligible repairs. This warranty begins on the date of service and applies only to the specific repair(s) performed and part(s) installed by Fixbulance.</p>
+                            </div>
+                        </div>
+
+                        <!-- What's Covered Section -->
+                        <div class="card mb-4" style="border-left: 5px solid #28a745;">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0 text-success">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    2. What's Covered
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Replacement parts (e.g., screen, battery, camera) that become defective due to normal use</li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Workmanship or installation issues directly related to the repair performed</li>
+                                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Reperformance of service if a failure is confirmed under warranty terms</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- What's Not Covered Section -->
+                        <div class="card mb-4" style="border-left: 5px solid #dc3545;">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0 text-danger">
+                                    <i class="fas fa-times-circle me-2"></i>
+                                    3. What's Not Covered
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>This limited warranty does not cover:</strong></p>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Physical damage (e.g., cracked screen, dents) after service</li>
+                                    <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Water or liquid damage (including if it occurs after a repair)</li>
+                                    <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Software issues or OS-related malfunctions</li>
+                                    <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Battery health degradation over time</li>
+                                    <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Malfunctions unrelated to the repair we performed</li>
+                                    <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Third-party tampering or repairs after our service</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Customer Responsibilities Section -->
+                        <div class="card mb-4" style="border-left: 5px solid #ffc107;">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0 text-warning">
+                                    <i class="fas fa-user-check me-2"></i>
+                                    4. Customer Responsibilities
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>To maintain warranty coverage, the customer must:</strong></p>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Notify Fixbulance LLC of the issue within the 90-day warranty period</li>
+                                    <li class="mb-2"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Provide original service receipt and allow inspection of the device</li>
+                                    <li class="mb-2"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Avoid opening the device or taking it to another repair shop during the warranty term</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Warranty Claim Process Section -->
+                        <div class="card mb-4" style="border-left: 5px solid #6f42c1;">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0" style="color: #6f42c1;">
+                                    <i class="fas fa-clipboard-list me-2"></i>
+                                    5. Warranty Claim Process
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>To initiate a warranty claim:</strong></p>
+                                <ol>
+                                    <li>Contact <a href="mailto:support@fixbulance.com" class="text-decoration-none">support@fixbulance.com</a> or call <a href="tel:+17089714053" class="text-decoration-none">(708) 971-4053</a></li>
+                                    <li>Describe the issue and provide original service documentation</li>
+                                    <li>We will assess the claim and may offer:
+                                        <ul class="mt-2">
+                                            <li>Free re-repair</li>
+                                            <li>Replacement of the faulty part</li>
+                                            <li>Partial refund (if a resolution is not possible)</li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <!-- Limitation of Liability Section -->
+                        <div class="card mb-4" style="border-left: 5px solid #6c757d;">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0 text-secondary">
+                                    <i class="fas fa-balance-scale me-2"></i>
+                                    6. Limitation of Liability
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p>This warranty is limited to the original repair. Fixbulance LLC is not liable for indirect, incidental, or consequential damages, including device downtime or data loss.</p>
+                                <p class="mb-0"><strong>Our liability shall never exceed the total amount paid for the service under warranty.</strong></p>
+                            </div>
+                        </div>
+
+                        <!-- Agreement Section -->
+                        <div class="card mb-4" style="border-left: 5px solid #17a2b8;">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0 text-info">
+                                    <i class="fas fa-handshake me-2"></i>
+                                    7. Agreement to Terms
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p>By proceeding with this booking and accepting service, the customer agrees to this Limited Warranty Agreement.</p>
+                                
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="warrantyAcceptance" name="warranty_accepted" required>
+                                    <label class="form-check-label fw-bold" for="warrantyAcceptance">
+                                        I acknowledge that I have read, understood, and agree to the Limited Warranty Agreement terms and conditions.
+                                    </label>
+                                </div>
+
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="warrantyResponsibility" name="warranty_responsibility" required>
+                                    <label class="form-check-label fw-bold" for="warrantyResponsibility">
+                                        I understand my responsibilities as outlined in Section 4 to maintain warranty coverage.
+                                    </label>
+                                </div>
+
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="warrantyContact" name="warranty_contact" required>
+                                    <label class="form-check-label fw-bold" for="warrantyContact">
+                                        I understand the warranty claim process and will contact support@fixbulance.com for any warranty-related issues.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Digital Signature -->
+                        <div class="alert alert-warning">
+                            <h6 class="alert-heading">
+                                <i class="fas fa-signature me-2"></i>
+                                Digital Signature
+                            </h6>
+                            <div class="mb-3">
+                                <label for="warranty_signature" class="form-label fw-bold">Full Name (Digital Signature):</label>
+                                <input type="text" class="form-control" id="warranty_signature" name="warranty_signature" 
+                                       placeholder="Type your full name as your digital signature" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="warranty_date" class="form-label fw-bold">Date:</label>
+                                <input type="date" class="form-control" id="warranty_date" name="warranty_date" 
+                                       value="{{ current_date }}" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <a href="{{ url_for('booking.step5_5_waiver') }}" class="btn btn-outline-secondary btn-lg w-100">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Service Waiver
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-primary btn-lg w-100">
+                                    <i class="fas fa-arrow-right me-2"></i>Continue to Payment
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const submitBtn = document.querySelector('button[type="submit"]');
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const signatureInput = document.getElementById('warranty_signature');
+
+    function checkFormValidity() {
+        const allCheckboxesChecked = Array.from(checkboxes).every(cb => cb.checked);
+        const signatureProvided = signatureInput.value.trim().length > 0;
+        
+        submitBtn.disabled = !(allCheckboxesChecked && signatureProvided);
+    }
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', checkFormValidity);
+    });
+
+    signatureInput.addEventListener('input', checkFormValidity);
+
+    // Initial check
+    checkFormValidity();
+});
+</script>
+{% endblock %} 

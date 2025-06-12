@@ -132,6 +132,93 @@
         border-top: 1px solid #e2e8f0;
     }
     
+    /* Emergency Disclaimer Modal Styles */
+    .emergency-modal {
+        background-color: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(4px);
+    }
+    
+    .emergency-modal-content {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 500px;
+    }
+    
+    .emergency-modal-header {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        color: white;
+        border-radius: 16px 16px 0 0;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .emergency-modal-header h5 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+    
+    .emergency-modal-body {
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .contact-info {
+        background: rgba(220, 38, 38, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+    }
+    
+    .contact-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+    
+    .contact-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .contact-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--red);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .phone-number {
+        color: var(--red);
+        font-weight: 700;
+        font-size: 1.3rem;
+        text-decoration: none;
+    }
+    
+    .phone-number:hover {
+        color: #b91c1c;
+        text-decoration: underline;
+    }
+    
+    .email-address {
+        color: var(--navy);
+        font-weight: 600;
+        text-decoration: none;
+    }
+    
+    .email-address:hover {
+        color: #1e3a8a;
+        text-decoration: underline;
+    }
+    
     @media (max-width: 768px) {
         .booking-container {
             padding: 1rem 0;
@@ -143,6 +230,19 @@
         
         .step-navigation {
             padding: 1rem 1.5rem;
+        }
+        
+        .emergency-modal-content {
+            margin: 1rem;
+            max-width: calc(100% - 2rem);
+        }
+        
+        .contact-item {
+            font-size: 1rem;
+        }
+        
+        .phone-number {
+            font-size: 1.2rem;
         }
     }
 </style>
@@ -197,7 +297,7 @@
                             <div class="row">
                                 {% for service in services %}
                                     <div class="col-md-6 col-lg-4 mb-4">
-                                        <div class="card service-card h-100" data-service="{{ service.id }}" onclick="selectService({{ service.id }})">
+                                        <div class="card service-card h-100" data-service="{{ service.id }}" onclick="selectService('{{ service.id }}')">
                                             <div class="card-body">
                                                 <div class="text-center mb-3">
                                                     <div class="service-icon">
@@ -207,6 +307,8 @@
                                                             <i class="fas fa-battery-three-quarters"></i>
                                                         {% elif 'Camera' in service.name %}
                                                             <i class="fas fa-camera"></i>
+                                                        {% elif 'Diagnostic' in service.name %}
+                                                            <i class="fas fa-stethoscope"></i>
                                                         {% elif 'Water' in service.name or 'Liquid' in service.name %}
                                                             <i class="fas fa-tint"></i>
                                                         {% elif 'Charging' in service.name or 'Port' in service.name %}
@@ -223,10 +325,7 @@
                                                 
                                                 <!-- Service Details -->
                                                 <div class="service-details">
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                        <span class="badge bg-{{ service.difficulty_color }}">
-                                                            {{ service.difficulty_level.title() }}
-                                                        </span>
+                                                    <div class="d-flex justify-content-end align-items-center mb-2">
                                                         <small class="text-muted">
                                                             <i class="fas fa-clock me-1"></i>
                                                             {% if service.estimated_time <= 60 %}
@@ -302,10 +401,75 @@
                 </div>
                 
                 <!-- Hidden form for service selection -->
-                <form id="serviceForm" method="POST" action="{{ url_for('booking.step3_details') }}" style="display: none;">
+                <form id="serviceForm" method="POST" action="/booking/step3" style="display: none;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="service_id" id="selectedServiceId">
                     <input type="hidden" name="issue_type" id="selectedIssueType">
                 </form>
+
+                <!-- Emergency Disclaimer Modal -->
+                <div class="modal fade emergency-modal" id="emergencyDisclaimerModal" tabindex="-1" aria-labelledby="emergencyDisclaimerModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content emergency-modal-content">
+                            <div class="modal-header emergency-modal-header">
+                                <h5 class="modal-title" id="emergencyDisclaimerModalLabel">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Emergency Repair - Important Notice
+                                </h5>
+                            </div>
+                            <div class="modal-body emergency-modal-body">
+                                <div class="mb-3">
+                                    <i class="fas fa-phone-alt" style="font-size: 3rem; color: var(--red); margin-bottom: 1rem;"></i>
+                                    <h6 class="fw-bold mb-3">For Same-Day Emergency Repairs</h6>
+                                    <p class="text-muted">
+                                        <strong>Please call us first</strong> to ensure immediate availability and faster scheduling for emergency same-day repairs.
+                                    </p>
+                                </div>
+                                
+                                <div class="contact-info">
+                                    <div class="contact-item">
+                                        <div class="contact-icon">
+                                            <i class="fas fa-phone"></i>
+                                        </div>
+                                        <div class="contact-details">
+                                            <a href="tel:(708)971-4053" class="phone-number">
+                                                (708) 971-4053
+                                            </a>
+                                            <div class="small text-muted">Emergency Hotline</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="contact-item">
+                                        <div class="contact-icon">
+                                            <i class="fas fa-envelope"></i>
+                                        </div>
+                                        <div class="contact-details">
+                                            <a href="mailto:info@fixbulance.com" class="email-address">
+                                                info@fixbulance.com
+                                            </a>
+                                            <div class="small text-muted">Emergency Support</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-warning mt-3">
+                                    <small>
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        You can continue with online booking, but calling first guarantees faster emergency response.
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-center">
+                                <button type="button" class="btn btn-outline-secondary me-2" onclick="callEmergencyNumber()">
+                                    <i class="fas fa-phone me-2"></i>Call Now
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="continueWithBooking()">
+                                    <i class="fas fa-calendar-plus me-2"></i>Continue Booking
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
                 <!-- Emergency Pricing Information -->
                 <div class="row mt-4">
@@ -383,6 +547,7 @@
 {% block scripts %}
 <script>
 let selectedServiceId = null;
+let pendingServiceSelection = false;
 
 function selectService(serviceId) {
     // Remove previous selection
@@ -404,14 +569,67 @@ function selectService(serviceId) {
     const nextButton = document.getElementById('nextButton');
     nextButton.disabled = false;
     nextButton.onclick = function() {
-        document.getElementById('serviceForm').submit();
+        proceedWithService();
     };
+    
+    // Show emergency disclaimer modal for all services (since this is emergency booking)
+    // All services on this page are emergency services
+    showEmergencyDisclaimer();
+}
+
+function showEmergencyDisclaimer() {
+    // Set flag to indicate we have a pending service selection
+    pendingServiceSelection = true;
+    
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById('emergencyDisclaimerModal'));
+    modal.show();
+}
+
+function callEmergencyNumber() {
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('emergencyDisclaimerModal'));
+    modal.hide();
+    
+    // Trigger phone call
+    window.location.href = 'tel:(708)971-4053';
+}
+
+function continueWithBooking() {
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('emergencyDisclaimerModal'));
+    modal.hide();
+    
+    // Continue with the service selection
+    if (pendingServiceSelection && selectedServiceId) {
+        proceedWithService();
+    }
+}
+
+function proceedWithService() {
+    if (selectedServiceId) {
+        document.getElementById('serviceForm').submit();
+    }
 }
 
 // Handle keyboard navigation
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && selectedServiceId) {
-        document.getElementById('serviceForm').submit();
+        proceedWithService();
+    }
+});
+
+// Reset pending selection flag when modal is closed without action
+document.getElementById('emergencyDisclaimerModal').addEventListener('hidden.bs.modal', function (e) {
+    // If modal was closed without clicking continue, reset selection
+    if (pendingServiceSelection) {
+        pendingServiceSelection = false;
+        // Optionally reset the visual selection as well
+        // document.querySelectorAll('.service-card').forEach(card => {
+        //     card.classList.remove('selected');
+        // });
+        // selectedServiceId = null;
+        // document.getElementById('nextButton').disabled = true;
     }
 });
 </script>

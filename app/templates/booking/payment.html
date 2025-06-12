@@ -92,16 +92,35 @@
                                 <h6 class="text-success">💳 Secure Payment Processing</h6>
                                 
                                 <!-- Payment form -->
-                                <form id="payment-form">
+                                <form id="payment-form" action="{{ url_for('booking.process_payment', booking_id=booking.id) }}" method="POST">
                                     <div class="mb-3">
-                                        <label for="card-element" class="form-label">
-                                            Credit or Debit Card
-                                        </label>
-                                        <div id="card-element" class="form-control" style="height: 40px; padding: 10px;">
-                                            <!-- Stripe Elements will create form elements here -->
+                                        <label for="card-number" class="form-label">Card Number</label>
+                                        <input type="text" class="form-control" id="card-number" 
+                                               placeholder="1234 5678 9012 3456" 
+                                               maxlength="19" required>
+                                        <div class="invalid-feedback">Please enter a valid card number.</div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label for="expiry" class="form-label">Expiry Date</label>
+                                            <input type="text" class="form-control" id="expiry" 
+                                                   placeholder="MM/YY" maxlength="5" required>
+                                            <div class="invalid-feedback">Please enter expiry date.</div>
                                         </div>
-                                        <!-- Used to display form errors -->
-                                        <div id="card-errors" class="text-danger mt-2" role="alert"></div>
+                                        <div class="col-6">
+                                            <label for="cvv" class="form-label">CVV</label>
+                                            <input type="text" class="form-control" id="cvv" 
+                                                   placeholder="123" maxlength="4" required>
+                                            <div class="invalid-feedback">Please enter CVV.</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3 mt-3">
+                                        <label for="cardholder-name" class="form-label">Cardholder Name</label>
+                                        <input type="text" class="form-control" id="cardholder-name" 
+                                               placeholder="Full Name on Card" required>
+                                        <div class="invalid-feedback">Please enter cardholder name.</div>
                                     </div>
 
                                     <div class="mb-3">
@@ -114,7 +133,7 @@
                                     </div>
 
                                     <div class="d-grid">
-                                        <button id="submit-payment" class="btn btn-success btn-lg" type="submit">
+                                        <button id="submit-payment" class="btn btn-success btn-lg" type="submit" disabled>
                                             <span id="button-text">💳 Pay $15.00 Deposit</span>
                                             <div id="spinner" class="spinner-border spinner-border-sm ms-2" style="display: none;" role="status">
                                                 <span class="visually-hidden">Loading...</span>
@@ -166,132 +185,237 @@
     </div>
 </div>
 
-<!-- Stripe JavaScript -->
-<script src="https://js.stripe.com/v3/"></script>
+<!-- Payment Form JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Stripe
-    const stripe = Stripe('{{ STRIPE_PUBLISHABLE_KEY }}');
-    const elements = stripe.elements();
-
-    // Custom styling for Stripe Elements
-    const style = {
-        base: {
-            color: '#32325d',
-            fontFamily: '"Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-            fontSmoothing: 'antialiased',
-            fontSize: '16px',
-            '::placeholder': {
-                color: '#aab7c4'
-            }
-        },
-        invalid: {
-            color: '#fa755a',
-            iconColor: '#fa755a'
-        }
-    };
-
-    // Create card element
-    const cardElement = elements.create('card', {
-        style: style,
-        hidePostalCode: false
-    });
-
-    // Mount card element
-    cardElement.mount('#card-element');
-
-    // Handle real-time validation errors from the card Element
-    cardElement.on('change', function(event) {
-        const displayError = document.getElementById('card-errors');
-        if (event.error) {
-            displayError.textContent = event.error.message;
-        } else {
-            displayError.textContent = '';
-        }
-    });
-
-    // Handle form submission
     const form = document.getElementById('payment-form');
-    form.addEventListener('submit', async function(event) {
-        event.preventDefault();
-
-        const submitButton = document.getElementById('submit-payment');
-        const buttonText = document.getElementById('button-text');
-        const spinner = document.getElementById('spinner');
-
-        // Disable button and show loading
-        submitButton.disabled = true;
-        buttonText.style.display = 'none';
-        spinner.style.display = 'inline-block';
-
-        try {
-            // Create payment intent
-            const response = await fetch('/payment/create-payment-intent', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCsrfToken()
-                },
-                body: JSON.stringify({
-                    booking_id: {{ booking.id }},
-                    payment_type: 'deposit'
-                })
-            });
-
-            const paymentData = await response.json();
-
-            if (!response.ok) {
-                throw new Error(paymentData.error || 'Failed to create payment');
-            }
-
-            // Confirm payment with Stripe
-            const {error} = await stripe.confirmCardPayment(paymentData.client_secret, {
-                payment_method: {
-                    card: cardElement,
-                    billing_details: {
-                        name: '{{ current_user.full_name }}',
-                        email: '{{ current_user.email }}',
-                        phone: '{{ current_user.phone or "" }}'
-                    }
-                },
-                setup_future_usage: document.getElementById('save-card').checked ? 'on_session' : null
-            });
-
-            if (error) {
-                // Show error to customer
-                const errorElement = document.getElementById('card-errors');
-                errorElement.textContent = error.message;
-                
-                // Re-enable button
-                submitButton.disabled = false;
-                buttonText.style.display = 'inline';
-                spinner.style.display = 'none';
-            } else {
-                // Payment succeeded - redirect to success page
-                window.location.href = '/payment/payment-success?payment_intent=' + paymentData.payment_intent_id;
-            }
-
-        } catch (error) {
-            console.error('Payment error:', error);
-            
-            const errorElement = document.getElementById('card-errors');
-            errorElement.textContent = error.message || 'An unexpected error occurred.';
-            
-            // Re-enable button
-            submitButton.disabled = false;
-            buttonText.style.display = 'inline';
-            spinner.style.display = 'none';
-        }
-    });
-
+    const submitButton = document.getElementById('submit-payment');
+    const buttonText = document.getElementById('button-text');
+    const spinner = document.getElementById('spinner');
+    
+    // Form elements
+    const cardNumber = document.getElementById('card-number');
+    const expiry = document.getElementById('expiry');
+    const cvv = document.getElementById('cvv');
+    const cardholderName = document.getElementById('cardholder-name');
+    
     // Helper function to get CSRF token
     function getCsrfToken() {
         const csrfToken = document.querySelector('meta[name="csrf-token"]');
         return csrfToken ? csrfToken.getAttribute('content') : '';
     }
+    
+    // Card type detection
+    function getCardType(number) {
+        const patterns = {
+            'visa': /^4[0-9]{6,}$/,
+            'mastercard': /^5[1-5][0-9]{5,}|222[1-9][0-9]{3,}|22[3-9][0-9]{4,}|2[3-6][0-9]{5,}|27[01][0-9]{4,}|2720[0-9]{3,}$/,
+            'amex': /^3[47][0-9]{5,}$/,
+            'discover': /^6(?:011|5[0-9]{2})[0-9]{3,}$/
+        };
+        
+        const cleanNumber = number.replace(/\D/g, '');
+        for (const [type, pattern] of Object.entries(patterns)) {
+            if (pattern.test(cleanNumber)) {
+                return type;
+            }
+        }
+        return null;
+    }
+    
+    // Update card type indicator
+    function updateCardType(cardType) {
+        const badges = document.querySelectorAll('.badge');
+        badges.forEach(badge => {
+            badge.style.opacity = '0.3';
+        });
+        
+        if (cardType) {
+            const activeBadge = document.querySelector(`.fa-cc-${cardType}`);
+            if (activeBadge) {
+                activeBadge.closest('.badge').style.opacity = '1';
+                activeBadge.closest('.badge').style.transform = 'scale(1.1)';
+            }
+        }
+    }
+    
+    // Card number formatting and validation
+    cardNumber.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        
+        // Limit length based on card type
+        const cardType = getCardType(value);
+        const maxLength = cardType === 'amex' ? 15 : 16;
+        value = value.substring(0, maxLength);
+        
+        // Format with spaces
+        value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+        e.target.value = value;
+        
+        // Update card type indicator
+        updateCardType(cardType);
+        
+        validateForm();
+    });
+    
+    // Expiry date formatting
+    expiry.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        
+        // Auto-format MM/YY
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2, 4);
+        }
+        
+        e.target.value = value;
+        validateForm();
+    });
+    
+    // CVV validation
+    cvv.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        const cardType = getCardType(cardNumber.value);
+        const maxLength = cardType === 'amex' ? 4 : 3;
+        
+        e.target.value = value.substring(0, maxLength);
+        validateForm();
+    });
+    
+    // Cardholder name validation
+    cardholderName.addEventListener('input', validateForm);
+    
+    // Form validation
+    function validateForm() {
+        const cardValid = cardNumber.value.replace(/\s/g, '').length >= 13;
+        const expiryValid = expiry.value.length === 5 && isValidExpiry(expiry.value);
+        const cvvValid = cvv.value.length >= 3;
+        const nameValid = cardholderName.value.trim().length >= 2;
+        
+        submitButton.disabled = !(cardValid && expiryValid && cvvValid && nameValid);
+        
+        // Update visual feedback
+        updateFieldValidation(cardNumber, cardValid);
+        updateFieldValidation(expiry, expiryValid);
+        updateFieldValidation(cvv, cvvValid);
+        updateFieldValidation(cardholderName, nameValid);
+    }
+    
+    // Expiry date validation
+    function isValidExpiry(expiry) {
+        if (expiry.length !== 5) return false;
+        
+        const [month, year] = expiry.split('/').map(num => parseInt(num));
+        if (month < 1 || month > 12) return false;
+        
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear() % 100;
+        const currentMonth = currentDate.getMonth() + 1;
+        
+        if (year < currentYear || (year === currentYear && month < currentMonth)) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // Visual field validation feedback
+    function updateFieldValidation(field, isValid) {
+        if (field.value.length > 0) {
+            if (isValid) {
+                field.classList.remove('is-invalid');
+                field.classList.add('is-valid');
+            } else {
+                field.classList.remove('is-valid');
+                field.classList.add('is-invalid');
+            }
+        } else {
+            field.classList.remove('is-valid', 'is-invalid');
+        }
+    }
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Prevent double submission
+        if (submitButton.disabled) return;
+        
+        // Show loading state
+        submitButton.disabled = true;
+        buttonText.textContent = 'Processing Payment...';
+        spinner.style.display = 'inline-block';
+        
+        // Prepare payment data
+        const paymentData = {
+            booking_id: {{ booking.id }},
+            card_number: cardNumber.value.replace(/\s/g, ''),
+            expiry: expiry.value,
+            cvv: cvv.value,
+            cardholder_name: cardholderName.value.trim(),
+            save_card: document.getElementById('save-card').checked
+        };
+        
+        // Submit payment
+        fetch('{{ url_for("booking.process_payment", booking_id=booking.id) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify(paymentData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Payment successful - redirect to success page
+                window.location.href = data.redirect_url;
+            } else {
+                throw new Error(data.error || 'Payment failed');
+            }
+        })
+        .catch(error => {
+            console.error('Payment error:', error);
+            
+            // Show error message
+            showPaymentError(error.message || 'Payment processing failed. Please try again.');
+            
+            // Reset button state
+            resetPaymentButton();
+        });
+    });
+    
+    // Show payment error
+    function showPaymentError(message) {
+        // Create or update error message
+        let errorDiv = document.getElementById('payment-error');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.id = 'payment-error';
+            errorDiv.className = 'alert alert-danger mt-3';
+            form.appendChild(errorDiv);
+        }
+        errorDiv.innerHTML = `<strong>Payment Error:</strong> ${message}`;
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    // Reset payment button to original state
+    function resetPaymentButton() {
+        submitButton.disabled = false;
+        buttonText.textContent = '💳 Pay $15.00 Deposit';
+        spinner.style.display = 'none';
+        validateForm(); // Re-check form validity
+    }
+    
+    // Initial validation
+    validateForm();
 });
 </script>
 
 <!-- Add CSRF token meta tag -->
-<meta name="csrf-token" content="">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 {% endblock %} 

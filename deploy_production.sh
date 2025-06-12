@@ -98,39 +98,23 @@ sudo apt install -y nginx
 # Remove default Nginx site
 sudo rm -f /etc/nginx/sites-enabled/default
 
-# Create Nginx configuration for Fixbulance
+# Create temporary HTTP-only Nginx configuration (SSL will be added by Certbot)
 sudo tee /etc/nginx/sites-available/fixbulance << EOF
 server {
     listen 80;
     server_name ${DOMAIN} www.${DOMAIN};
-    
-    # Redirect HTTP to HTTPS
-    return 301 https://\$server_name\$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name ${DOMAIN} www.${DOMAIN};
-    
-    # SSL Configuration (certificates will be added by Certbot)
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
-    ssl_prefer_server_ciphers off;
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 10m;
     
     # Security headers
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header Referrer-Policy "no-referrer-when-downgrade" always;
-    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
     
     # Gzip compression
     gzip on;
     gzip_vary on;
     gzip_min_length 1024;
-    gzip_proxied expired no-cache no-store private must-revalidate auth;
+    gzip_proxied expired no-cache no-store private auth;
     gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss;
     
     # Main application
@@ -249,16 +233,16 @@ cd ${APP_DIR}
 source venv/bin/activate
 
 # Run database migrations in correct order
-log "Running database migrations..."
+echo "Running database migrations..."
 python create_system_settings_table.py
 python create_waiver_table.py
 python device_pricing_migration.py
-python multi_service_migration.py
+echo "y" | python multi_service_migration.py
 python stripe_migration.py
 python tax_implementation_migration.py
 
 # Create initial admin user
-log "Creating initial admin user..."
+echo "Creating initial admin user..."
 python production_init.py
 EOF
 

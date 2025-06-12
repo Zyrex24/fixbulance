@@ -125,6 +125,43 @@
         border-color: #dee2e6;
         color: #6c757d;
         cursor: not-allowed;
+        opacity: 0.6;
+    }
+    
+    .time-slot-card.booked {
+        background: #ffe6e6;
+        border-color: #ffcccb;
+        color: #dc3545;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    
+    .time-slot-card.admin-closed {
+        background: #fff3cd;
+        border-color: #ffeaa7;
+        color: #856404;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    
+    .slot-status-indicator {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        font-size: 0.75rem;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+    
+    .status-booked {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .status-closed {
+        background: #ffc107;
+        color: #856404;
     }
     
     .emergency-slot {
@@ -260,6 +297,7 @@
                     </div>
                     
                     <form method="POST" action="{{ url_for('booking.step6_review') }}" id="scheduleForm">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="device_type" value="{{ device_type }}">
                         <input type="hidden" name="service_id" value="{{ service.id }}">
                         <input type="hidden" name="location_data" value="{{ location_data }}">
@@ -317,115 +355,54 @@
                             </h5>
                             
                             <div id="timeSlots" style="display: none;">
-                                <!-- Emergency Slots (Today) -->
-                                <div id="emergencySlots" style="display: none;">
-                                    <h6 class="mb-3 text-danger">
-                                        <i class="fas fa-ambulance me-2"></i>Emergency Same-Day Slots
-                                    </h6>
-                                    <div class="row">
-                                        <div class="col-lg-3 col-md-4 col-6">
-                                            <div class="time-slot-card emergency-slot" data-time="ASAP" data-slot-type="emergency">
-                                                <div class="time-badge">EMERGENCY</div>
-                                                <h6>ASAP</h6>
-                                                <small>Within 2-4 hours</small>
-                                            </div>
+                                <!-- Loading Indicator -->
+                                <div id="slotsLoading" class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading available slots...</span>
+                                    </div>
+                                    <p class="mt-2 text-muted">Loading available time slots...</p>
+                                </div>
+                                
+                                <!-- Time Slots Container -->
+                                <div id="slotsContainer" style="display: none;">
+                                    <!-- Emergency Slots (Today) -->
+                                    <div id="emergencySlots" style="display: none;">
+                                        <h6 class="mb-3 text-danger">
+                                            <i class="fas fa-ambulance me-2"></i>Emergency Same-Day Slots
+                                        </h6>
+                                        <div class="row" id="emergencySlotsGrid">
+                                            <!-- Emergency slots will be populated dynamically -->
                                         </div>
-                                        <div class="col-lg-3 col-md-4 col-6">
-                                            <div class="time-slot-card emergency-slot" data-time="14:00" data-slot-type="emergency">
-                                                <div class="time-badge">EMERGENCY</div>
-                                                <h6>2:00 PM</h6>
-                                                <small>This afternoon</small>
-                                            </div>
+                                    </div>
+
+                                    <!-- Priority Slots (Tomorrow) -->
+                                    <div id="prioritySlots" style="display: none;">
+                                        <h6 class="mb-3 text-primary">
+                                            <i class="fas fa-star me-2"></i>Priority Next-Day Slots
+                                        </h6>
+                                        <div class="row" id="prioritySlotsGrid">
+                                            <!-- Priority slots will be populated dynamically -->
                                         </div>
-                                        <div class="col-lg-3 col-md-4 col-6">
-                                            <div class="time-slot-card emergency-slot" data-time="16:00" data-slot-type="emergency">
-                                                <div class="time-badge">EMERGENCY</div>
-                                                <h6>4:00 PM</h6>
-                                                <small>Late afternoon</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 col-md-4 col-6">
-                                            <div class="time-slot-card emergency-slot" data-time="18:00" data-slot-type="emergency">
-                                                <div class="time-badge">EMERGENCY</div>
-                                                <h6>6:00 PM</h6>
-                                                <small>Evening</small>
-                                            </div>
+                                    </div>
+
+                                    <!-- Standard Slots (Day After) -->
+                                    <div id="standardSlots" style="display: none;">
+                                        <h6 class="mb-3 text-secondary">
+                                            <i class="fas fa-calendar me-2"></i>Standard Appointment Slots
+                                        </h6>
+                                        <div class="row" id="standardSlotsGrid">
+                                            <!-- Standard slots will be populated dynamically -->
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Priority Slots (Tomorrow) -->
-                                <div id="prioritySlots" style="display: none;">
-                                    <h6 class="mb-3 text-primary">
-                                        <i class="fas fa-star me-2"></i>Priority Next-Day Slots
-                                    </h6>
-                                    <div class="row">
-                                        <div class="col-lg-3 col-md-4 col-6">
-                                            <div class="time-slot-card" data-time="09:00" data-slot-type="priority">
-                                                <div class="time-badge">PRIORITY</div>
-                                                <h6>9:00 AM</h6>
-                                                <small>Early morning</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 col-md-4 col-6">
-                                            <div class="time-slot-card" data-time="11:00" data-slot-type="priority">
-                                                <div class="time-badge">PRIORITY</div>
-                                                <h6>11:00 AM</h6>
-                                                <small>Late morning</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 col-md-4 col-6">
-                                            <div class="time-slot-card" data-time="14:00" data-slot-type="priority">
-                                                <div class="time-badge">PRIORITY</div>
-                                                <h6>2:00 PM</h6>
-                                                <small>Afternoon</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 col-md-4 col-6">
-                                            <div class="time-slot-card" data-time="16:00" data-slot-type="priority">
-                                                <div class="time-badge">PRIORITY</div>
-                                                <h6>4:00 PM</h6>
-                                                <small>Late afternoon</small>
-                                            </div>
-                                        </div>
+                                
+                                <!-- No Slots Available Message -->
+                                <div id="noSlotsMessage" style="display: none;" class="text-center py-4">
+                                    <div class="mb-3">
+                                        <i class="fas fa-clock" style="font-size: 3rem; color: #6c757d;"></i>
                                     </div>
-                                </div>
-
-                                <!-- Standard Slots (Day After) -->
-                                <div id="standardSlots" style="display: none;">
-                                    <h6 class="mb-3 text-secondary">
-                                        <i class="fas fa-calendar me-2"></i>Standard Appointment Slots
-                                    </h6>
-                                    <div class="row">
-                                        <div class="col-lg-3 col-md-4 col-6">
-                                            <div class="time-slot-card" data-time="10:00" data-slot-type="standard">
-                                                <div class="time-badge" style="background: var(--medium-gray);">STANDARD</div>
-                                                <h6>10:00 AM</h6>
-                                                <small>Morning</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 col-md-4 col-6">
-                                            <div class="time-slot-card" data-time="13:00" data-slot-type="standard">
-                                                <div class="time-badge" style="background: var(--medium-gray);">STANDARD</div>
-                                                <h6>1:00 PM</h6>
-                                                <small>Lunch time</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 col-md-4 col-6">
-                                            <div class="time-slot-card" data-time="15:00" data-slot-type="standard">
-                                                <div class="time-badge" style="background: var(--medium-gray);">STANDARD</div>
-                                                <h6>3:00 PM</h6>
-                                                <small>Afternoon</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 col-md-4 col-6">
-                                            <div class="time-slot-card" data-time="17:00" data-slot-type="standard">
-                                                <div class="time-badge" style="background: var(--medium-gray);">STANDARD</div>
-                                                <h6>5:00 PM</h6>
-                                                <small>Evening</small>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <h6 class="text-muted">No Available Slots</h6>
+                                    <p class="text-muted">All time slots for the selected date are currently booked. Please choose a different date.</p>
                                 </div>
                             </div>
 
@@ -488,10 +465,7 @@
                             </div>
                             <div class="card-body">
                                 <ul class="list-unstyled mb-0">
-                                    <li class="mb-2">
-                                        <i class="fas fa-ambulance text-danger me-2"></i>
-                                        <strong>ASAP Emergency:</strong> 2-4 hours response time
-                                    </li>
+
                                     <li class="mb-2">
                                         <i class="fas fa-star text-primary me-2"></i>
                                         <strong>Priority Next-Day:</strong> Scheduled appointment slots
@@ -543,6 +517,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     const dateOptions = document.querySelectorAll('.date-option');
     const timeSlots = document.getElementById('timeSlots');
+    const slotsLoading = document.getElementById('slotsLoading');
+    const slotsContainer = document.getElementById('slotsContainer');
+    const noSlotsMessage = document.getElementById('noSlotsMessage');
     const emergencySlots = document.getElementById('emergencySlots');
     const prioritySlots = document.getElementById('prioritySlots');
     const standardSlots = document.getElementById('standardSlots');
@@ -552,6 +529,24 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedDate = null;
     let selectedTime = null;
     let selectedType = null;
+    let bookedSlots = {}; // Will be populated from API
+    let adminClosedSlots = {}; // Will be populated from API
+    
+    // Time slots configuration - 8AM to 7PM (every hour)
+    const timeSlotConfig = [
+        { time: '08:00', display: '8:00 AM', period: 'Morning' },
+        { time: '09:00', display: '9:00 AM', period: 'Morning' },
+        { time: '10:00', display: '10:00 AM', period: 'Morning' },
+        { time: '11:00', display: '11:00 AM', period: 'Late Morning' },
+        { time: '12:00', display: '12:00 PM', period: 'Lunch' },
+        { time: '13:00', display: '1:00 PM', period: 'Lunch' },
+        { time: '14:00', display: '2:00 PM', period: 'Afternoon' },
+        { time: '15:00', display: '3:00 PM', period: 'Afternoon' },
+        { time: '16:00', display: '4:00 PM', period: 'Late Afternoon' },
+        { time: '17:00', display: '5:00 PM', period: 'Evening' },
+        { time: '18:00', display: '6:00 PM', period: 'Evening' },
+        { time: '19:00', display: '7:00 PM', period: 'Evening' }
+    ];
     
     // Date selection handling
     dateOptions.forEach(option => {
@@ -566,57 +561,172 @@ document.addEventListener('DOMContentLoaded', function() {
             selectedDate = this.dataset.date;
             const appointmentType = this.dataset.type;
             
-            // Show appropriate time slots
-            timeSlots.style.display = 'block';
-            emergencySlots.style.display = 'none';
-            prioritySlots.style.display = 'none';
-            standardSlots.style.display = 'none';
-            
-            if (appointmentType === 'emergency') {
-                emergencySlots.style.display = 'block';
-            } else if (appointmentType === 'priority') {
-                prioritySlots.style.display = 'block';
-            } else {
-                standardSlots.style.display = 'block';
-            }
+            // Load available slots for this date
+            loadAvailableSlots(selectedDate, appointmentType);
             
             // Clear previous time selection
-            document.querySelectorAll('.time-slot-card').forEach(slot => {
-                slot.classList.remove('selected');
-            });
             selectedTime = null;
             updateContinueButton();
             appointmentSummary.style.display = 'none';
         });
     });
     
-    // Time slot selection handling
-    document.addEventListener('click', function(e) {
-        if (e.target.closest('.time-slot-card') && !e.target.closest('.time-slot-card').classList.contains('unavailable')) {
-            const timeSlot = e.target.closest('.time-slot-card');
+    // Load available slots from API
+    async function loadAvailableSlots(date, type) {
+        timeSlots.style.display = 'block';
+        slotsLoading.style.display = 'block';
+        slotsContainer.style.display = 'none';
+        noSlotsMessage.style.display = 'none';
+        
+        try {
+            // Fetch booked slots and admin settings for this date
+            const response = await fetch(`/booking/api/available-slots?date=${date}&type=${type}`);
+            const data = await response.json();
             
-            // Remove selection from all time slots
-            document.querySelectorAll('.time-slot-card').forEach(slot => {
-                slot.classList.remove('selected');
-            });
+            bookedSlots[date] = data.booked_slots || [];
+            adminClosedSlots[date] = data.admin_closed_slots || [];
             
-            // Add selection to clicked slot
-            timeSlot.classList.add('selected');
+            // Generate time slots for this date and type
+            generateTimeSlots(date, type);
             
-            // Get selected time info
-            selectedTime = timeSlot.dataset.time;
-            selectedType = timeSlot.dataset.slotType;
-            
-            // Update form fields
-            document.getElementById('selectedDate').value = selectedDate;
-            document.getElementById('selectedTime').value = selectedTime;
-            document.getElementById('appointmentType').value = selectedType;
-            
-            // Show appointment summary
-            updateAppointmentSummary();
-            updateContinueButton();
+        } catch (error) {
+            console.error('Error loading available slots:', error);
+            // Generate slots anyway with default availability
+            generateTimeSlots(date, type);
         }
-    });
+    }
+    
+    function generateTimeSlots(date, type) {
+        // Hide loading, show container
+        slotsLoading.style.display = 'none';
+        slotsContainer.style.display = 'block';
+        
+        // Hide all slot sections first
+        emergencySlots.style.display = 'none';
+        prioritySlots.style.display = 'none';
+        standardSlots.style.display = 'none';
+        
+        let targetContainer, targetSection, badgeClass, badgeText, sectionTitle, sectionIcon;
+        
+        // Determine which section to show and configure
+        if (type === 'emergency') {
+            targetContainer = document.getElementById('emergencySlotsGrid');
+            targetSection = emergencySlots;
+            badgeClass = 'emergency-slot';
+            badgeText = 'EMERGENCY';
+            sectionTitle = 'Emergency Same-Day Slots';
+            sectionIcon = 'fas fa-ambulance';
+        } else if (type === 'priority') {
+            targetContainer = document.getElementById('prioritySlotsGrid');
+            targetSection = prioritySlots;
+            badgeClass = '';
+            badgeText = 'PRIORITY';
+            sectionTitle = 'Priority Next-Day Slots';
+            sectionIcon = 'fas fa-star';
+        } else {
+            targetContainer = document.getElementById('standardSlotsGrid');
+            targetSection = standardSlots;
+            badgeClass = '';
+            badgeText = 'STANDARD';
+            sectionTitle = 'Standard Appointment Slots';
+            sectionIcon = 'fas fa-calendar';
+        }
+        
+        // Clear existing slots
+        targetContainer.innerHTML = '';
+        
+        let availableSlotCount = 0;
+        const currentTime = new Date();
+        const selectedDateTime = new Date(date);
+        const isToday = selectedDateTime.toDateString() === currentTime.toDateString();
+        
+        // Filter slots based on type and time
+        let slotsToShow = timeSlotConfig;
+        if (type === 'emergency' && isToday) {
+            // For emergency today, only show slots after current time + 2 hours
+            const minTime = currentTime.getHours() + 2;
+            slotsToShow = timeSlotConfig.filter(slot => {
+                const slotHour = parseInt(slot.time.split(':')[0]);
+                return slotHour >= minTime;
+            });
+        }
+        
+        // Generate slot HTML
+        slotsToShow.forEach(slot => {
+            const slotKey = `${date}_${slot.time}`;
+            const isBooked = bookedSlots[date] && bookedSlots[date].includes(slot.time);
+            const isAdminClosed = adminClosedSlots[date] && adminClosedSlots[date].includes(slot.time);
+            const isUnavailable = isBooked || isAdminClosed;
+            
+            if (!isUnavailable) {
+                availableSlotCount++;
+            }
+            
+            let slotClasses = `time-slot-card ${badgeClass}`;
+            let statusIndicator = '';
+            let clickable = true;
+            
+            if (isBooked) {
+                slotClasses += ' booked';
+                statusIndicator = '<div class="slot-status-indicator status-booked">BOOKED</div>';
+                clickable = false;
+            } else if (isAdminClosed) {
+                slotClasses += ' admin-closed';
+                statusIndicator = '<div class="slot-status-indicator status-closed">CLOSED</div>';
+                clickable = false;
+            }
+            
+            const slotHTML = `
+                <div class="col-lg-3 col-md-4 col-6">
+                    <div class="${slotClasses}" 
+                         data-time="${slot.time}" 
+                         data-slot-type="${type}"
+                         ${clickable ? `style="cursor: pointer;"` : `style="cursor: not-allowed;"`}
+                         onclick="${clickable ? `selectTimeSlot(this)` : `void(0)`}">
+                        ${statusIndicator}
+                        <div class="time-badge" ${type === 'standard' ? 'style="background: var(--medium-gray);"' : ''}>${badgeText}</div>
+                        <h6>${slot.display}</h6>
+                        <small>${slot.period}</small>
+                        ${isBooked ? '<small class="text-danger d-block">Already Booked</small>' : ''}
+                        ${isAdminClosed ? '<small class="text-warning d-block">Not Available</small>' : ''}
+                    </div>
+                </div>
+            `;
+            
+            targetContainer.innerHTML += slotHTML;
+        });
+        
+        // Show appropriate section
+        if (availableSlotCount > 0) {
+            targetSection.style.display = 'block';
+        } else {
+            noSlotsMessage.style.display = 'block';
+        }
+    }
+    
+    // Time slot selection handling
+    window.selectTimeSlot = function(slotElement) {
+        // Remove selection from all time slots
+        document.querySelectorAll('.time-slot-card').forEach(slot => {
+            slot.classList.remove('selected');
+        });
+        
+        // Add selection to clicked slot
+        slotElement.classList.add('selected');
+        
+        // Get selected time info
+        selectedTime = slotElement.dataset.time;
+        selectedType = slotElement.dataset.slotType;
+        
+        // Update form fields
+        document.getElementById('selectedDate').value = selectedDate;
+        document.getElementById('selectedTime').value = selectedTime;
+        document.getElementById('appointmentType').value = selectedType;
+        
+        // Show appointment summary
+        updateAppointmentSummary();
+        updateContinueButton();
+    };
     
     function updateAppointmentSummary() {
         const dateText = formatDate(selectedDate);
@@ -647,10 +757,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function formatTime(timeStr) {
-        if (timeStr === 'ASAP') {
-            return 'As Soon As Possible (2-4 hours)';
-        }
-        
         const [hours, minutes] = timeStr.split(':');
         const time = new Date();
         time.setHours(parseInt(hours), parseInt(minutes));

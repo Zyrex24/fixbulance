@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_mail import Mail
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 from config.config import config
 
 # Initialize extensions
@@ -10,6 +11,7 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()
 mail = Mail()
+csrf = CSRFProtect()
 
 def create_app(config_name='development'):
     """Application factory pattern"""
@@ -23,6 +25,7 @@ def create_app(config_name='development'):
     login_manager.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
+    csrf.init_app(app)
     
     # Configure login manager
     login_manager.login_view = 'auth.login'
@@ -39,6 +42,8 @@ def create_app(config_name='development'):
     from app.models.service_area import ServiceZipCode, AddressValidationCache
     from app.models.payment import Payment
     from app.models.review import Review
+    from app.models.waiver import ServiceWaiver
+    from app.models.device_pricing import DevicePricing, WaterDamageService, LaptopTabletService
     
     @login_manager.user_loader
     def load_user(user_id):
@@ -52,6 +57,7 @@ def create_app(config_name='development'):
     from app.blueprints.api import api_bp
     from app.blueprints.payment import payment_bp
     from app.blueprints.review import review_bp
+    from app.blueprints.device_pricing import device_pricing_bp
     
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix='/auth')
@@ -60,6 +66,7 @@ def create_app(config_name='development'):
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(payment_bp, url_prefix='/payment')
     app.register_blueprint(review_bp)
+    app.register_blueprint(device_pricing_bp)
     
     # Error handlers
     @app.errorhandler(404)
@@ -78,7 +85,8 @@ def create_app(config_name='development'):
     def inject_config():
         return {
             'GOOGLE_MAPS_API_KEY': app.config.get('GOOGLE_MAPS_API_KEY'),
-            'STRIPE_PUBLISHABLE_KEY': app.config.get('STRIPE_PUBLISHABLE_KEY')
+            'STRIPE_PUBLISHABLE_KEY': app.config.get('STRIPE_PUBLISHABLE_KEY'),
+            'csrf_token': generate_csrf
         }
     
     return app 

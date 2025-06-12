@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Terms and Conditions - Fixbulance{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-file-contract me-2"></i>
+                        Terms and Conditions
+                    </h1>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <strong>Effective Date:</strong> June 9, 2025
+                    </div>
+
+                    <p class="lead">Welcome to Fixbulance! These Terms and Conditions ("Terms") govern your use of our website and mobile repair services. By accessing or using our services, you agree to comply with and be bound by these Terms.</p>
+
+                    <h3 class="text-primary mt-4">1. Services Offered</h3>
+                    <p>Fixbulance provides mobile phone repair services at customer locations. Services include, but are not limited to, screen replacement, battery replacement, water damage treatment, and general diagnostics.</p>
+
+                    <h3 class="text-primary mt-4">2. Appointments and Cancellations</h3>
+                    <ul>
+                        <li>Appointments can be scheduled online, by phone, or via our mobile app.</li>
+                        <li>We reserve the right to reschedule or cancel any appointment due to unforeseen circumstances.</li>
+                        <li>Cancellations made by customers less than 12 hours before the scheduled appointment may be subject to a cancellation fee of $25.</li>
+                    </ul>
+
+                    <h3 class="text-primary mt-4">3. Payment Terms</h3>
+                    <ul>
+                        <li>Payment is due in full upon completion of service.</li>
+                        <li>We accept major credit/debit cards, digital payments, and cash.</li>
+                        <li>All payments are non-refundable once the service is completed unless covered by our warranty.</li>
+                    </ul>
+
+                    <h3 class="text-primary mt-4">4. Warranty</h3>
+                    <p>All repairs come with a 90-day limited warranty on parts and labor.</p>
+                    <p><strong>The warranty does not cover:</strong></p>
+                    <ul>
+                        <li>Physical damage after the repair</li>
+                        <li>Water damage</li>
+                        <li>Tampering by other technicians</li>
+                        <li>Software issues</li>
+                    </ul>
+
+                    <h3 class="text-primary mt-4">5. Liability</h3>
+                    <ul>
+                        <li>Fixbulance is not responsible for any data loss during repairs. Customers are advised to back up their data in advance.</li>
+                        <li>Fixbulance is not liable for any device complications resulting from existing damages or issues unrelated to our repair work.</li>
+                    </ul>
+
+                    <h3 class="text-primary mt-4">6. Device Ownership</h3>
+                    <p>By submitting a device for repair, you affirm that you are the rightful owner or have legal authorization to request service.</p>
+
+                    <h3 class="text-primary mt-4">7. Privacy Policy</h3>
+                    <p>We are committed to protecting your personal information. Please refer to our <a href="{{ url_for('main.privacy') }}" class="text-decoration-none">Privacy Policy</a> for details on how your information is used and stored.</p>
+
+                    <h3 class="text-primary mt-4">8. Intellectual Property</h3>
+                    <p>All website content including logos, text, images, and software is the property of Fixbulance and may not be copied or reproduced without written permission.</p>
+
+                    <h3 class="text-primary mt-4">9. Governing Law</h3>
+                    <p>These Terms shall be governed by and interpreted in accordance with the laws of the State of Illinois, without regard to its conflict of law principles.</p>
+
+                    <h3 class="text-primary mt-4">10. Changes to Terms</h3>
+                    <p>Fixbulance reserves the right to update or modify these Terms at any time. Changes will be posted on our website with an updated effective date.</p>
+
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6 class="text-dark mb-2">
+                            <i class="fas fa-envelope me-2"></i>Questions About These Terms?
+                        </h6>
+                        <p class="text-muted mb-0">
+                            Contact us at <a href="mailto:support@fixbulance.com" class="text-decoration-none">support@fixbulance.com</a> 
+                            or call <a href="tel:+17089714053" class="text-decoration-none">(708) 971-4053</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -49,6 +49,13 @@ class Booking(db.Model):
     payment_status = db.Column(db.String(20), default='pending')
     # pending -> deposit_paid -> balance_paid -> refunded
     
+    # Tax information
+    tax_rate = db.Column(db.Float, default=0.1025)  # Default IL sales tax rate 10.25%
+    tax_amount = db.Column(db.Float, default=0.0)
+    subtotal = db.Column(db.Float, default=0.0)  # Pre-tax amount
+    total_with_tax = db.Column(db.Float, default=0.0)  # Final amount including tax
+    tax_jurisdiction = db.Column(db.String(100), default='Illinois')  # Tax location
+    
     # Stripe payment details
     stripe_payment_intent_id = db.Column(db.String(100))
     stripe_deposit_payment_id = db.Column(db.String(100))
@@ -272,17 +279,80 @@ class Booking(db.Model):
         return False
     
     def _recalculate_totals(self):
-        """Recalculate total cost and duration"""
-        self.total_services_count = len(self.booking_services)
-        self.total_estimated_cost = self.total_services_cost
-        self.combined_estimated_duration = sum(bs.estimated_time * bs.quantity for bs in self.booking_services)
+        """Recalculate total costs and durations for multi-service booking"""
+        total_cost = sum(bs.total_cost for bs in self.booking_services)
+        total_duration = sum(bs.estimated_duration for bs in self.booking_services)
         
-        # Recalculate deposit amount (could be custom logic)
-        if self.has_emergency_services:
-            # Emergency services might require higher deposit
-            self.deposit_amount = min(25.00, self.total_estimated_cost * 0.2)
-        else:
-            self.deposit_amount = min(15.00, self.total_estimated_cost * 0.15)
+        self.total_services_count = len(self.booking_services)
+        self.total_estimated_cost = total_cost
+        self.combined_estimated_duration = total_duration
+        
+        # Recalculate tax and final amounts
+        self.calculate_tax()
+    
+    def calculate_tax(self, service_price=None):
+        """Calculate tax based on location and service price"""
+        if service_price is None:
+            service_price = self.total_estimated_cost or 0
+        
+        # Set subtotal
+        self.subtotal = service_price
+        
+        # Calculate tax based on location
+        tax_rate = self.get_tax_rate_by_location()
+        self.tax_rate = tax_rate
+        self.tax_amount = service_price * tax_rate
+        
+        # Calculate total with tax (excluding deposit)
+        self.total_with_tax = service_price + self.tax_amount
+        
+        # Update final amount (deposit + remaining balance with tax)
+        self.final_amount = self.deposit_amount + self.total_with_tax
+        
+        return {
+            'subtotal': self.subtotal,
+            'tax_rate': self.tax_rate,
+            'tax_amount': self.tax_amount,
+            'total_with_tax': self.total_with_tax,
+            'deposit': self.deposit_amount,
+            'final_amount': self.final_amount
+        }
+    
+    def get_tax_rate_by_location(self):
+        """Get tax rate based on service location (zip code)"""
+        # Illinois tax rates by major areas (simplified)
+        il_tax_rates = {
+            # Chicago area
+            '606': 0.1025,  # Chicago downtown
+            '607': 0.1025,  # Chicago north
+            '608': 0.1025,  # Chicago south
+            '609': 0.1025,  # Chicago west
+            '604': 0.0925,  # DuPage County
+            '605': 0.0875,  # Lake County
+            '600': 0.0825,  # Suburban Cook County
+            '601': 0.0825,  # Suburban Cook County
+            
+            # Default Illinois rate for other areas
+            'default': 0.0625  # State base rate
+        }
+        
+        if self.service_zip_code:
+            # Check first 3 digits of zip code
+            zip_prefix = self.service_zip_code[:3]
+            return il_tax_rates.get(zip_prefix, il_tax_rates['default'])
+        
+        return il_tax_rates['default']
+    
+    @property
+    def tax_breakdown(self):
+        """Get formatted tax breakdown for display"""
+        return {
+            'subtotal_display': f"${self.subtotal:.2f}" if self.subtotal else "$0.00",
+            'tax_rate_display': f"{self.tax_rate * 100:.2f}%" if self.tax_rate else "0.00%",
+            'tax_amount_display': f"${self.tax_amount:.2f}" if self.tax_amount else "$0.00",
+            'total_display': f"${self.total_with_tax:.2f}" if self.total_with_tax else "$0.00",
+            'jurisdiction': self.tax_jurisdiction or "Illinois"
+        }
     
     # For backward compatibility - return primary service if exists
     @property
