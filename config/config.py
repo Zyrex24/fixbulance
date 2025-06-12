@@ -6,15 +6,25 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
-    # Email settings (Namecheap)
+    # Email settings (Gmail for testing - comment out Namecheap section above if using this)
+    # MAIL_SERVER = 'smtp.gmail.com'  # Gmail SMTP for testing
+    # MAIL_PORT = 587
+    # MAIL_USE_TLS = True
+    # MAIL_USERNAME = os.environ.get('MAIL_USERNAME') or 'your_gmail@gmail.com'
+    # MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')  # Gmail App Password
+    
+    # Email settings (Namecheap) - CURRENT
     MAIL_SERVER = 'mail.privateemail.com'  # Namecheap Private Email SMTP
     MAIL_PORT = 587
     MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME') or 'booking@fixbulance.com'
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD') or '#AsAs1234'
+    MAIL_USE_SSL = False
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME') or 'info@fixbulance.com'
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD') or '#AsAs1234' # Must be set as environment variable
+    MAIL_DEBUG = True  # Enable debug logging
+    MAIL_SUPPRESS_SEND = False  # Allow sending emails
     
     # Fixbulance Email Addresses
-    MAIL_DEFAULT_SENDER = 'booking@fixbulance.com'
+    MAIL_DEFAULT_SENDER = 'info@fixbulance.com'
     MAIL_SUPPORT = 'support@fixbulance.com'
     MAIL_ADMIN = 'admin@fixbulance.com'
     MAIL_BILLING = 'billing@fixbulance.com'
