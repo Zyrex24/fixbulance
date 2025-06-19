@@ -1,543 +1,219 @@
 {% extends "base.html" %}
 
-{% block title %}Fixbulance - Mobile Phone Repair Service in Orland Park, IL{% endblock %}
+{% block title %}Fixbulance - Professional Device Repair Services | iPhone & Samsung Repair in Orland Park, IL{% endblock %}
 
-{% block styles %}
-<style>
-    .hero-section {
-        background: linear-gradient(135deg, var(--navy) 0%, var(--light-navy) 100%);
-        color: var(--white);
-        padding: 4rem 0;
-        margin-bottom: 3rem;
-    }
-    
-    .hero-content h1 {
-        color: var(--white);
-        font-size: 3rem;
-        font-weight: 800;
-        margin-bottom: 1rem;
-    }
-    
-    .hero-content .lead {
-        font-size: 1.25rem;
-        margin-bottom: 2rem;
-        opacity: 0.95;
-    }
-    
-    .emergency-badge {
-        background-color: var(--red);
-        color: var(--white);
-        padding: 0.5rem 1rem;
-        border-radius: 25px;
-        font-weight: 600;
-        display: inline-block;
-        margin-bottom: 1rem;
-        animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
-        70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
-    }
-    
-    .service-card {
-        height: 100%;
-        transition: all 0.3s ease;
-        border: none;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    .service-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    }
-    
-    .device-icon {
-        font-size: 3rem;
-        color: var(--navy);
-        margin-bottom: 1rem;
-    }
-    
-    .stats-card {
-        text-align: center;
-        padding: 2rem 1rem;
-        background: var(--light-gray);
-        border-radius: 8px;
-        margin: 1rem 0;
-    }
-    
-    .stats-number {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: var(--red);
-        display: block;
-    }
-    
-    .stats-label {
-        color: var(--medium-gray);
-        font-weight: 500;
-        text-transform: uppercase;
-        font-size: 0.875rem;
-        letter-spacing: 0.5px;
-    }
-    
-    .trust-indicators {
-        background: var(--light-gray);
-        padding: 2rem 0;
-        margin: 3rem 0;
-    }
-    
-    .trust-badge {
-        text-align: center;
-        padding: 1rem;
-    }
-    
-    .trust-badge i {
-        font-size: 2rem;
-        color: var(--success);
-        margin-bottom: 0.5rem;
-    }
-    
-    .process-step {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-    
-    .process-number {
-        width: 60px;
-        height: 60px;
-        background: var(--red);
-        color: var(--white);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin: 0 auto 1rem;
-    }
-    
-    .cta-section {
-        background: var(--navy);
-        color: var(--white);
-        padding: 3rem 0;
-        text-align: center;
-        margin-top: 3rem;
-    }
-    
-    .cta-section h3 {
-        color: var(--white);
-        margin-bottom: 1rem;
-    }
-    
-    @media (max-width: 768px) {
-        .hero-content h1 {
-            font-size: 2rem;
-        }
-        
-        .hero-section {
-            padding: 2rem 0;
-        }
-    }
-</style>
-{% endblock %}
+{% block meta_title %}Fixbulance - Professional Device Repair Services | iPhone & Samsung Repair in Orland Park, IL{% endblock %}
+
+{% block meta_description %}Expert device repair services in Orland Park, IL. Professional iPhone, Samsung Galaxy, and electronics repair with 90-day warranty. Same-day service, transparent pricing, and 5-star customer service. Call (708) 737-2873 for instant quote!{% endblock %}
+
+{% block meta_keywords %}iPhone repair Orland Park, Samsung repair Illinois, phone screen replacement, battery replacement, charging port repair, device repair near me, smartphone repair, tablet repair, electronics repair, mobile repair service, same day repair{% endblock %}
+
+{% block og_title %}Fixbulance - #1 Device Repair Service in Orland Park, IL{% endblock %}
+
+{% block og_description %}Professional iPhone & Samsung repair specialists in Orland Park, IL. 90-day warranty, same-day service, transparent pricing. Expert technicians you can trust. Book online or call (708) 737-2873!{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<div class="hero-section">
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">Repair | Buy<br>Accessories</h1>
+        <p class="hero-subtitle">Professional repair services for all your devices</p>
+        <div class="hero-buttons">
+            <a href="{{ url_for('booking.start') }}" class="btn-primary">BOOK REPAIR</a>
+            <span class="mx-2">|</span>
+            <a href="{{ url_for('main.buy') }}">Buy Accessories</a>
+        </div>
+    </div>
+    <div class="hero-device">
+        <div class="device-placeholder">
+            <img src="{{ url_for('static', filename='img/iphone.png') }}" alt="iPhone Repair" class="hero-device-image">
+            <p>iPhone Repair</p>
+        </div>
+    </div>
+</section>
+
+<!-- Brand Logos Section -->
+<section class="brand-logos scroll-animate">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <div class="hero-content">
-                    <div class="emergency-badge">
-                        <i class="fas fa-ambulance me-2"></i>Emergency Phone Repairs
-                    </div>
-                    <h1>Your Phone's Emergency Service</h1>
-                    <p class="lead">Professional mobile phone repair service in Orland Park, IL. We come to your location with our fully-equipped repair van.</p>
-                    <div class="d-flex flex-wrap gap-3">
-                        <a class="btn btn-primary btn-lg" href="{{ url_for('booking.start') }}">
-                            <i class="fas fa-calendar-plus me-2"></i>Book Emergency Repair
-                        </a>
-                        <a class="btn btn-outline-light btn-lg" href="{{ url_for('main.service_area') }}">
-                            <i class="fas fa-map-marker-alt me-2"></i>Check Service Area
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="stats-card">
-                            <span class="stats-number">{{ total_services }}</span>
-                            <span class="stats-label">Repair Services</span>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="stats-card">
-                            <span class="stats-number">{{ covered_zip_codes }}</span>
-                            <span class="stats-label">ZIP Codes Covered</span>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="stats-card">
-                            <span class="stats-number">10</span>
-                            <span class="stats-label">Mile Radius</span>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="stats-card">
-                            <span class="stats-number">${{ "%.0f"|format(base_deposit) }}</span>
-                            <span class="stats-label">Standard Deposit</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="brand-item scroll-animate-scale animate-delay-1">
+            <img src="{{ url_for('static', filename='img/apple.png') }}" alt="Apple" class="brand-image">
+            <span class="brand-name"></span>
+        </div>
+        <div class="brand-item scroll-animate-scale animate-delay-2">
+            <img src="{{ url_for('static', filename='img/android.png') }}" alt="Android" class="brand-image">
+            <span class="brand-name"></span>
+        </div>
+        <div class="brand-item scroll-animate-scale animate-delay-3">
+            <img src="{{ url_for('static', filename='img/samsung.png') }}" alt="Samsung" class="brand-image">
+            <span class="brand-name"></span>
+        </div>
+        <div class="brand-item scroll-animate-scale animate-delay-4">
+            <img src="{{ url_for('static', filename='img/LG.png') }}" alt="LG" class="brand-image">
+            <span class="brand-name"></span>
+        </div>
+        <div class="brand-item scroll-animate-scale animate-delay-5">
+            <img src="{{ url_for('static', filename='img/Dell.png') }}" alt="Dell" class="brand-image">
+            <span class="brand-name"></span>
+        </div>
+        <div class="brand-item scroll-animate-scale animate-delay-6">
+            <img src="{{ url_for('static', filename='img/Microsoft.png') }}" alt="Microsoft" class="brand-image">
+            <span class="brand-name"></span>
         </div>
     </div>
-</div>
+</section>
 
-<!-- Trust Indicators -->
-<div class="trust-indicators">
+<!-- Services Section -->
+<section class="services-section scroll-animate">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-3 col-md-6">
-                <div class="trust-badge">
-                    <i class="fas fa-shield-alt"></i>
-                    <h6>Licensed & Insured</h6>
-                    <p class="small text-muted">Professional mobile repair service</p>
-                </div>
+        <h2 class="scroll-animate">Our Services</h2>
+        <div class="services-grid">
+            <div class="service-card scroll-animate-left">
+                <div class="service-icon">🔧</div>
+                <h3>Device Repair</h3>
+                <p>Expert repair services for smartphones, tablets, and laptops with quality parts and professional service.</p>
+                <a href="{{ url_for('booking.start') }}" class="btn-primary">Book Repair</a>
             </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="trust-badge">
-                    <i class="fas fa-clock"></i>
-                    <h6>Same-Day Service</h6>
-                    <p class="small text-muted">Quick turnaround times</p>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="trust-badge">
-                    <i class="fas fa-award"></i>
-                    <h6>Quality Guarantee</h6>
-                    <p class="small text-muted">Warranty on all repairs</p>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6">
-                <div class="trust-badge">
-                    <i class="fas fa-map-marked-alt"></i>
-                    <h6>Orland Park Local</h6>
-                    <p class="small text-muted">Serving the community</p>
-                </div>
+            <div class="service-card scroll-animate-right">
+                <div class="service-icon">🛒</div>
+                <h3>Buy Accessories</h3>
+                <p>Quality accessories including screen protectors, phone cases, airbuds, and more. All accessories come with warranty and quality guarantee.</p>
+                <a href="{{ url_for('main.buy') }}" class="btn-primary">Shop Now</a>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<!-- Device Repair Services -->
-<div class="container">
-    <div class="row">
-        <div class="col-12 text-center mb-5">
-            <h2>Choose Your Device for Emergency Repair</h2>
-            <p class="lead text-muted">Select your device type to see available repair services and pricing</p>
+<!-- Location Section -->
+<section class="location-section scroll-animate">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="scroll-animate">Find Our Location</h2>
+            <p class="scroll-animate animate-delay-1">Visit us in Orland Park, IL or we'll come to you!</p>
         </div>
-    </div>
-    
-    <div class="row">
-        {% for device_type in device_types %}
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card service-card">
-                    <div class="card-body text-center">
-                        <div class="device-icon">
-                            {% if device_type == 'iPhone' %}
-                                <i class="fab fa-apple"></i>
-                            {% elif device_type == 'Samsung' %}
-                                <i class="fas fa-mobile-alt"></i>
-                            {% else %}
-                                <i class="fas fa-tablet-alt"></i>
-                            {% endif %}
-                        </div>
-                        <h5 class="card-title">{{ device_type }} Repairs</h5>
-                        {% if featured_services[device_type] %}
-                            <ul class="list-unstyled mb-3">
-                                {% for service in featured_services[device_type][:3] %}
-                                    <li class="mb-1">
-                                        <i class="fas fa-check text-success me-2"></i>
-                                        {{ service.name }} - {{ service.price_range }}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p class="text-muted">Professional repair services available</p>
-                        {% endif %}
-                        <a href="{{ url_for('booking.step2_service', device_type=device_type) }}" class="btn btn-primary">
-                            <i class="fas fa-wrench me-2"></i>Select {{ device_type }}
-                        </a>
+        <div class="location-grid">
+            <div class="location-info scroll-animate-left">
+                <div class="location-card">
+                    <div class="location-header">
+                        <i class="fas fa-map-marker-alt text-primary"></i>
+                        <h3>Fixbulance Headquarters</h3>
                     </div>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-</div>
-
-<!-- How It Works Process -->
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-12 text-center mb-5">
-            <h2>How Fixbulance Works</h2>
-            <p class="lead text-muted">Simple, professional mobile repair service in 5 easy steps</p>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div class="col-lg-2 col-md-4 col-6">
-            <div class="process-step">
-                <div class="process-number">1</div>
-                <h6>Book Online</h6>
-                <p class="small text-muted">Select device & describe issue</p>
-            </div>
-        </div>
-        <div class="col-lg-2 col-md-4 col-6">
-            <div class="process-step">
-                <div class="process-number">2</div>
-                <h6>Schedule Visit</h6>
-                <p class="small text-muted">Choose convenient time</p>
-            </div>
-        </div>
-        <div class="col-lg-2 col-md-4 col-6">
-            <div class="process-step">
-                <div class="process-number">3</div>
-                <h6>We Come to You</h6>
-                <p class="small text-muted">Repair van arrives on time</p>
-            </div>
-        </div>
-        <div class="col-lg-2 col-md-4 col-6">
-            <div class="process-step">
-                <div class="process-number">4</div>
-                <h6>Expert Repair</h6>
-                <p class="small text-muted">Professional on-site service</p>
-            </div>
-        </div>
-        <div class="col-lg-2 col-md-4 col-6">
-            <div class="process-step">
-                <div class="process-number">5</div>
-                <h6>Pay & Go</h6>
-                <p class="small text-muted">Simple payment, warranty included</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Business Location -->
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-12 text-center mb-4">
-            <h2>Find Our Location</h2>
-            <p class="lead text-muted">Visit us in Orland Park, IL or we'll come to you!</p>
-        </div>
-    </div>
-    
-    <div class="row align-items-center">
-        <div class="col-lg-6">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-map-marker-alt text-primary me-2"></i>
-                        Fixbulance Headquarters
-                    </h5>
-                    <div class="mb-3">
-                        <h6 class="mb-2">Address:</h6>
-                        <p class="mb-1">
-                            <i class="fas fa-building me-2 text-muted"></i>
-                            Orland Park, IL 60462
-                        </p>
-                        <p class="mb-1">
-                            <i class="fas fa-phone me-2 text-muted"></i>
-                            <a href="tel:+17089714053" class="text-decoration-none">(708) 971-4053</a>
-                        </p>
-                        <p class="mb-3">
-                            <i class="fas fa-envelope me-2 text-muted"></i>
+                    <div class="location-details">
+                        <div class="detail-item">
+                            <strong>Address:</strong>
+                            <p>Orland Park, IL 60462</p>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-phone text-primary"></i>
+                            <a href="tel:+17087372873" class="text-decoration-none">+1 (708) 737-2873</a>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-envelope text-primary"></i>
                             <a href="mailto:info@fixbulance.com" class="text-decoration-none">info@fixbulance.com</a>
-                        </p>
+                        </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <h6 class="mb-2">Service Hours:</h6>
-                        <div class="row">
-                            <div class="col-6">
-                                <small class="text-muted">Monday - Friday:</small><br>
-                                <strong>8:00 AM - 7:00 PM</strong>
+                    <div class="service-hours">
+                        <h4>Service Hours:</h4>
+                        <div class="hours-grid">
+                            <div class="hours-column">
+                                <strong>Monday - Friday:</strong>
+                                <span class="hours-time">8:00 AM - 7:00 PM</span>
                             </div>
-                            <div class="col-6">
-                                <small class="text-muted">Weekend:</small><br>
-                                <strong>8:00 AM - 7:00 PM</strong>
+                            <div class="hours-column">
+                                <strong>Weekend:</strong>
+                                <span class="hours-time">8:00 AM - 7:00 PM</span>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="alert alert-info">
-                        <i class="fas fa-van-shuttle me-2"></i>
-                        <strong>Mobile Service Available!</strong><br>
-                        <small>We come to your location within our 10-mile service radius</small>
+                    <div class="mobile-service-notice">
+                        <div class="notice-content">
+                            <i class="fas fa-truck text-info"></i>
+                            <div>
+                                <strong>Mobile Service Available!</strong>
+                                <p>We come to your location within our 10-mile service radius</p>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="d-grid gap-2 d-md-flex">
-                        <a href="{{ url_for('booking.start') }}" class="btn btn-primary">
-                            <i class="fas fa-ambulance me-2"></i>Book Mobile Repair
+                    <div class="location-actions">
+                        <a href="{{ url_for('booking.start') }}" class="btn btn-primary me-2">
+                            <i class="fas fa-truck me-1"></i>
+                            Book Mobile Repair
                         </a>
-                        <a href="{{ url_for('main.service_area') }}" class="btn btn-outline-primary">
-                            <i class="fas fa-map me-2"></i>Service Area
+                        <a href="{{ url_for('main.check_zip') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-search me-1"></i>
+                            Check ZIP Code
                         </a>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="col-lg-6">
-            <div class="card h-100">
-                <div class="card-body p-0">
-                    <div class="position-relative">
-                        <img src="{{ url_for('static', filename='images/Business Location Map.png') }}" 
-                             alt="Fixbulance Business Location Map - Orland Park, IL" 
-                             class="img-fluid w-100" 
-                             style="border-radius: 0.375rem; min-height: 300px; object-fit: cover;"
-                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/map-placeholder.jpg') }}'; this.alt='Business location map coming soon';">
-                        
-                        <!-- Map overlay with business info -->
-                        <div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-75 text-white p-3" 
-                             style="border-radius: 0 0 0.375rem 0.375rem;">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div>
-                                    <h6 class="mb-1">
-                                        <i class="fas fa-map-marker-alt me-2"></i>
-                                        Fixbulance Location
-                                    </h6>
-                                    <small class="opacity-75">Orland Park, IL • 10-mile radius</small>
-                                </div>
-                                <div class="text-end">
-                                    <div class="badge bg-success">
-                                        <i class="fas fa-circle me-1"></i>Open Now
-                                    </div>
-                                </div>
+            
+            <div class="location-map scroll-animate-right">
+                <div class="map-container">
+                    <img src="{{ url_for('static', filename='images/Business Location Map.png') }}" 
+                         alt="Fixbulance Service Area Map - 10-Mile Radius from Orland Park, IL" 
+                         class="service-area-map"
+                         onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/map-placeholder.jpg') }}'; this.alt='Service area map coming soon';">
+                    
+                    <div class="map-overlay">
+                        <div class="map-info">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <strong>Fixbulance Location</strong>
+                                <p>Orland Park, IL • 10-mile radius</p>
                             </div>
+                        </div>
+                        <div class="status-indicator">
+                            <span class="status-dot"></span>
+                            <span class="status-text">Open Now</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<!-- Service Area Check -->
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header text-center bg-light">
-                    <h5 class="mb-0">
-                        <i class="fas fa-map-marker-alt text-primary me-2"></i>
-                        Check if Fixbulance Serves Your Area
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-center text-muted mb-4">We provide emergency mobile repair services within a 10-mile radius of Orland Park, IL</p>
-                    <form class="row g-3 justify-content-center">
-                        <div class="col-auto">
-                            <input type="text" class="form-control form-control-lg" placeholder="Enter ZIP code (e.g., 60462)" id="zipCheck" style="width: 250px;">
-                        </div>
-                        <div class="col-auto">
-                            <button type="button" class="btn btn-primary btn-lg" onclick="checkZip()">
-                                <i class="fas fa-search me-2"></i>Check Coverage
-                            </button>
-                        </div>
-                    </form>
-                    <div id="zipResult" class="mt-3"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Call to Action -->
-<div class="cta-section">
+<!-- Contact Section -->
+<section class="contact-section scroll-animate">
     <div class="container">
-        <div class="row justify-content-center text-center">
-            <div class="col-lg-8">
-                <h3>Ready for Emergency Phone Repair?</h3>
-                <p class="lead mb-4">Join hundreds of satisfied customers in Orland Park who trust Fixbulance for their mobile device emergencies.</p>
-                <a class="btn btn-primary btn-lg me-3" href="{{ url_for('booking.start') }}">
-                    <i class="fas fa-ambulance me-2"></i>Book Emergency Repair Now
-                </a>
-                <a class="btn btn-outline-light btn-lg" href="tel:+17089714053">
-                    <i class="fas fa-phone me-2"></i>Call (708) 971-4053
-                </a>
+        <div class="contact-grid">
+            <div class="contact-info scroll-animate-left">
+                <h2>Get in Touch</h2>
+                <p>Ready to repair your device? Contact us today for professional service.</p>
+                <div class="contact-details">
+                    <p><strong>📞 Phone:</strong> +1 (708) 737-2873</p>
+                    <p><strong>📍 Location:</strong> Orland Park, IL</p>
+                    <p><strong>🕒 Hours:</strong> Mon-Fri 8AM-7PM, Weekends 8AM-7PM</p>
+                </div>
+                <a href="{{ url_for('main.contact') }}" class="btn-primary">Contact Us</a>
+            </div>
+            <div class="contact-form scroll-animate-right">
+                <h3>Quick Quote</h3>
+                <form action="{{ url_for('booking.start') }}" method="GET">
+                    <div class="form-group scroll-animate animate-delay-1">
+                        <select name="device" required>
+                            <option value="">Select Device Type</option>
+                            <option value="iPhone">iPhone</option>
+                            <option value="Samsung">Samsung</option>
+                            <option value="iPad">iPad</option>
+                            <option value="Other">Other Device</option>
+                        </select>
+                    </div>
+                    <div class="form-group scroll-animate animate-delay-2">
+                        <select name="issue" required>
+                            <option value="">Select Issue</option>
+                            <option value="Screen Repair">Screen Repair</option>
+                            <option value="Battery Replacement">Battery Replacement</option>
+                            <option value="Charging Port">Charging Port</option>
+                            <option value="Water Damage">Water Damage</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary scroll-animate animate-delay-3">Start Booking</button>
+                </form>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-async function checkZip() {
-    const zipCode = document.getElementById('zipCheck').value.trim();
-    const resultDiv = document.getElementById('zipResult');
-    
-    if (!zipCode) {
-        resultDiv.innerHTML = '<div class="alert alert-warning text-center"><i class="fas fa-exclamation-triangle me-2"></i>Please enter a ZIP code</div>';
-        return;
-    }
-    
-    // Show loading state
-    resultDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Checking coverage...</div>';
-    
-    try {
-        const response = await fetch('/api/validate-zip', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ zip_code: zipCode })
-        });
-        
-        const data = await response.json();
-        
-        if (data.valid) {
-            resultDiv.innerHTML = `
-                <div class="alert alert-success text-center">
-                    <i class="fas fa-check-circle me-2"></i>
-                    <strong>Great news!</strong> ${data.message}
-                    <div class="mt-2">
-                        <a href="{{ url_for('booking.start') }}" class="btn btn-primary">Book Repair Now</a>
-                    </div>
-                </div>
-            `;
-        } else {
-            resultDiv.innerHTML = `
-                <div class="alert alert-warning text-center">
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    ${data.message}
-                    <div class="mt-2 small text-muted">
-                        We're always expanding our service area. Contact us to check if we can make an exception!
-                    </div>
-                </div>
-            `;
-        }
-    } catch (error) {
-        resultDiv.innerHTML = `
-            <div class="alert alert-danger text-center">
-                <i class="fas fa-times-circle me-2"></i>
-                Error checking ZIP code. Please try again or contact us directly.
-            </div>
-        `;
-    }
-}
-
-// Auto-check ZIP on Enter key
-document.getElementById('zipCheck').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        checkZip();
-    }
-});
-</script>
+</section>
 {% endblock %} 

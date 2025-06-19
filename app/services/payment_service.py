@@ -114,7 +114,7 @@ class StripePaymentService:
                     'device_type': getattr(booking, 'device_type', 'Unknown'),
                     'service_name': service_info,
                     'business': 'Fixbulance',
-                    'ahmed_phone': current_app.config.get('BUSINESS_PHONE_DISPLAY', '(708) 971-4053')
+                    'ahmed_phone': current_app.config.get('BUSINESS_PHONE_DISPLAY', '+1 (708) 737-2873')
                 },
                 'automatic_payment_methods': {
                     'enabled': True,

@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+{% block title %}Device Repair Pricing & Services - Fixbulance | iPhone & Samsung Repair Costs{% endblock %}
+
+{% block meta_title %}Device Repair Pricing & Services - Fixbulance | iPhone & Samsung Repair Costs{% endblock %}
+
+{% block meta_description %}Transparent repair pricing for iPhone and Samsung devices. Screen replacement, battery replacement, charging port repair. Original and aftermarket parts available. 90-day warranty, same-day service in Orland Park, IL.{% endblock %}
+
+{% block meta_keywords %}iPhone repair cost, Samsung repair pricing, screen replacement price, battery replacement cost, charging port repair, device repair pricing, aftermarket parts, original parts, repair warranty, transparent pricing{% endblock %}
+
+{% block og_title %}Device Repair Pricing & Services - Professional iPhone & Samsung Repair{% endblock %}
+
+{% block og_description %}Complete repair pricing for iPhone and Samsung devices. Professional screen, battery, and charging port repair with transparent costs and 90-day warranty.{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero repair-hero">
+    <div class="hero-content">
+        <h1 class="hero-title">Professional<br>Device Repair</h1>
+        <p class="hero-subtitle">Expert repair services with quality parts and warranty</p>
+        <div class="hero-buttons">
+            <a href="#pricing" class="btn-primary">VIEW PRICING</a>
+            <span class="mx-2">|</span>
+            <a href="{{ url_for('booking.start') }}">Book Repair</a>
+        </div>
+    </div>
+    <div class="hero-device">
+        <div class="device-placeholder">
+            <div class="repair-hero-icon">🔧</div>
+            <p>Expert Repairs</p>
+        </div>
+    </div>
+</section>
+
+<!-- Service Categories -->
+<section class="services-section scroll-animate">
+    <div class="container">
+        <h2 class="text-center scroll-animate">Our Repair Services</h2>
+        <div class="services-grid">
+            <div class="service-card scroll-animate-scale animate-delay-1">
+                <div class="service-icon">📱</div>
+                <h3>Screen Repair</h3>
+                <p>Original and aftermarket screen replacements with warranty</p>
+                <ul>
+                    <li>✓ Cracked screen repair</li>
+                    <li>✓ LCD/OLED replacement</li>
+                    <li>✓ Touch sensitivity fix</li>
+                </ul>
+            </div>
+            <div class="service-card scroll-animate-scale animate-delay-2">
+                <div class="service-icon">🔋</div>
+                <h3>Battery Replacement</h3>
+                <p>Restore your device's battery life with quality replacements</p>
+                <ul>
+                    <li>✓ Fast charging issues</li>
+                    <li>✓ Battery drain problems</li>
+                    <li>✓ Power button issues</li>
+                </ul>
+            </div>
+            <div class="service-card scroll-animate-scale animate-delay-3">
+                <div class="service-icon">🔌</div>
+                <h3>Charging Port</h3>
+                <p>Fix charging problems and connectivity issues</p>
+                <ul>
+                    <li>✓ Charging port cleaning</li>
+                    <li>✓ Port replacement</li>
+                    <li>✓ Charging cable issues</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Tables -->
+<section id="pricing" class="pricing-section scroll-animate">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2 class="scroll-animate">Repair Pricing</h2>
+            <p class="scroll-animate animate-delay-1">Transparent pricing for all device repairs</p>
+        </div>
+
+        <!-- Device Type Tabs -->
+        <div class="pricing-tabs">
+            <button class="tab-btn active" data-tab="samsung">Samsung Devices</button>
+            <button class="tab-btn" data-tab="iphone">iPhone Devices</button>
+        </div>
+
+        <!-- Samsung Pricing Table -->
+        <div id="samsung" class="pricing-table active">
+            <div class="table-header">
+                <h3>Samsung Repair Pricing</h3>
+                <p>All prices include labor and warranty</p>
+            </div>
+            <div class="table-responsive">
+                <table class="repair-table">
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Original Screen</th>
+                            <th>Original Battery</th>
+                            <th>Original BG</th>
+                            <th>Original CP</th>
+                            <th>AFM Screen</th>
+                            <th>AFM Battery</th>
+                            <th>AFM BG</th>
+                            <th>AFM CP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="model-name">Galaxy S20</td><td>$260</td><td>$80</td><td>$100</td><td>$75</td><td>$160</td><td>$60</td><td>$80</td><td>$60</td></tr>
+                        <tr><td class="model-name">Galaxy S20 Plus</td><td>$260</td><td>$80</td><td>$110</td><td>$75</td><td>N/A</td><td>$60</td><td>$80</td><td>$60</td></tr>
+                        <tr><td class="model-name">Galaxy S20 Ultra</td><td>$280</td><td>$100</td><td>$110</td><td>$80</td><td>$170</td><td>$60</td><td>$80</td><td>$60</td></tr>
+                        <tr><td class="model-name">Galaxy S20 FE</td><td>$170</td><td>$90</td><td>$100</td><td>$70</td><td>$120</td><td>$60</td><td>$80</td><td>N/A</td></tr>
+                        <tr><td class="model-name">Galaxy S21</td><td>$200</td><td>$100</td><td>$100</td><td>$75</td><td>$120</td><td>$60</td><td>$80</td><td>N/A</td></tr>
+                        <tr><td class="model-name">Galaxy S21 Plus</td><td>$220</td><td>$100</td><td>$110</td><td>N/A</td><td>$140</td><td>$70</td><td>$80</td><td>N/A</td></tr>
+                        <tr><td class="model-name">Galaxy S21 Ultra</td><td>$280</td><td>$110</td><td>$110</td><td>$75</td><td>$160</td><td>$70</td><td>$80</td><td>N/A</td></tr>
+                        <tr><td class="model-name">Galaxy S21 FE</td><td>$200</td><td>$110</td><td>$90</td><td>N/A</td><td>N/A</td><td>$70</td><td>N/A</td><td>$70</td></tr>
+                        <tr><td class="model-name">Galaxy S22</td><td>$220</td><td>$110</td><td>$110</td><td>$75</td><td>N/A</td><td>$70</td><td>$80</td><td>$60</td></tr>
+                        <tr><td class="model-name">Galaxy S22 Plus</td><td>$220</td><td>$110</td><td>$110</td><td>$80</td><td>$150</td><td>$80</td><td>$80</td><td>N/A</td></tr>
+                        <tr><td class="model-name">Galaxy S22 Ultra</td><td>$290</td><td>$110</td><td>$120</td><td>$80</td><td>$160</td><td>$80</td><td>$80</td><td>N/A</td></tr>
+                        <tr><td class="model-name">Galaxy S23</td><td>$220</td><td>$110</td><td>$120</td><td>N/A</td><td>N/A</td><td>$80</td><td>$80</td><td>$70</td></tr>
+                        <tr><td class="model-name">Galaxy S23 Plus</td><td>$220</td><td>$110</td><td>$120</td><td>N/A</td><td>$150</td><td>$80</td><td>$80</td><td>$70</td></tr>
+                        <tr><td class="model-name">Galaxy S23 Ultra</td><td>$280</td><td>$110</td><td>$130</td><td>N/A</td><td>$170</td><td>$80</td><td>$80</td><td>$70</td></tr>
+                        <tr><td class="model-name">Galaxy S23 FE</td><td>$190</td><td>N/A</td><td>$110</td><td>N/A</td><td>N/A</td><td>$70</td><td>$80</td><td>$80</td></tr>
+                        <tr><td class="model-name">Galaxy S24</td><td>$210</td><td>N/A</td><td>$120</td><td>N/A</td><td>N/A</td><td>$80</td><td>$80</td><td>$80</td></tr>
+                        <tr><td class="model-name">Galaxy S24 Plus</td><td>$240</td><td>$120</td><td>$120</td><td>N/A</td><td>N/A</td><td>$80</td><td>$80</td><td>$80</td></tr>
+                        <tr><td class="model-name">Galaxy S24 Ultra</td><td>$290</td><td>N/A</td><td>$120</td><td>N/A</td><td>$220</td><td>$80</td><td>$80</td><td>$80</td></tr>
+                        <tr class="refurb-row"><td class="model-name">Galaxy S24 FE (Refurb)</td><td>$160</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>$80</td><td>N/A</td><td>$80</td></tr>
+                        <tr class="refurb-row"><td class="model-name">Galaxy S25 (Refurb)</td><td>$180</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>$80</td></tr>
+                        <tr><td class="model-name">Galaxy S25 Plus</td><td>$260</td><td>N/A</td><td>$140</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>$90</td></tr>
+                        <tr><td class="model-name">Galaxy S25 Ultra</td><td>$340</td><td>N/A</td><td>$150</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>$90</td></tr>
+                        <tr><td class="model-name">Galaxy Note 20</td><td>$250</td><td>$110</td><td>$100</td><td>N/A</td><td>N/A</td><td>$80</td><td>$80</td><td>$80</td></tr>
+                        <tr><td class="model-name">Galaxy Note 20 Ultra</td><td>$280</td><td>$110</td><td>$130</td><td>$100</td><td>$180</td><td>$80</td><td>$80</td><td>$80</td></tr>
+                        <tr><td class="model-name">Galaxy A31</td><td>$140</td><td>$100</td><td>$90</td><td>N/A</td><td>$100</td><td>$80</td><td>$70</td><td>$70</td></tr>
+                        <tr><td class="model-name">Galaxy A51</td><td>$170</td><td>N/A</td><td>$90</td><td>N/A</td><td>$120</td><td>$80</td><td>N/A</td><td>$70</td></tr>
+                        <tr><td class="model-name">Galaxy A71</td><td>$180</td><td>$110</td><td>$80</td><td>N/A</td><td>N/A</td><td>$80</td><td>N/A</td><td>$80</td></tr>
+                        <tr><td class="model-name">Galaxy A32</td><td>$130</td><td>$100</td><td>$100</td><td>$90</td><td>$100</td><td>$80</td><td>$70</td><td>$70</td></tr>
+                        <tr><td class="model-name">Galaxy A52</td><td>$150</td><td>N/A</td><td>$100</td><td>N/A</td><td>$120</td><td>$80</td><td>$70</td><td>$70</td></tr>
+                        <tr><td class="model-name">Galaxy A72</td><td>$170</td><td>N/A</td><td>$110</td><td>N/A</td><td>N/A</td><td>$80</td><td>N/A</td><td>$80</td></tr>
+                        <tr><td class="model-name">Galaxy A33</td><td>$150</td><td>$110</td><td>$110</td><td>N/A</td><td>$110</td><td>$80</td><td>N/A</td><td>$80</td></tr>
+                        <tr><td class="model-name">Galaxy A53</td><td>$170</td><td>$110</td><td>$100</td><td>N/A</td><td>$120</td><td>$80</td><td>$80</td><td>$80</td></tr>
+                        <tr><td class="model-name">Galaxy A73</td><td>$170</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>$80</td><td>N/A</td><td>$80</td></tr>
+                        <tr><td class="model-name">Galaxy A34</td><td>$160</td><td>$110</td><td>$100</td><td>N/A</td><td>N/A</td><td>$80</td><td>N/A</td><td>$80</td></tr>
+                        <tr><td class="model-name">Galaxy A54</td><td>$160</td><td>$110</td><td>$100</td><td>N/A</td><td>$120</td><td>$80</td><td>$80</td><td>$80</td></tr>
+                        <tr class="refurb-row"><td class="model-name">Galaxy A35 (Refurb)</td><td>$150</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>$80</td><td>N/A</td><td>$70</td></tr>
+                        <tr class="refurb-row"><td class="model-name">Galaxy A55 (Refurb)</td><td>$160</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>$80</td><td>$80</td><td>$80</td></tr>
+                        <tr class="refurb-row"><td class="model-name">Galaxy A36 (Refurb)</td><td>$180</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>$80</td></tr>
+                        <tr class="refurb-row"><td class="model-name">Galaxy A56 (Refurb)</td><td>$160</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>$80</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- iPhone Pricing Table -->
+        <div id="iphone" class="pricing-table">
+            <div class="table-header">
+                <h3>iPhone Repair Pricing</h3>
+                <p>All prices include labor and warranty</p>
+            </div>
+            <div class="table-responsive">
+                <table class="repair-table">
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Original Screen</th>
+                            <th>Original Battery</th>
+                            <th>AFM Screen</th>
+                            <th>AFM Battery</th>
+                            <th>Charging Port</th>
+                            <th>Speaker</th>
+                            <th>Camera Lens</th>
+                            <th>Vibrator</th>
+                            <th>Original BG</th>
+                            <th>AFM BG</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="model-name">iPhone XR</td><td>N/A</td><td>N/A</td><td>$100</td><td>$70</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone X</td><td>N/A</td><td>N/A</td><td>$110</td><td>$70</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone XS</td><td>N/A</td><td>N/A</td><td>$110</td><td>$70</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone XS Max</td><td>$190</td><td>$90</td><td>$110</td><td>$70</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 11</td><td>N/A</td><td>N/A</td><td>$100</td><td>$70</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 11 Pro</td><td>N/A</td><td>N/A</td><td>$130</td><td>$70</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 11 Pro Max</td><td>N/A</td><td>N/A</td><td>$110</td><td>$70</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone SE 2020</td><td>N/A</td><td>N/A</td><td>$100</td><td>$70</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 12 Mini</td><td>$260</td><td>$90</td><td>$110</td><td>$70</td><td>$80</td><td>$80</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 12</td><td>$300</td><td>$90</td><td>$130</td><td>$70</td><td>$80</td><td>$60</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 12 Pro</td><td>$320</td><td>$90</td><td>$130</td><td>$70</td><td>$80</td><td>$60</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 12 Pro Max</td><td>$320</td><td>$90</td><td>$130</td><td>$70</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone SE 2022</td><td>N/A</td><td>N/A</td><td>$100</td><td>$70</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 13 Mini</td><td>$270</td><td>$90</td><td>$150</td><td>$70</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 13</td><td>$300</td><td>$90</td><td>$120</td><td>$70</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 13 Pro</td><td>$300</td><td>$90</td><td>$150</td><td>$80</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 13 Pro Max</td><td>$340</td><td>$90</td><td>$140</td><td>$80</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 14</td><td>$300</td><td>$100</td><td>$140</td><td>$80</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>$200</td><td>$100</td></tr>
+                        <tr><td class="model-name">iPhone 14 Plus</td><td>$320</td><td>$100</td><td>$150</td><td>$80</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>$220</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 14 Pro</td><td>$320</td><td>$100</td><td>$180</td><td>$80</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>$220</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 14 Pro Max</td><td>$390</td><td>$100</td><td>$180</td><td>$80</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>N/A</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 15</td><td>$320</td><td>$100</td><td>$140</td><td>$80</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>$200</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 15 Plus</td><td>$350</td><td>$110</td><td>$180</td><td>$90</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>$220</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 15 Pro</td><td>$360</td><td>$110</td><td>$190</td><td>$80</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>$220</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 15 Pro Max</td><td>$400</td><td>$110</td><td>$200</td><td>$80</td><td>$80</td><td>$50</td><td>$40</td><td>$60</td><td>$250</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 16</td><td>$340</td><td>$120</td><td>$190</td><td>$80</td><td>$120/$180 OG</td><td>$50</td><td>$40</td><td>$60</td><td>$210</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 16 Plus</td><td>$390</td><td>$100</td><td>$190</td><td>$80</td><td>$110</td><td>$50</td><td>$40</td><td>$60</td><td>$220</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 16 Pro</td><td>$420</td><td>$120</td><td>$300</td><td>$90</td><td>$120/$180 OG</td><td>$50</td><td>$40</td><td>$60</td><td>$230</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 16 Pro Max</td><td>$450</td><td>$120</td><td>$340</td><td>$90</td><td>$120/$180 OG</td><td>$50</td><td>$40</td><td>$60</td><td>$250</td><td>$120</td></tr>
+                        <tr><td class="model-name">iPhone 16 E</td><td>$310</td><td>$110</td><td>$140</td><td>N/A</td><td>$120/$180 OG</td><td>$50</td><td>$40</td><td>$60</td><td>$220</td><td>$120</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Parts Legend -->
+<section class="legend-section scroll-animate">
+    <div class="container">
+        <h3 class="text-center">Parts Legend</h3>
+        <div class="legend-grid">
+            <div class="legend-item">
+                <strong>Original:</strong> OEM manufacturer parts
+            </div>
+            <div class="legend-item">
+                <strong>AFM:</strong> Aftermarket compatible parts
+            </div>
+            <div class="legend-item">
+                <strong>BG:</strong> Back Glass
+            </div>
+            <div class="legend-item">
+                <strong>CP:</strong> Charging Port
+            </div>
+            <div class="legend-item">
+                <strong>OG:</strong> Original parts premium option
+            </div>
+            <div class="legend-item">
+                <strong>N/A:</strong> Service not available
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Warranty Information -->
+<section class="warranty-section">
+    <div class="container">
+        <h2 class="text-center">Repair Warranty & Guarantee</h2>
+        <div class="warranty-grid">
+            <div class="warranty-card">
+                <div class="warranty-icon">🛡️</div>
+                <h3>90-Day Warranty</h3>
+                <p>All repairs include 90-day warranty on parts and labor</p>
+            </div>
+            <div class="warranty-card">
+                <div class="warranty-icon">⚡</div>
+                <h3>Same-Day Service</h3>
+                <p>Most repairs completed within 1-2 hours at your location</p>
+            </div>
+            <div class="warranty-card">
+                <div class="warranty-icon">💰</div>
+                <h3>Price Match</h3>
+                <p>We match competitor prices with quality guarantee</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content text-center">
+            <h2>Ready to Repair Your Device?</h2>
+            <p>Book your repair appointment today and get your device fixed by experts</p>
+            <div class="cta-actions">
+                <a href="{{ url_for('booking.start') }}" class="btn-primary btn-lg">
+                    <i class="fas fa-calendar me-2"></i>
+                    Book Repair Now
+                </a>
+                <a href="tel:+17087372873" class="btn-secondary btn-lg">
+                    <i class="fas fa-phone me-2"></i>
+                    Call +1 (708) 737-2873
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab functionality
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const pricingTables = document.querySelectorAll('.pricing-table');
+    
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tab = this.dataset.tab;
+            
+            // Update active button
+            tabBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update active table
+            pricingTables.forEach(table => {
+                table.classList.remove('active');
+                if (table.id === tab) {
+                    table.classList.add('active');
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %} 

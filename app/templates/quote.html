@@ -1,0 +1,547 @@
+{% extends "base.html" %}
+
+{% block title %}Get Instant Quote - Fixbulance | Device Repair Pricing Calculator{% endblock %}
+
+{% block meta_title %}Get Instant Quote - Fixbulance | Device Repair Pricing Calculator{% endblock %}
+
+{% block meta_description %}Get instant repair quotes for iPhone and Samsung devices. Select your device model and repair type for immediate pricing. Professional repair services with 90-day warranty in Orland Park, IL.{% endblock %}
+
+{% block meta_keywords %}repair quote, device repair pricing, iPhone repair cost, Samsung repair cost, instant quote, repair calculator, screen replacement cost, battery replacement price{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="quote-hero">
+    <div class="container">
+        <div class="quote-header">
+            <h1>Get Instant Repair Quote</h1>
+            <p>Select your device and repair type for immediate pricing</p>
+            <div class="quote-features">
+                <div class="feature-item">
+                    <i class="fas fa-calculator"></i>
+                    <span>Instant Pricing</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>90-Day Warranty</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Same-Day Service</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quote Calculator -->
+<section class="quote-calculator">
+    <div class="container">
+        <div class="calculator-grid">
+            <!-- Form Section -->
+            <div class="calculator-form">
+                <div class="form-header">
+                    <h2>Quick Quote Calculator</h2>
+                    <p>Get your repair cost in seconds</p>
+                </div>
+                
+                <form id="quoteForm" class="quote-form-modern">
+                    <div class="form-step active" id="step1">
+                        <h3>Step 1: Select Device Brand</h3>
+                        <div class="brand-selection">
+                            <div class="brand-option" data-brand="samsung">
+                                <img src="{{ url_for('static', filename='img/samsung.png') }}" alt="Samsung">
+                                <span>Samsung</span>
+                            </div>
+                            <div class="brand-option" data-brand="iphone">
+                                <img src="{{ url_for('static', filename='img/apple.png') }}" alt="iPhone">
+                                <span>iPhone</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-step" id="step2">
+                        <h3>Step 2: Select Device Model</h3>
+                        <div class="model-selection">
+                            <select id="deviceModel" class="form-control">
+                                <option value="">Choose your device model</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-step" id="step3">
+                        <h3>Step 3: Select Repair Type</h3>
+                        <div class="repair-selection">
+                            <div class="repair-grid" id="repairOptions">
+                                <!-- Repair options will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-step" id="step4">
+                        <h3>Step 4: Choose Parts Quality</h3>
+                        <div class="parts-selection">
+                            <div class="parts-grid" id="partsOptions">
+                                <!-- Parts options will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="form-navigation">
+                    <button id="prevBtn" class="btn-secondary" style="display: none;">Previous</button>
+                    <button id="nextBtn" class="btn-primary">Next</button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="quote-results">
+                <div class="results-header">
+                    <h3>Your Quote</h3>
+                    <div class="quote-summary" id="quoteSummary">
+                        <div class="summary-item">
+                            <span class="label">Device:</span>
+                            <span class="value" id="selectedDevice">Not selected</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Repair:</span>
+                            <span class="value" id="selectedRepair">Not selected</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Parts:</span>
+                            <span class="value" id="selectedParts">Not selected</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="price-display" id="priceDisplay">
+                    <div class="price-main">
+                        <span class="currency">$</span>
+                        <span class="amount" id="quotePrice">0</span>
+                    </div>
+                    <p class="price-note">Includes labor and 90-day warranty</p>
+                </div>
+
+                <div class="quote-actions" id="quoteActions" style="display: none;">
+                    <button class="btn-primary btn-lg" onclick="bookRepair()">
+                        <i class="fas fa-calendar"></i>
+                        Book This Repair
+                    </button>
+                    <button class="btn-secondary" onclick="callNow()">
+                        <i class="fas fa-phone"></i>
+                        Call +1 (708) 737-2873
+                    </button>
+                </div>
+
+                <div class="warranty-info">
+                    <div class="warranty-badge">
+                        <i class="fas fa-shield-check"></i>
+                        <div>
+                            <strong>90-Day Warranty</strong>
+                            <p>Parts & Labor Guaranteed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="quote-features-section">
+    <div class="container">
+        <h2 class="text-center">Why Choose Fixbulance?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Fast Turnaround</h3>
+                <p>Most repairs completed in 1-2 hours</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>Quality Parts</h3>
+                <p>Original and high-quality aftermarket options</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3>Fair Pricing</h3>
+                <p>Transparent pricing with no hidden fees</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏠</div>
+                <h3>At Your Location</h3>
+                <p>We come to you for convenient service</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Pricing data from repair page
+const PRICING_DATA = {
+    samsung: {
+        'Galaxy S20': {
+            'Screen Repair': { 'Original': 260, 'Aftermarket': 160 },
+            'Battery Replacement': { 'Original': 80, 'Aftermarket': 60 },
+            'Back Glass': { 'Original': 100, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': 75, 'Aftermarket': 60 }
+        },
+        'Galaxy S20 Plus': {
+            'Screen Repair': { 'Original': 260, 'Aftermarket': null },
+            'Battery Replacement': { 'Original': 80, 'Aftermarket': 60 },
+            'Back Glass': { 'Original': 110, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': 75, 'Aftermarket': 60 }
+        },
+        'Galaxy S20 Ultra': {
+            'Screen Repair': { 'Original': 280, 'Aftermarket': 170 },
+            'Battery Replacement': { 'Original': 100, 'Aftermarket': 60 },
+            'Back Glass': { 'Original': 110, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': 80, 'Aftermarket': 60 }
+        },
+        'Galaxy S21': {
+            'Screen Repair': { 'Original': 200, 'Aftermarket': 120 },
+            'Battery Replacement': { 'Original': 100, 'Aftermarket': 60 },
+            'Back Glass': { 'Original': 100, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': 75, 'Aftermarket': null }
+        },
+        'Galaxy S21 Ultra': {
+            'Screen Repair': { 'Original': 280, 'Aftermarket': 160 },
+            'Battery Replacement': { 'Original': 110, 'Aftermarket': 70 },
+            'Back Glass': { 'Original': 110, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': 75, 'Aftermarket': null }
+        },
+        'Galaxy S22': {
+            'Screen Repair': { 'Original': 220, 'Aftermarket': null },
+            'Battery Replacement': { 'Original': 110, 'Aftermarket': 70 },
+            'Back Glass': { 'Original': 110, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': 75, 'Aftermarket': 60 }
+        },
+        'Galaxy S22 Ultra': {
+            'Screen Repair': { 'Original': 290, 'Aftermarket': 160 },
+            'Battery Replacement': { 'Original': 110, 'Aftermarket': 80 },
+            'Back Glass': { 'Original': 120, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': 80, 'Aftermarket': null }
+        },
+        'Galaxy S23': {
+            'Screen Repair': { 'Original': 220, 'Aftermarket': null },
+            'Battery Replacement': { 'Original': 110, 'Aftermarket': 80 },
+            'Back Glass': { 'Original': 120, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': null, 'Aftermarket': 70 }
+        },
+        'Galaxy S23 Ultra': {
+            'Screen Repair': { 'Original': 280, 'Aftermarket': 170 },
+            'Battery Replacement': { 'Original': 110, 'Aftermarket': 80 },
+            'Back Glass': { 'Original': 130, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': null, 'Aftermarket': 70 }
+        },
+        'Galaxy S24': {
+            'Screen Repair': { 'Original': 210, 'Aftermarket': null },
+            'Battery Replacement': { 'Original': null, 'Aftermarket': 80 },
+            'Back Glass': { 'Original': 120, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': null, 'Aftermarket': 80 }
+        },
+        'Galaxy S24 Ultra': {
+            'Screen Repair': { 'Original': 290, 'Aftermarket': 220 },
+            'Battery Replacement': { 'Original': null, 'Aftermarket': 80 },
+            'Back Glass': { 'Original': 120, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': null, 'Aftermarket': 80 }
+        }
+    },
+    iphone: {
+        'iPhone 12': {
+            'Screen Repair': { 'Original': 300, 'Aftermarket': 130 },
+            'Battery Replacement': { 'Original': 90, 'Aftermarket': 70 },
+            'Charging Port': { 'Original': 80, 'Aftermarket': 80 },
+            'Speaker': { 'Original': 60, 'Aftermarket': 60 },
+            'Camera Lens': { 'Original': 40, 'Aftermarket': 40 },
+            'Back Glass': { 'Original': null, 'Aftermarket': 120 }
+        },
+        'iPhone 12 Pro': {
+            'Screen Repair': { 'Original': 320, 'Aftermarket': 130 },
+            'Battery Replacement': { 'Original': 90, 'Aftermarket': 70 },
+            'Charging Port': { 'Original': 80, 'Aftermarket': 80 },
+            'Speaker': { 'Original': 60, 'Aftermarket': 60 },
+            'Camera Lens': { 'Original': 40, 'Aftermarket': 40 },
+            'Back Glass': { 'Original': null, 'Aftermarket': 120 }
+        },
+        'iPhone 13': {
+            'Screen Repair': { 'Original': 300, 'Aftermarket': 120 },
+            'Battery Replacement': { 'Original': 90, 'Aftermarket': 70 },
+            'Charging Port': { 'Original': 80, 'Aftermarket': 80 },
+            'Speaker': { 'Original': 50, 'Aftermarket': 50 },
+            'Camera Lens': { 'Original': 40, 'Aftermarket': 40 },
+            'Back Glass': { 'Original': null, 'Aftermarket': 120 }
+        },
+        'iPhone 13 Pro': {
+            'Screen Repair': { 'Original': 300, 'Aftermarket': 150 },
+            'Battery Replacement': { 'Original': 90, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': 80, 'Aftermarket': 80 },
+            'Speaker': { 'Original': 50, 'Aftermarket': 50 },
+            'Camera Lens': { 'Original': 40, 'Aftermarket': 40 },
+            'Back Glass': { 'Original': null, 'Aftermarket': 120 }
+        },
+        'iPhone 14': {
+            'Screen Repair': { 'Original': 300, 'Aftermarket': 140 },
+            'Battery Replacement': { 'Original': 100, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': 80, 'Aftermarket': 80 },
+            'Speaker': { 'Original': 50, 'Aftermarket': 50 },
+            'Camera Lens': { 'Original': 40, 'Aftermarket': 40 },
+            'Back Glass': { 'Original': 200, 'Aftermarket': 100 }
+        },
+        'iPhone 14 Pro': {
+            'Screen Repair': { 'Original': 320, 'Aftermarket': 180 },
+            'Battery Replacement': { 'Original': 100, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': 80, 'Aftermarket': 80 },
+            'Speaker': { 'Original': 50, 'Aftermarket': 50 },
+            'Camera Lens': { 'Original': 40, 'Aftermarket': 40 },
+            'Back Glass': { 'Original': 220, 'Aftermarket': 120 }
+        },
+        'iPhone 15': {
+            'Screen Repair': { 'Original': 320, 'Aftermarket': 140 },
+            'Battery Replacement': { 'Original': 100, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': 80, 'Aftermarket': 80 },
+            'Speaker': { 'Original': 50, 'Aftermarket': 50 },
+            'Camera Lens': { 'Original': 40, 'Aftermarket': 40 },
+            'Back Glass': { 'Original': 200, 'Aftermarket': 120 }
+        },
+        'iPhone 15 Pro': {
+            'Screen Repair': { 'Original': 360, 'Aftermarket': 190 },
+            'Battery Replacement': { 'Original': 110, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': 80, 'Aftermarket': 80 },
+            'Speaker': { 'Original': 50, 'Aftermarket': 50 },
+            'Camera Lens': { 'Original': 40, 'Aftermarket': 40 },
+            'Back Glass': { 'Original': 220, 'Aftermarket': 120 }
+        },
+        'iPhone 16': {
+            'Screen Repair': { 'Original': 340, 'Aftermarket': 190 },
+            'Battery Replacement': { 'Original': 120, 'Aftermarket': 80 },
+            'Charging Port': { 'Original': 120, 'Aftermarket': 120 },
+            'Speaker': { 'Original': 50, 'Aftermarket': 50 },
+            'Camera Lens': { 'Original': 40, 'Aftermarket': 40 },
+            'Back Glass': { 'Original': 210, 'Aftermarket': 120 }
+        },
+        'iPhone 16 Pro': {
+            'Screen Repair': { 'Original': 420, 'Aftermarket': 300 },
+            'Battery Replacement': { 'Original': 120, 'Aftermarket': 90 },
+            'Charging Port': { 'Original': 120, 'Aftermarket': 120 },
+            'Speaker': { 'Original': 50, 'Aftermarket': 50 },
+            'Camera Lens': { 'Original': 40, 'Aftermarket': 40 },
+            'Back Glass': { 'Original': 230, 'Aftermarket': 120 }
+        }
+    }
+};
+
+let currentStep = 1;
+let selectedBrand = '';
+let selectedModel = '';
+let selectedRepair = '';
+let selectedParts = '';
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupEventListeners();
+});
+
+function setupEventListeners() {
+    // Brand selection
+    document.querySelectorAll('.brand-option').forEach(option => {
+        option.addEventListener('click', function() {
+            selectBrand(this.dataset.brand);
+        });
+    });
+
+    // Navigation buttons
+    document.getElementById('nextBtn').addEventListener('click', nextStep);
+    document.getElementById('prevBtn').addEventListener('click', prevStep);
+}
+
+function selectBrand(brand) {
+    selectedBrand = brand;
+    document.querySelectorAll('.brand-option').forEach(opt => opt.classList.remove('selected'));
+    document.querySelector(`[data-brand="${brand}"]`).classList.add('selected');
+    
+    updateSummary();
+    populateModels();
+    nextStep();
+}
+
+function populateModels() {
+    const modelSelect = document.getElementById('deviceModel');
+    modelSelect.innerHTML = '<option value="">Choose your device model</option>';
+    
+    const models = Object.keys(PRICING_DATA[selectedBrand]);
+    models.forEach(model => {
+        const option = document.createElement('option');
+        option.value = model;
+        option.textContent = model;
+        modelSelect.appendChild(option);
+    });
+
+    modelSelect.addEventListener('change', function() {
+        if (this.value) {
+            selectedModel = this.value;
+            updateSummary();
+            populateRepairs();
+            nextStep();
+        }
+    });
+}
+
+function populateRepairs() {
+    const repairGrid = document.getElementById('repairOptions');
+    repairGrid.innerHTML = '';
+    
+    const repairs = Object.keys(PRICING_DATA[selectedBrand][selectedModel]);
+    repairs.forEach(repair => {
+        const repairCard = document.createElement('div');
+        repairCard.className = 'repair-option';
+        repairCard.innerHTML = `
+            <div class="repair-icon">${getRepairIcon(repair)}</div>
+            <span>${repair}</span>
+        `;
+        repairCard.addEventListener('click', function() {
+            selectRepair(repair);
+        });
+        repairGrid.appendChild(repairCard);
+    });
+}
+
+function selectRepair(repair) {
+    selectedRepair = repair;
+    document.querySelectorAll('.repair-option').forEach(opt => opt.classList.remove('selected'));
+    event.target.closest('.repair-option').classList.add('selected');
+    
+    updateSummary();
+    populateParts();
+    nextStep();
+}
+
+function populateParts() {
+    const partsGrid = document.getElementById('partsOptions');
+    partsGrid.innerHTML = '';
+    
+    const parts = PRICING_DATA[selectedBrand][selectedModel][selectedRepair];
+    
+    Object.keys(parts).forEach(partType => {
+        if (parts[partType] !== null) {
+            const partCard = document.createElement('div');
+            partCard.className = 'parts-option';
+            partCard.innerHTML = `
+                <div class="parts-header">
+                    <h4>${partType} Parts</h4>
+                    <div class="price">$${parts[partType]}</div>
+                </div>
+                <p>${getPartsDescription(partType)}</p>
+            `;
+            partCard.addEventListener('click', function() {
+                selectParts(partType, parts[partType]);
+            });
+            partsGrid.appendChild(partCard);
+        }
+    });
+}
+
+function selectParts(partType, price) {
+    selectedParts = partType;
+    document.querySelectorAll('.parts-option').forEach(opt => opt.classList.remove('selected'));
+    event.target.closest('.parts-option').classList.add('selected');
+    
+    updateSummary();
+    updatePrice(price);
+    showQuoteActions();
+}
+
+function updateSummary() {
+    document.getElementById('selectedDevice').textContent = selectedModel || 'Not selected';
+    document.getElementById('selectedRepair').textContent = selectedRepair || 'Not selected';
+    document.getElementById('selectedParts').textContent = selectedParts || 'Not selected';
+}
+
+function updatePrice(price) {
+    document.getElementById('quotePrice').textContent = price;
+}
+
+function showQuoteActions() {
+    document.getElementById('quoteActions').style.display = 'block';
+    document.getElementById('nextBtn').textContent = 'Get New Quote';
+    document.getElementById('nextBtn').onclick = resetQuote;
+}
+
+function nextStep() {
+    if (currentStep < 4) {
+        document.querySelector(`#step${currentStep}`).classList.remove('active');
+        currentStep++;
+        document.querySelector(`#step${currentStep}`).classList.add('active');
+        
+        document.getElementById('prevBtn').style.display = currentStep > 1 ? 'block' : 'none';
+        document.getElementById('nextBtn').style.display = currentStep < 4 ? 'block' : 'none';
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        document.querySelector(`#step${currentStep}`).classList.remove('active');
+        currentStep--;
+        document.querySelector(`#step${currentStep}`).classList.add('active');
+        
+        document.getElementById('prevBtn').style.display = currentStep > 1 ? 'block' : 'none';
+        document.getElementById('nextBtn').style.display = 'block';
+        document.getElementById('nextBtn').textContent = 'Next';
+        document.getElementById('nextBtn').onclick = nextStep;
+    }
+}
+
+function resetQuote() {
+    currentStep = 1;
+    selectedBrand = '';
+    selectedModel = '';
+    selectedRepair = '';
+    selectedParts = '';
+    
+    document.querySelectorAll('.form-step').forEach(step => step.classList.remove('active'));
+    document.querySelector('#step1').classList.add('active');
+    document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+    
+    document.getElementById('prevBtn').style.display = 'none';
+    document.getElementById('nextBtn').style.display = 'block';
+    document.getElementById('nextBtn').textContent = 'Next';
+    document.getElementById('nextBtn').onclick = nextStep;
+    document.getElementById('quoteActions').style.display = 'none';
+    
+    updateSummary();
+    document.getElementById('quotePrice').textContent = '0';
+}
+
+function getRepairIcon(repair) {
+    const icons = {
+        'Screen Repair': '📱',
+        'Battery Replacement': '🔋',
+        'Charging Port': '🔌',
+        'Back Glass': '🔧',
+        'Speaker': '🔊',
+        'Camera Lens': '📷'
+    };
+    return icons[repair] || '🔧';
+}
+
+function getPartsDescription(partType) {
+    const descriptions = {
+        'Original': 'OEM manufacturer parts with full compatibility guarantee',
+        'Aftermarket': 'High-quality compatible parts at a lower cost'
+    };
+    return descriptions[partType] || 'Quality replacement parts';
+}
+
+function bookRepair() {
+    const params = new URLSearchParams({
+        device: selectedBrand === 'iphone' ? 'iPhone' : 'Samsung',
+        model: selectedModel,
+        issue: selectedRepair,
+        parts: selectedParts
+    });
+    window.location.href = `{{ url_for('booking.start') }}?${params.toString()}`;
+}
+
+function callNow() {
+    window.location.href = 'tel:+17087372873';
+}
+</script>
+{% endblock %} 

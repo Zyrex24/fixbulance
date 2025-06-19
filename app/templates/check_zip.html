@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+
+{% block title %}Check ZIP Code - Service Area | Fixbulance{% endblock %}
+
+{% block content %}
+<div style="padding: 100px 20px 50px; background: #f0f0f0; min-height: 100vh;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        
+        <!-- Page Title -->
+        <div style="text-align: center; margin-bottom: 50px;">
+            <h1 style="font-size: 48px; font-weight: bold; color: #333; margin-bottom: 20px;">Check Our Service Area</h1>
+            <p style="font-size: 20px; color: #666;">Enter your ZIP code to see if we service your area</p>
+        </div>
+        
+        <!-- ZIP Code Form Card -->
+        <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 30px;">
+            <form id="zipForm" style="text-align: center;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                
+                <div style="margin-bottom: 30px;">
+                    <label style="display: block; font-size: 18px; font-weight: bold; color: #333; margin-bottom: 15px;">
+                        Enter Your ZIP Code:
+                    </label>
+                    
+                    <div style="display: flex; max-width: 500px; margin: 0 auto; border: 3px solid #ddd; border-radius: 50px; overflow: visible; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                        <input type="text" 
+                               id="zipCode" 
+                               name="zip_code" 
+                               placeholder="60462" 
+                               maxlength="5" 
+                               pattern="[0-9]{5}" 
+                               required
+                               style="flex: 1; padding: 15px 20px; border: none; font-size: 24px; font-weight: bold; text-align: center; letter-spacing: 2px; outline: none; background: white; border-radius: 47px 0 0 47px;">
+                        
+                        <button type="submit" 
+                                id="checkButton"
+                                style="padding: 15px 30px; background: linear-gradient(135deg, #FF0000, #FF3333); border: none; color: white; font-weight: bold; font-size: 16px; cursor: pointer; transition: all 0.3s ease; min-width: 140px; white-space: nowrap; border-radius: 0 47px 47px 0; flex-shrink: 0;">
+                            <span id="buttonText">🔍 Check</span>
+                            <span id="loadingSpinner" style="display: none;">⏳ Checking...</span>
+                        </button>
+                    </div>
+                    
+                    <div style="font-size: 14px; color: #666; margin-top: 10px;">
+                        Enter a 5-digit ZIP code to check service availability
+                    </div>
+                </div>
+            </form>
+            
+            <!-- Results Area -->
+            <div id="resultsArea" style="display: none; margin-top: 30px; padding: 20px; border-radius: 10px;">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+        
+        <!-- Service Area Map -->
+        <div style="background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;">
+            <h3 style="color: #333; margin-bottom: 20px;">Our Service Coverage Area</h3>
+            <div style="position: relative; display: inline-block;">
+                <img src="{{ url_for('static', filename='images/Business Location Map.png') }}" 
+                     alt="Fixbulance Service Area Map" 
+                     style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display: none; padding: 40px; background: #f8f9fa; border-radius: 10px; color: #666;">
+                    Service area map will be displayed here
+                </div>
+            </div>
+            <p style="color: #666; margin-top: 15px; font-size: 16px;">
+                We provide mobile repair services within a 10-mile radius of Orland Park, IL
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('zipForm');
+    const zipInput = document.getElementById('zipCode');
+    const checkButton = document.getElementById('checkButton');
+    const buttonText = document.getElementById('buttonText');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const resultsArea = document.getElementById('resultsArea');
+    
+    // Format ZIP code input (numbers only)
+    zipInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 5) value = value.slice(0, 5);
+        e.target.value = value;
+    });
+    
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const zipCode = zipInput.value.trim();
+        
+        if (zipCode.length !== 5) {
+            showError('Please enter a valid 5-digit ZIP code');
+            return;
+        }
+        
+        checkZipCode(zipCode);
+    });
+    
+    function checkZipCode(zipCode) {
+        // Show loading state
+        setLoadingState(true);
+        hideResults();
+        
+        // Make AJAX request
+        fetch('/api/validate-zip', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+            },
+            body: JSON.stringify({
+                zip_code: zipCode
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            setLoadingState(false);
+            
+            if (data.valid) {
+                showSuccess(data);
+            } else {
+                showError(data.message, data.suggestion);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            setLoadingState(false);
+            showError('Sorry, there was an error checking your ZIP code. Please try again.');
+        });
+    }
+    
+    function setLoadingState(loading) {
+        if (loading) {
+            buttonText.style.display = 'none';
+            loadingSpinner.style.display = 'inline';
+            checkButton.disabled = true;
+            checkButton.style.opacity = '0.7';
+        } else {
+            buttonText.style.display = 'inline';
+            loadingSpinner.style.display = 'none';
+            checkButton.disabled = false;
+            checkButton.style.opacity = '1';
+        }
+    }
+    
+    function showSuccess(data) {
+        const coverageColor = getCoverageColor(data.coverage_level);
+        const coverageText = getCoverageText(data.coverage_level);
+        
+        resultsArea.innerHTML = `
+            <div style="background: linear-gradient(135deg, #d4edda, #c3e6cb); border: 2px solid #28a745; border-radius: 10px; padding: 25px; text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
+                <h3 style="color: #155724; margin-bottom: 15px; font-size: 24px;">Great News!</h3>
+                <p style="color: #155724; font-size: 18px; margin-bottom: 20px;">
+                    <strong>We service ${data.city}, ${data.state}!</strong>
+                </p>
+                
+                <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <strong>Coverage Level:</strong> 
+                            <span style="color: ${coverageColor}; font-weight: bold;">${coverageText}</span>
+                        </div>
+                        <div>
+                            <strong>Distance:</strong> ${data.distance_miles} miles from base
+                        </div>
+                    </div>
+                </div>
+                
+                ${data.requires_confirmation ? 
+                    '<div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 5px; margin-bottom: 20px; color: #856404;"><strong>Note:</strong> Service confirmation required for this area</div>' 
+                    : ''
+                }
+                
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <a href="/booking/start" style="background: linear-gradient(135deg, #FF0000, #FF3333); color: white; padding: 12px 25px; border-radius: 25px; text-decoration: none; font-weight: bold; transition: transform 0.2s;">
+                        📱 Book Repair Now
+                    </a>
+                                    <a href="tel:+17087372873" style="background: #28a745; color: white; padding: 12px 25px; border-radius: 25px; text-decoration: none; font-weight: bold; transition: transform 0.2s;">
+                📞 Call +1 (708) 737-2873
+                </a>
+                </div>
+            </div>
+        `;
+        
+        showResults();
+    }
+    
+    function showError(message, suggestion = null) {
+        resultsArea.innerHTML = `
+            <div style="background: linear-gradient(135deg, #f8d7da, #f1b0b7); border: 2px solid #dc3545; border-radius: 10px; padding: 25px; text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 15px;">❌</div>
+                <h3 style="color: #721c24; margin-bottom: 15px; font-size: 24px;">Service Not Available</h3>
+                <p style="color: #721c24; font-size: 16px; margin-bottom: 20px;">
+                    ${message}
+                </p>
+                
+                ${suggestion ? 
+                    `<div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #721c24;">
+                        <strong>Suggestion:</strong> ${suggestion}
+                    </div>` 
+                    : ''
+                }
+                
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                                    <a href="tel:+17087372873" style="background: #007bff; color: white; padding: 12px 25px; border-radius: 25px; text-decoration: none; font-weight: bold;">
+                📞 Call Us: +1 (708) 737-2873
+                </a>
+                    <a href="mailto:support@fixbulance.com" style="background: #6c757d; color: white; padding: 12px 25px; border-radius: 25px; text-decoration: none; font-weight: bold;">
+                        ✉️ Email Support
+                    </a>
+                </div>
+            </div>
+        `;
+        
+        showResults();
+    }
+    
+    function showResults() {
+        resultsArea.style.display = 'block';
+        resultsArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    
+    function hideResults() {
+        resultsArea.style.display = 'none';
+    }
+    
+    function getCoverageColor(level) {
+        switch(level) {
+            case 'full': return '#28a745';
+            case 'partial': return '#ffc107';
+            case 'edge': return '#17a2b8';
+            default: return '#6c757d';
+        }
+    }
+    
+    function getCoverageText(level) {
+        switch(level) {
+            case 'full': return 'Full Coverage';
+            case 'partial': return 'Partial Coverage';
+            case 'edge': return 'Edge Coverage';
+            default: return 'Standard Coverage';
+        }
+    }
+});
+</script>
+
+<style>
+/* Hover effects */
+#checkButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+}
+
+a[href^="tel:"]:hover,
+a[href^="mailto:"]:hover,
+a[href="/booking/start"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+#zipCode:focus {
+    border-color: #FF0000;
+    box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    div[style*="font-size: 48px"] {
+        font-size: 36px !important;
+    }
+    
+    div[style*="max-width: 500px"] {
+        max-width: 95% !important;
+        flex-direction: column !important;
+        border-radius: 25px !important;
+    }
+    
+    #zipCode {
+        border-radius: 25px 25px 0 0 !important;
+        text-align: center !important;
+    }
+    
+    #checkButton {
+        border-radius: 0 0 25px 25px !important;
+        width: 100% !important;
+        min-width: auto !important;
+        padding: 18px 25px !important;
+        font-size: 18px !important;
+    }
+}
+
+/* Ensure button is always visible */
+@media (min-width: 769px) {
+    div[style*="max-width: 500px"] {
+        max-width: 500px !important;
+        overflow: visible !important;
+    }
+    
+    #checkButton {
+        border-radius: 0 47px 47px 0 !important;
+        flex-shrink: 0 !important;
+        min-width: 140px !important;
+    }
+    
+    #zipCode {
+        border-radius: 47px 0 0 47px !important;
+    }
+}
+</style>
+{% endblock %} 

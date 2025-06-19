@@ -237,7 +237,7 @@ class CommunicationService:
                 <div style="background: #f8f9fa; padding: 15px; margin: 20px 0; border-left: 4px solid #1e3a5f;">
                     <h4>What's Next?</h4>
                     <p>Our technician will arrive 15 minutes before your scheduled time and will call you upon arrival.</p>
-                    <p>For any changes or questions, call us at <strong>(708) 971-4053</strong></p>
+                    <p>For any changes or questions, call us at <strong>+1 (708) 737-2873</strong></p>
                 </div>
             </div>
             
@@ -268,14 +268,14 @@ class CommunicationService:
         
         Our technician will arrive 15 minutes before your scheduled time and will call you upon arrival.
         
-        For any changes or questions, call us at (708) 971-4053
+        For any changes or questions, call us at +1 (708) 737-2873
         
         Thank you for choosing Fixbulance!
         """
     
     def get_confirmation_sms_text(self, booking):
         """Generate SMS text for booking confirmation"""
-        return f"Fixbulance booking confirmed! {booking.device_type} repair on {booking.preferred_date} at {booking.preferred_time}. Ref: {booking.booking_reference}. Questions? Call (708) 971-4053"
+        return f"Fixbulance booking confirmed! {booking.device_type} repair on {booking.preferred_date} at {booking.preferred_time}. Ref: {booking.booking_reference}. Questions? Call +1 (708) 737-2873"
     
     def get_enroute_email_html(self, booking, technician_name, eta_minutes):
         """Generate HTML email for en route notification"""
@@ -299,7 +299,7 @@ class CommunicationService:
                     <p>• Your technician will call upon arrival</p>
                 </div>
                 
-                <p>For real-time updates, call <strong>(708) 971-4053</strong></p>
+                <p>For real-time updates, call <strong>+1 (708) 737-2873</strong></p>
             </div>
         </div>
         """

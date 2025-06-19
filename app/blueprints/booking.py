@@ -846,7 +846,7 @@ def edit_booking(booking_id):
         flash('Booking not found or cannot be edited.', 'warning')
         return redirect(url_for('booking.my_bookings'))
     
-    flash('To modify your booking, please call us at (708) 971-4053. Our team will be happy to help with any changes.', 'info')
+    flash('To modify your booking, please call us at +1 (708) 737-2873. Our team will be happy to help with any changes.', 'info')
     return redirect(url_for('booking.view_booking', booking_id=booking_id))
 
 @booking_bp.route('/booking/<int:booking_id>/cancel', methods=['POST'])

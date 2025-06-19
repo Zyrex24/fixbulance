@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Allow all important pages
+Allow: /repair
+Allow: /buy
+Allow: /about
+Allow: /contact
+Allow: /check-zip
+Allow: /booking/
+Allow: /auth/
+
+# Block admin and sensitive areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_debug_toolbar/
+
+# Sitemap location
+Sitemap: https://www.fixbulance.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1 

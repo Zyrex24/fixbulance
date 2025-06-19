@@ -1,0 +1,590 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - Fixbulance{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>About Fixbulance®</h1>
+        <p>Professional mobile device repair services you can trust</p>
+    </div>
+</section>
+
+<section class="about-section">
+    <div class="container">
+        <div class="about-content">
+            <div class="about-text">
+                <h2>Our Mobile Service</h2>
+                <p>We bring professional device repair services directly to your location in the Orland Park area and surrounding communities.</p>
+                
+                <div class="location-details">
+                    <h3>Service Area</h3>
+                    <p>Orland Park, IL & Surrounding Areas (10-mile radius)</p>
+                    
+                    <h3>Contact Information</h3>
+                    <p><strong>Phone:</strong> <a href="tel:+17087372873">+1 (708) 737-2873</a></p>
+                    <p><strong>Email:</strong> <a href="mailto:info@fixbulance.com">info@fixbulance.com</a></p>
+                    
+                    <h3>Service Hours</h3>
+                    <ul>
+                        <li>Monday - Sunday: 8:00 AM - 7:00 PM</li>
+                        <li>Emergency repairs available</li>
+                        <li>Same-day service in most cases</li>
+                    </ul>
+                    
+                    <div class="service-highlight">
+                        <h4>Mobile Repair Service</h4>
+                        <p>We come to you! No need to visit a store - our certified technicians bring the repair shop to your location.</p>
+                    </div>
+                </div>
+                
+                <div class="cta-section">
+                    <h3>Ready to Get Started?</h3>
+                    <p>Book your mobile repair service today and get your device fixed by our expert technicians at your location.</p>
+                    <div class="cta-buttons">
+                        <a href="{{ url_for('booking.start') }}" class="btn btn-primary">
+                            <i class="fas fa-calendar me-1"></i>
+                            Book Mobile Repair
+                        </a>
+                        <a href="{{ url_for('main.check_zip') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-search me-1"></i>
+                            Check Service Area
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="location-map">
+                <h3>Our Service Area</h3>
+                <div class="map-container">
+                    <img src="{{ url_for('static', filename='images/Business Location Map.png') }}" 
+                         alt="Fixbulance Service Area Map - 10-Mile Radius from Orland Park, IL" 
+                         class="location-map-image"
+                         onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'map-placeholder\'><i class=\'fas fa-map-marker-alt\'></i><p>Service area map loading...</p></div>';">
+                    
+                    <div class="map-overlay">
+                        <div class="map-info-overlay">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <strong>Service Coverage</strong>
+                                <p>10-mile radius from Orland Park, IL</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-info-card">
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt text-primary"></i>
+                        <div>
+                            <strong>Service Area</strong>
+                            <p>Orland Park, IL & Surrounding Areas</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone text-success"></i>
+                        <div>
+                            <strong>Phone</strong>
+                            <p><a href="tel:+17087372873">+1 (708) 737-2873</a></p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-clock text-info"></i>
+                        <div>
+                            <strong>Hours</strong>
+                            <p>Daily: 8:00 AM - 7:00 PM</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope text-warning"></i>
+                        <div>
+                            <strong>Email</strong>
+                            <p><a href="mailto:info@fixbulance.com">info@fixbulance.com</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="services-overview">
+    <div class="container">
+        <h2>Why Choose Fixbulance®?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h3>Expert Technicians</h3>
+                <p>Our certified technicians have years of experience repairing iPhones, Samsung devices, and other mobile devices with quality parts.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h3>Mobile Service</h3>
+                <p>We come to your location! No need to drive to a repair shop - we bring professional repair services directly to you.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3>Fast Service</h3>
+                <p>Most repairs completed the same day. We value your time and get your device back up and running quickly.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Quality Guarantee</h3>
+                <p>All repairs come with our 90-day warranty. We stand behind our work with quality parts and professional service.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <h3>Transparent Pricing</h3>
+                <p>No hidden fees. We provide upfront pricing with a $15 deposit to secure your appointment and transparent service costs.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <h3>Professional Equipment</h3>
+                <p>We use professional-grade tools and genuine/high-quality replacement parts to ensure your device works like new.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="about-story">
+    <div class="container">
+        <div class="story-content">
+            <h2>About Ahmed Khalil & Fixbulance®</h2>
+            <p>Fixbulance® was founded with a simple mission: to provide professional, convenient, and reliable mobile device repair services to the Orland Park community and surrounding areas.</p>
+            
+            <p>Our owner, Ahmed Khalil, recognized the need for quality mobile repair services that come to you. Instead of waiting in long lines at repair shops or dealing with unreliable service, Fixbulance® brings certified technicians directly to your location.</p>
+            
+            <p>We specialize in iPhone and Samsung device repairs, including screen replacements, battery replacements, charging port repairs, and more. Every repair is backed by our 90-day warranty and commitment to customer satisfaction.</p>
+            
+            <div class="contact-cta">
+                <h3>Get Your Device Fixed Today</h3>
+                <p>Ready to get your device repaired? Contact us at <strong>+1 (708) 737-2873</strong> or book online to schedule your mobile repair service.</p>
+                <a href="{{ url_for('booking.start') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-calendar-plus me-2"></i>
+                    Schedule Mobile Repair
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Page Header */
+.page-header {
+    background: linear-gradient(135deg, var(--color-white) 0%, var(--color-white) 60%, var(--color-red) 60%, var(--color-red) 100%);
+    padding: 8rem 0 4rem;
+    text-align: center;
+    color: var(--text-dark);
+}
+
+.page-header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.page-header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* About Section */
+.about-section {
+    padding: 5rem 0;
+    background: #f8f9fa;
+}
+
+.about-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin: 3rem 0;
+}
+
+.about-text h2 {
+    color: var(--text-dark);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.location-details h3 {
+    color: var(--color-red);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.location-details h4 {
+    color: var(--text-dark);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.location-details ul {
+    list-style: none;
+    padding: 0;
+}
+
+.location-details li {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.location-details li:before {
+    content: "🕒";
+    position: absolute;
+    left: 0;
+}
+
+.location-details a {
+    color: var(--color-red);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.location-details a:hover {
+    text-decoration: underline;
+}
+
+.service-highlight {
+    background: linear-gradient(135deg, var(--color-red), var(--accent-red));
+    color: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-top: 2rem;
+}
+
+.service-highlight h4 {
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.cta-section {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.cta-section h3 {
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.cta-buttons .btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.cta-buttons .btn-primary {
+    background: var(--color-red);
+    border: 2px solid var(--color-red);
+    color: white;
+}
+
+.cta-buttons .btn-primary:hover {
+    background: var(--accent-red);
+    border-color: var(--accent-red);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+}
+
+.cta-buttons .btn-outline-primary {
+    background: transparent;
+    border: 2px solid var(--color-red);
+    color: var(--color-red);
+}
+
+.cta-buttons .btn-outline-primary:hover {
+    background: var(--color-red);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Location Map */
+.location-map h3 {
+    margin-bottom: 1.5rem;
+    color: var(--text-dark);
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.map-container {
+    position: relative;
+    margin-bottom: 2rem;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.location-map-image {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    display: block;
+}
+
+.map-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    padding: 2rem 1.5rem 1.5rem;
+    color: white;
+}
+
+.map-info-overlay {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.map-info-overlay i {
+    font-size: 1.5rem;
+    color: var(--color-red);
+}
+
+.map-placeholder {
+    width: 100%;
+    height: 350px;
+    background: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    color: #666;
+}
+
+.map-placeholder i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--color-red);
+}
+
+.contact-info-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+}
+
+.contact-item i {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+}
+
+.contact-item strong {
+    display: block;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.contact-item p {
+    margin: 0;
+    color: #6c757d;
+}
+
+.contact-item a {
+    color: var(--color-red);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.contact-item a:hover {
+    text-decoration: underline;
+}
+
+/* Services Overview */
+.services-overview {
+    padding: 5rem 0;
+    background: white;
+}
+
+.services-overview h2 {
+    text-align: center;
+    margin-bottom: 3rem;
+    color: var(--text-dark);
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.feature-card {
+    text-align: center;
+    padding: 2.5rem 2rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+    margin-bottom: 1.5rem;
+}
+
+.feature-icon i {
+    font-size: 3rem;
+    color: var(--color-red);
+}
+
+.feature-card h3 {
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.feature-card p {
+    color: #6c757d;
+    line-height: 1.6;
+}
+
+/* About Story */
+.about-story {
+    padding: 5rem 0;
+    background: #f8f9fa;
+}
+
+.story-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.story-content h2 {
+    color: var(--text-dark);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+}
+
+.story-content p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.contact-cta {
+    background: white;
+    padding: 3rem 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-top: 3rem;
+}
+
+.contact-cta h3 {
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.contact-cta p {
+    margin-bottom: 2rem;
+}
+
+.btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .page-header {
+        padding: 6rem 0 3rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2.5rem;
+    }
+    
+    .about-content {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+    }
+    
+    .cta-buttons .btn {
+        text-align: center;
+        width: 100%;
+    }
+    
+    .location-map-image {
+        height: 250px;
+    }
+    
+    .services-overview h2 {
+        font-size: 2rem;
+    }
+    
+    .story-content h2 {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %} 

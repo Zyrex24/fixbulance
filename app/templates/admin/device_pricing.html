@@ -183,18 +183,18 @@
     <!-- Device Pricing Tabs -->
     <div class="row">
         <div class="col-12">
-            <ul class="nav nav-tabs" id="deviceTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="iphone-tab" data-bs-toggle="tab" data-bs-target="#iphone" type="button" role="tab">
-                        <i class="fab fa-apple"></i> iPhone Models ({{ total_iphone_models }})
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="samsung-tab" data-bs-toggle="tab" data-bs-target="#samsung" type="button" role="tab">
-                        <i class="fab fa-android"></i> Samsung Models ({{ total_samsung_models }})
-                    </button>
-                </li>
-            </ul>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <button class="nav-link active" id="nav-iphone-tab" data-bs-toggle="tab" 
+                        data-bs-target="#nav-iphone" type="button" role="tab" 
+                        aria-controls="nav-iphone" aria-selected="true">
+                    <img src="{{ url_for('static', filename='img/apple.png') }}" alt="Apple" class="admin-brand-icon"> iPhone Models ({{ total_iphone_models }})
+                </button>
+                <button class="nav-link" id="nav-samsung-tab" data-bs-toggle="tab" 
+                        data-bs-target="#nav-samsung" type="button" role="tab" 
+                        aria-controls="nav-samsung" aria-selected="false">
+                    <img src="{{ url_for('static', filename='img/samsung.png') }}" alt="Samsung" class="admin-brand-icon"> Samsung Models ({{ total_samsung_models }})
+                </button>
+            </div>
             
             <div class="tab-content" id="deviceTabContent">
                 <!-- iPhone Tab -->

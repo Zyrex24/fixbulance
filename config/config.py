@@ -31,11 +31,13 @@ class Config:
     MAIL_APPOINTMENTS = 'appointments@fixbulance.com'
     MAIL_BOOKING = 'booking@fixbulance.com'
     
-    # Business Owner Information
-    BUSINESS_OWNER_FIRST_NAME = 'Ahmed'
-    BUSINESS_OWNER_LAST_NAME = 'Khalil'
-    BUSINESS_PHONE = '+1 708 971 4053'
-    BUSINESS_PHONE_DISPLAY = '(708) 971-4053'
+    # Business Information
+    BUSINESS_NAME = 'Fixbulance'
+    BUSINESS_OWNER = 'Ahmed Khalil'
+    BUSINESS_PHONE = '(708) 737-2873'
+    BUSINESS_PHONE_DISPLAY = '(708) 737-2873'
+    BUSINESS_EMAIL = 'info@fixbulance.com'
+    BUSINESS_ADDRESS = 'Orland Park, IL 60462'
     
     # Stripe settings
     STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY')

@@ -21,7 +21,7 @@ class EmailService:
             # Add common template data
             template_data.update({
                 'business_name': 'Fixbulance',
-                'business_phone': current_app.config.get('BUSINESS_PHONE_DISPLAY', '(708) 971-4053'),
+                'business_phone': current_app.config.get('BUSINESS_PHONE_DISPLAY', '+1 (708) 737-2873'),
                 'business_owner': f"{current_app.config.get('BUSINESS_OWNER_FIRST_NAME', 'Ahmed')} {current_app.config.get('BUSINESS_OWNER_LAST_NAME', 'Khalil')}",
                 'support_email': current_app.config.get('MAIL_SUPPORT', 'support@fixbulance.com'),
                 'current_year': datetime.now().year

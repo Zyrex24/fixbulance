@@ -322,7 +322,7 @@ def forgot_password():
                 send_password_reset_email(user, token)
                 flash('Password reset instructions have been sent to your email.', 'success')
             except Exception as e:
-                flash(f'Unable to send reset email: {str(e)}. Please contact support at (708) 971-4053.', 'danger')
+                flash(f'Unable to send reset email: {str(e)}. Please contact support at +1 (708) 737-2873.', 'danger')
                 current_app.logger.error(f'Failed to send password reset email: {str(e)}')
         else:
             # Don't reveal if email exists or not for security
